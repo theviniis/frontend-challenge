@@ -10,6 +10,7 @@ import { useRouter } from '@tanstack/react-router';
 import { getStoredSession } from '@/lib/session/guards';
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
@@ -85,6 +86,7 @@ function RootComponent() {
           divider={!!isCatalog}
         />
         <Outlet />
+        <Footer />
       </main>
     </div>
   );

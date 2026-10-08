@@ -26,7 +26,7 @@ export function CatalogSidebar({
         failed={failed}
         onRetry={onRetry}
       />
-      <div className="bg-surface-card mt-6 h-117.5">
+      <div className="bg-surface-card mt-6">
         <h2 className="text-h2 text-text-accent px-5 pt-6 font-bold">
           NFT EM DESTAQUE
         </h2>

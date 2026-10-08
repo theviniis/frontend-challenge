@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { Footer } from '@/components/layout/Footer';
 import { CatalogEditorial } from './CatalogEditorial';
+import { CatalogDiary } from './CatalogDiary';
 
 export function CatalogDesktopSections() {
   useEffect(() => {
@@ -11,7 +11,7 @@ export function CatalogDesktopSections() {
   return (
     <>
       <CatalogEditorial />
-      <Footer />
+      <CatalogDiary />
     </>
   );
 }

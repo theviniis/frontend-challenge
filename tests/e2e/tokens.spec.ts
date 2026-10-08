@@ -17,7 +17,7 @@ test('typography classes can be copied with accessible feedback', async ({
   });
   await expect(
     page.getByRole('button', { name: /^Copiar classe / })
-  ).toHaveCount(20);
+  ).toHaveCount(21);
   const body18Sample = page.getByText('Bold body text — 18px / 16px', {
     exact: true,
   });
@@ -25,6 +25,13 @@ test('typography classes can be copied with accessible feedback', async ({
   await expect(body18Sample).toHaveCSS('line-height', '16px');
   await expect(body18Sample).toHaveCSS('font-weight', '700');
   await expect(body18Sample).toHaveCSS('letter-spacing', 'normal');
+  const body17Sample = page.getByText('Bold body text — 17px / 16px', {
+    exact: true,
+  });
+  await expect(body17Sample).toHaveCSS('font-size', '17px');
+  await expect(body17Sample).toHaveCSS('line-height', '16px');
+  await expect(body17Sample).toHaveCSS('font-weight', '700');
+  await expect(body17Sample).toHaveCSS('letter-spacing', 'normal');
   const body18RegularSample = page.getByText(
     'Regular body text — 18px / 16px',
     {

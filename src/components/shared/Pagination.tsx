@@ -19,7 +19,7 @@ export function Pagination({
   return (
     <nav
       aria-label="Paginação do catálogo"
-      className="mt-22 flex flex-wrap justify-end gap-2"
+      className="mt-10 flex flex-wrap justify-end gap-2 md:mt-22"
     >
       <Button
         variant="outline"
