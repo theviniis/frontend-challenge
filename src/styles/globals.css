@@ -1,17 +1,17 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 /* Roboto Mono self-hosted (weights 400, 500, 700) */
-@import "@fontsource/roboto-mono/400.css";
-@import "@fontsource/roboto-mono/500.css";
-@import "@fontsource/roboto-mono/700.css";
+@import '@fontsource/roboto-mono/400.css';
+@import '@fontsource/roboto-mono/500.css';
+@import '@fontsource/roboto-mono/700.css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   /* Typography */
-  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-sans: var(--font-mono);
 
   /* Text scale (docs/ESTILOS.md §1.2) */
@@ -87,6 +87,7 @@
   --color-brand-google-yellow: #ffda2d;
 
   /* Radius (docs/ESTILOS.md §3) */
+  --radius-default: 6px;
   --radius-sm: 4px;
   --radius: 6px;
   --radius-md: 8px;
@@ -121,11 +122,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 1.33);
-  --radius-lg: calc(var(--radius) * 2.66);
-  --radius-xl: calc(var(--radius) * 3.33);
 }
 
 :root,
@@ -173,7 +169,7 @@
   }
 
   body {
-    @apply bg-ink text-foreground font-mono antialiased min-h-screen;
+    @apply bg-ink text-foreground min-h-screen font-mono antialiased;
   }
 
   :focus-visible {
@@ -207,5 +203,40 @@
   .animate-shimmer {
     animation: none;
     background: var(--color-surface-raised);
+  }
+}
+@layer base {
+  body {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  #root {
+    min-width: 0;
+  }
+  img,
+  video,
+  svg {
+    max-width: 100%;
+  }
+  a:hover {
+    color: var(--color-text-accent);
+  }
+  :disabled,
+  [aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

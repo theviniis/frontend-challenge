@@ -35,8 +35,8 @@ identidade visual pronta para as telas.
 
 ## Critérios de aceite (gate)
 
-- [ ] Página de teste renderizando cada token/utilitário confere com `docs/ESTILOS.md`
-- [ ] `pnpm build && pnpm lint` verdes
+- [x] Página de teste renderizando cada token/utilitário confere com `docs/ESTILOS.md`
+- [x] `pnpm build && pnpm lint` verdes
 
 ## Referências
 

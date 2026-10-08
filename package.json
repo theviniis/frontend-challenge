@@ -11,7 +11,12 @@
     "lint:fix": "eslint . --fix",
     "test:contract": "vitest run",
     "preview": "vite preview",
-    "lighthouse": "lighthouse http://localhost:5173/ --output=html --output-path=./report.html --chrome-flags='--headless'"
+    "lighthouse": "lighthouse http://localhost:5173/ --output=html --output-path=./report.html --chrome-flags=--headless",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "fig:extract": "node --experimental-strip-types scripts/figma-extract.ts",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -43,11 +48,13 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@mswjs/socket.io-binding": "^0.2.0",
+    "@playwright/test": "^1.64.0",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^17.12.0",
@@ -64,5 +71,6 @@
     "workerDirectory": [
       "public"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.33.2"
 }

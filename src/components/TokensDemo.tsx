@@ -1,3 +1,4 @@
+import { ThemeControls } from './ThemeControls';
 import { Button } from './ui/button';
 
 export const TokensDemo = () => {
@@ -6,7 +7,7 @@ export const TokensDemo = () => {
     >
       {/* Header */}
       <header className="border-border space-y-2 border-b pb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-micro text-primary border-primary/30 rounded-sm border px-2 py-0.5 font-medium tracking-wider uppercase">
             Design Tokens & Theme Foundation
           </span>
@@ -31,15 +32,13 @@ export const TokensDemo = () => {
             <span className="text-tiny text-text-secondary w-44">
               Display / 43 Bold
             </span>
-            <span className="text-display truncate">
-              The GreenMint NFT 43px
-            </span>
+            <span className="text-display">The GreenMint NFT 43px</span>
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Display-2 / 32 Bold
             </span>
-            <span className="text-display-2 truncate">
+            <span className="text-display-2">
               Discover Rare Digital Art 32px
             </span>
           </div>
@@ -318,7 +317,7 @@ export const TokensDemo = () => {
             <h3 className="text-body-sm text-text-secondary font-bold uppercase">
               Raios de Borda
             </h3>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="bg-surface-raised border-border text-micro rounded-sm border px-3 py-1.5">
                 sm (4px)
               </div>
@@ -342,7 +341,7 @@ export const TokensDemo = () => {
             <h3 className="text-body-sm text-text-secondary font-bold uppercase">
               Sombras Padrão
             </h3>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <div className="bg-surface-raised shadow-card border-border text-micro rounded-md border p-3">
                 Card Shadow
               </div>
@@ -364,6 +363,7 @@ export const TokensDemo = () => {
           </div>
         </div>
       </section>
+      <ThemeControls />
     </div>
   );
 };

@@ -36,8 +36,8 @@ resto se apoia aqui.
 
 ## Critérios de aceite (gate)
 
-- [ ] `pnpm build && pnpm typecheck && pnpm lint` verdes
-- [ ] `pnpm dev` abre a app
+- [x] `pnpm build && pnpm typecheck && pnpm lint` verdes
+- [x] `pnpm dev` abre a app
 
 ## Referências
 
