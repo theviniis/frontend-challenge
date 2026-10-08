@@ -9,12 +9,13 @@ import { TooltipProvider } from './components/ui/tooltip';
 import { Toaster } from './components/ui/sonner';
 
 async function bootstrap() {
-  if (
-    import.meta.env.VITE_MOCKS === 'true' ||
-    (import.meta.env.DEV && import.meta.env.VITE_MOCKS !== 'false')
-  ) {
+  if (import.meta.env.VITE_MOCKS === 'true') {
     const { worker } = await import('./mocks/browser');
-    await worker.start({ onUnhandledRequest: 'bypass' });
+    const { onUnhandledRequest } = await import('./mocks/on-unhandled-request');
+    await worker.start({ onUnhandledRequest });
+    const { http } = await import('./lib/http/client');
+    const { healthSchema } = await import('./lib/http/schemas');
+    healthSchema.parse((await http.get('/api/_health')).data);
     const { demoSession } = await import('./mocks/session-controls');
     router.update({ context: { demoSession } });
   }

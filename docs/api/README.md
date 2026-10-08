@@ -10,6 +10,9 @@ e são re-exportados em `src/types/api.ts`.
 
 ## 1. Convenções
 
+`GET /api/_health` é público e retorna `200 { "ok": true }`, validado por
+`healthSchema`. O bootstrap com mocks consulta este endpoint via Axios antes do render.
+
 | Tema | Regra |
 | --- | --- |
 | Base URL | `VITE_API_BASE_URL` — em dev/demo aponta para o próprio bundle (MSW intercepta `*/api/*`) |

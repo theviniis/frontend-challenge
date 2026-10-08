@@ -30,8 +30,8 @@ visuais do Figma/.fig para uso local.
 
 ## Critérios de aceite (gate)
 
-- [ ] `pnpm dev` (VITE_MOCKS=true) consome `/api/_health` via Axios com resposta do MSW
-- [ ] `pnpm fig:extract` reproduzível (2ª execução idêntica) e assets presentes em `public/`
+- [x] `pnpm dev` (VITE_MOCKS=true) consome `/api/_health` via Axios com resposta do MSW
+- [x] `pnpm fig:extract` reproduzível (2ª execução idêntica) e assets presentes em `public/`
 
 ## Referências
 

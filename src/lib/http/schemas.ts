@@ -515,3 +515,4 @@ export type ScenarioState = z.infer<typeof scenarioStateSchema>
 export type SetScenarioRequest = z.infer<typeof setScenarioRequestSchema>
 
 export type SetScenarioResponse = z.infer<typeof setScenarioResponseSchema>
+export const healthSchema = z.object({ ok: z.literal(true) });
