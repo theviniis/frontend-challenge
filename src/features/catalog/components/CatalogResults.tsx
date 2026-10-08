@@ -4,7 +4,6 @@ import { NFTGrid } from '@/components/shared/NFTGrid';
 import { Pagination } from '@/components/shared/Pagination';
 import { CATALOG_PAGE_SIZE } from '../queries';
 import type { CatalogController } from '../hooks/useCatalog';
-import { CatalogStatus } from './CatalogStatus';
 import { CatalogToolbar } from './CatalogToolbar';
 
 export function CatalogResults({ catalog }: { catalog: CatalogController }) {
@@ -15,7 +14,6 @@ export function CatalogResults({ catalog }: { catalog: CatalogController }) {
         sort={filters.sort}
         onSortChange={(sort) => catalog.onFiltersChange({ sort })}
       />
-      <CatalogStatus query={query} page={filters.page} />
       {query.isError && (
         <ErrorState
           title="Erro ao carregar NFTs"
