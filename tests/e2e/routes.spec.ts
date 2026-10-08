@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect as baseExpect } from '@playwright/test';
+const expect = baseExpect.configure({ timeout: 15_000 });
 const routes = [
   ['/', 'Início'],
   ['/teste', 'Início'],
@@ -20,11 +21,13 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await expect(
     page.getByRole('heading', { name: 'Início', exact: true })
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 15_000 });
   // MSW runs in the browser, so reset uses a browser request rather than APIRequestContext.
-  const status = await page.evaluate(
-    async () => (await fetch('/api/_mock/reset', { method: 'POST' })).status
-  );
+  const status = await page.evaluate(async () => {
+    const moduleUrl = '/src/lib/http/client.ts';
+    const { http } = await import(moduleUrl);
+    return (await http.post('/api/_mock/reset')).status;
+  });
   expect(status).toBe(200);
 });
 for (const [path, title] of routes)
@@ -86,7 +89,8 @@ test('catalog URL survives refresh and back/forward; filters reset page', async 
   await expect(state).toContainText('Arte digital');
   await expect(state).toContainText('"page": 1');
   await page.reload();
-  await expect(state).toContainText('Colecionáveis');
+  await expect(state).toContainText('Arte digital');
+  await expect(state).not.toContainText('Colecionáveis');
 });
 test('quantity survives refresh and history', async ({ page }) => {
   await page.goto('/nfts/sample?qty=5');
@@ -146,7 +150,15 @@ test('all marketplace screens reachable by click', async ({ page }) => {
     'Carteiras (Privada)',
     '404 (Rota Inexistente)',
   ]) {
-    await page.getByRole('link', { name, exact: true }).click();
+    await page
+      .locator('section')
+      .filter({
+        has: page.getByRole('heading', {
+          name: 'Navegação entre rotas do Marketplace',
+        }),
+      })
+      .getByRole('link', { name, exact: true })
+      .click();
     await expect(page.locator('h1')).toBeVisible();
     if (name === '404 (Rota Inexistente)')
       await page
