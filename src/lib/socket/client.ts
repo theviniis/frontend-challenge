@@ -10,6 +10,7 @@ export const socket: Socket<ServerEvents> = io(
   import.meta.env.VITE_API_BASE_URL || undefined,
   {
     autoConnect: false,
+    transports: ['websocket'],
     reconnection: true,
     reconnectionDelay: 1_000,
     reconnectionDelayMax: 5_000,

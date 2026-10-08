@@ -1,9 +1,17 @@
-// tests/contract/setup.ts
-// Setup mínimo para ambiente de testes de contrato
-import { beforeAll, afterEach, afterAll } from 'vitest';
-import { server } from '../../src/mocks/server';
-import { onUnhandledRequest } from '../../src/mocks/on-unhandled-request';
-
-beforeAll(() => server.listen({ onUnhandledRequest }));
-afterEach(() => server.resetHandlers());
+import { beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
+import { server } from '@/mocks/server';
+import { resetDb } from '@/mocks/db/reset';
+import { setScenario } from '@/mocks/scenarios';
+import { clearQuotes } from '@/mocks/handlers/quote';
+import { clearAllTimers } from '@/mocks/scenarios/timers';
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeEach(() => {
+  resetDb();
+  clearQuotes();
+  setScenario('padrao');
+});
+afterEach(() => {
+  clearAllTimers();
+  server.resetHandlers();
+});
 afterAll(() => server.close());

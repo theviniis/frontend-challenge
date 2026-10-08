@@ -13,19 +13,19 @@ e são re-exportados em `src/types/api.ts`.
 `GET /api/_health` é público e retorna `200 { "ok": true }`, validado por
 `healthSchema`. O bootstrap com mocks consulta este endpoint via Axios antes do render.
 
-| Tema | Regra |
-| --- | --- |
-| Base URL | `VITE_API_BASE_URL` — em dev/demo aponta para o próprio bundle (MSW intercepta `*/api/*`) |
-| Auth | header `Authorization: Bearer <token>`; endpoints marcados 🔒 exigem sessão válida |
-| Anônimo | endpoints de carrinho/cotação aceitam header `X-Anonymous-Id` (uuid do visitante, `localStorage gm_anon_id`) quando não há token |
-| Conteúdo | `Content-Type: application/json; charset=utf-8` |
-| Moeda | todos os valores ETH são **string decimal** (`"0.99"`, `"0.0042"`) — nunca `number` |
-| Quantidade | inteiro (`qty`, `available`, `edition.*`) |
-| Datas | ISO 8601 (`"2026-10-07T18:00:00.000Z"`) |
-| Endereço | `0x` + 40 hex, case-insensitive, validado nos dois lados |
-| Paginação | request: `page` (1-based, default 1), `pageSize` (default 12, max 48); response: `{ items, page, pageSize, total }` |
-| Versão | recursos mutáveis carregam `version: number` + `updatedAt`; eventos Socket.IO usam `version` para dedupe/ordem |
-| Idempotência | header `Idempotency-Key` (UUID v4) **obrigatório** em `POST /api/orders` |
+| Tema         | Regra                                                                                                                            |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Base URL     | `VITE_API_BASE_URL` — em dev/demo aponta para o próprio bundle (MSW intercepta `*/api/*`)                                        |
+| Auth         | header `Authorization: Bearer <token>`; endpoints marcados 🔒 exigem sessão válida                                               |
+| Anônimo      | endpoints de carrinho/cotação aceitam header `X-Anonymous-Id` (uuid do visitante, `localStorage gm_anon_id`) quando não há token |
+| Conteúdo     | `Content-Type: application/json; charset=utf-8`                                                                                  |
+| Moeda        | todos os valores ETH são **string decimal** (`"0.99"`, `"0.0042"`) — nunca `number`                                              |
+| Quantidade   | inteiro (`qty`, `available`, `edition.*`)                                                                                        |
+| Datas        | ISO 8601 (`"2026-10-07T18:00:00.000Z"`)                                                                                          |
+| Endereço     | `0x` + 40 hex, case-insensitive, validado nos dois lados                                                                         |
+| Paginação    | request: `page` (1-based, default 1), `pageSize` (default 12, max 48); response: `{ items, page, pageSize, total }`              |
+| Versão       | recursos mutáveis carregam `version: number` + `updatedAt`; eventos Socket.IO usam `version` para dedupe/ordem                   |
+| Idempotência | header `Idempotency-Key` (UUID v4) **obrigatório** em `POST /api/orders`                                                         |
 
 ## 2. Envelope de erro
 
@@ -42,27 +42,27 @@ Toda resposta ≥ 400 tem o formato:
 }
 ```
 
-`fields` só existe em `VALIDATION_ERROR` (erros por campo, associados aos inputs).
+`fields` existe em `VALIDATION_ERROR` e em `CONFLICT` quando o contrato do recurso define um campo (erros por campo, associados aos inputs).
 `requestId` é opcional e serve para logs/diagnóstico.
 
 ## 3. Códigos de erro
 
-| `code` | HTTP | Quando | Tratamento de UI |
-| --- | ---: | --- | --- |
-| `VALIDATION_ERROR` | 422 | payload/formulário inválido | erros por campo + resumo |
-| `UNAUTHORIZED` | 401 | sem token ou token inválido | limpar sessão → `/login?redirect=` |
-| `SESSION_EXPIRED` | 401 | havia sessão e ela expirou | idem, preservando contexto (rascunho de checkout) |
-| `FORBIDDEN` | 403 | recurso pertence a outro usuário | tela de "sem permissão" |
-| `NOT_FOUND` | 404 | recurso inexistente | 404 da rota / empty state |
-| `CONFLICT` | 409 | e-mail/endereço/usuário já existem | erro no campo correspondente |
-| `INSUFFICIENT_STOCK` | 409 | edição/quantidade indisponível | banner no item + revalidar carrinho |
-| `QUOTE_STALE` | 409 | preço/disponibilidade mudou desde a cotação | refetch da cotação + **nova confirmação do usuário** |
-| `IDEMPOTENCY_CONFLICT` | 409 | mesma chave, payload diferente | bloquear reenvio, recuperar pedido existente |
-| `COUPON_INVALID` | 422 | cupom inexistente | erro no input do cupom |
-| `COUPON_EXPIRED` | 410 | cupom expirado | mensagem específica + remover cupom |
-| `RATE_LIMITED` | 429 | cenário de indisponibilidade | retry com backoff |
-| `INTERNAL` | 500 | falha do servidor mockado | ErrorState + "Tentar novamente" |
-| `SERVICE_UNAVAILABLE` | 503 | cenário de indisponibilidade | idem |
+| `code`                 | HTTP | Quando                                      | Tratamento de UI                                     |
+| ---------------------- | ---: | ------------------------------------------- | ---------------------------------------------------- |
+| `VALIDATION_ERROR`     |  422 | payload/formulário inválido                 | erros por campo + resumo                             |
+| `UNAUTHORIZED`         |  401 | sem token ou token inválido                 | limpar sessão → `/login?redirect=`                   |
+| `SESSION_EXPIRED`      |  401 | havia sessão e ela expirou                  | idem, preservando contexto (rascunho de checkout)    |
+| `FORBIDDEN`            |  403 | recurso pertence a outro usuário            | tela de "sem permissão"                              |
+| `NOT_FOUND`            |  404 | recurso inexistente                         | 404 da rota / empty state                            |
+| `CONFLICT`             |  409 | e-mail/endereço/usuário já existem          | erro no campo correspondente                         |
+| `INSUFFICIENT_STOCK`   |  409 | edição/quantidade indisponível              | banner no item + revalidar carrinho                  |
+| `QUOTE_STALE`          |  409 | preço/disponibilidade mudou desde a cotação | refetch da cotação + **nova confirmação do usuário** |
+| `IDEMPOTENCY_CONFLICT` |  409 | mesma chave, payload diferente              | bloquear reenvio, recuperar pedido existente         |
+| `COUPON_INVALID`       |  422 | cupom inexistente                           | erro no input do cupom                               |
+| `COUPON_EXPIRED`       |  410 | cupom expirado                              | mensagem específica + remover cupom                  |
+| `RATE_LIMITED`         |  429 | cenário de indisponibilidade                | retry com backoff                                    |
+| `INTERNAL`             |  500 | falha do servidor mockado                   | ErrorState + "Tentar novamente"                      |
+| `SERVICE_UNAVAILABLE`  |  503 | cenário de indisponibilidade                | idem                                                 |
 
 Falha de transporte (rede caiu, timeout sem resposta HTTP) **não** tem envelope —
 o Axios vira `AppError { kind: "network" }` e a UI usa `ErrorState` com retry.
@@ -71,16 +71,16 @@ o Axios vira `AppError { kind: "network" }` e a UI usa `ErrorState` com retry.
 
 Definidos com zod em cada resource file; resumo:
 
-| Modelo | Arquivo | Responsável |
-| --- | --- | --- |
-| `Session`, `UserPublic` | `session.md` | sessão e conta |
-| `Nft`, `NftListResponse` | `nfts.md` | catálogo/detalhe |
-| `FavoritesResponse` | `favorites.md` | favoritos |
-| `Cart`, `CartItem` | `cart.md` | carrinho |
-| `Quote`, `Coupon` | `quote.md` | cotação |
-| `Order`, `OrderItem` | `orders.md` | pedidos/recibo |
-| `Profile` | `profile.md` | perfil |
-| `Wallet` | `wallets.md` | carteiras |
+| Modelo                   | Arquivo        | Responsável      |
+| ------------------------ | -------------- | ---------------- |
+| `Session`, `UserPublic`  | `session.md`   | sessão e conta   |
+| `Nft`, `NftListResponse` | `nfts.md`      | catálogo/detalhe |
+| `FavoritesResponse`      | `favorites.md` | favoritos        |
+| `Cart`, `CartItem`       | `cart.md`      | carrinho         |
+| `Quote`, `Coupon`        | `quote.md`     | cotação          |
+| `Order`, `OrderItem`     | `orders.md`    | pedidos/recibo   |
+| `Profile`                | `profile.md`   | perfil           |
+| `Wallet`                 | `wallets.md`   | carteiras        |
 
 ## 5. Regras transversais
 
