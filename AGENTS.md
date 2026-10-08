@@ -48,6 +48,16 @@ Depois de tocar em testes/fluxos: `pnpm test:e2e` nos specs afetados.
 10. **Testes:** cada spec parte de estado isolado (`POST /api/_mock/reset` + cenário via
     `addInitScript`); nunca depender da ordem de execução entre specs.
 
+11. **Estilização:** o único arquivo CSS do projeto é `src/styles/global.css` (imports, tokens, tema, estilos base e animações compartilhadas). Use Tailwind inline em `className`; utilitários personalizados e novos componentes compartilhados somente com reutilização concreta. Não criar CSS por componente ou feature.
+
+12. **Classes canônicas do Tailwind:** sempre verificar os diagnósticos informativos
+    e warnings `tailwindcss(suggestCanonicalClasses)` ao criar ou alterar estilos.
+    Substituir classes arbitrárias pelas classes canônicas sugeridas quando forem
+    equivalentes no tema configurado (ex.: `leading-[23px]` → `leading-5.75` e
+    `rounded-[6px]` → `rounded-default`). Manter valores arbitrários somente quando
+    não houver equivalente canônico. Essa verificação complementa o lint; não
+    presumir que o ESLint verifica esses diagnósticos do Tailwind IntelliSense.
+
 ## Decisões já tomadas (não rediscutir sem motivo)
 
 - Tema visual: dark quente (`#140D0A` base), texto `#F5F1EB`, primário `#D28A4C`,

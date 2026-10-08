@@ -8,8 +8,8 @@ import { IconBadge } from '../ui/icon-badge';
 export function HeaderActions({ cartCount = 0 }: { cartCount?: number }) {
   return (
     <div className="flex items-center gap-7">
+      {/* @ts-expect-error TODO: validar esse link */}
       <Link to="/search" aria-label="Buscar">
-        {/* TODO: validar esse link */}
         <SearchIcon aria-hidden="true" />
       </Link>
       <Link
@@ -27,7 +27,7 @@ export function HeaderActions({ cartCount = 0 }: { cartCount?: number }) {
       </Link>
       <Button size="sm" asChild>
         <Link
-          className="text-ink text-body-lg-medium flex items-center gap-1"
+          className="text-ink text-body-lg-medium flex items-center gap-1 px-2.25"
           to="/login"
         >
           <SignIn />

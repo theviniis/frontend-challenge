@@ -22,7 +22,7 @@ export function Slider({
       value={value}
       defaultValue={defaultValue}
       className={cn(
-        'relative flex h-11 w-full touch-none items-center select-none data-[disabled]:opacity-50',
+        'relative flex h-11 w-full touch-none items-center select-none data-disabled:opacity-50',
         className
       )}
       {...props}
@@ -37,7 +37,7 @@ export function Slider({
           aria-valuetext={thumbValueTexts?.[index]}
           aria-describedby={props['aria-describedby']}
           aria-invalid={props['aria-invalid']}
-          className="bg-primary border-ink focus-visible:ring-primary focus-visible:ring-offset-ink relative block size-5 shrink-0 cursor-grab rounded-full border-[3px] outline-none before:absolute before:-inset-3 before:rounded-full focus-visible:ring-2 focus-visible:ring-offset-2 active:cursor-grabbing data-[disabled]:pointer-events-none"
+          className="bg-primary border-ink focus-visible:ring-primary focus-visible:ring-offset-ink relative block size-5 shrink-0 cursor-grab rounded-full border-3 outline-none before:absolute before:-inset-3 before:rounded-full focus-visible:ring-2 focus-visible:ring-offset-2 active:cursor-grabbing data-disabled:pointer-events-none"
         />
       ))}
     </SliderPrimitive.Root>

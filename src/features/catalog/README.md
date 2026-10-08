@@ -9,12 +9,11 @@
 - `components/CatalogResults.tsx`: estados de dados, grid e paginação.
 - `components/CatalogToolbar.tsx` e `CatalogStatus.tsx`: ordenação e feedback acessível.
 - `components/CatalogEditorial.tsx`: promoções e artigos.
-- `catalog.css`: estilos específicos da composição.
 
 Os componentes reutilizáveis ficam em `src/components/shared`: `SearchInput`,
 `NFTCard`, `NFTCardSkeleton`, `NFTGrid`, `Price`, `ErrorState`, `EmptyState`,
 `SortSelect` e `Pagination`. Cabeçalho, rodapé e navegação mobile ficam em
-`src/components/layout`. Os estilos dos cards e do grid acompanham esses componentes.
+`src/components/layout`. Os estilos ficam inline em `className`, com utilitários Tailwind nos próprios componentes.
 
 ## Carregamento
 

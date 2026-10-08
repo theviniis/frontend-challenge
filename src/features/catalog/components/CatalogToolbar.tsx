@@ -7,7 +7,7 @@ interface CatalogToolbarProps {
 }
 export function CatalogToolbar({ sort, onSortChange }: CatalogToolbarProps) {
   return (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-4 md:mb-8">
       <div
         role="group"
         aria-label="Seleção de catálogo"

@@ -80,7 +80,7 @@ function RootComponent() {
       <main
         className={
           isCatalog
-            ? 'mx-auto max-w-[1200px] md:mx-6 xl:mx-auto'
+            ? 'mx-auto max-w-300 md:mx-6 xl:mx-auto'
             : 'mx-auto max-w-7xl p-6 md:p-12'
         }
       >

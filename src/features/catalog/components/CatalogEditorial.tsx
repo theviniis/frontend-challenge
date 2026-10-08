@@ -46,7 +46,7 @@ export function CatalogEditorial() {
         ].map(([image, title, description, sort]) => (
           <div
             key={title}
-            className="bg-surface-raised flex min-h-[250px] overflow-hidden rounded-lg"
+            className="bg-surface-raised flex min-h-62.5 overflow-hidden rounded-lg"
           >
             <img
               src={`/assets/nft/${image}.png`}
@@ -84,7 +84,7 @@ export function CatalogEditorial() {
               <img
                 src={`/assets/nft/${image}.png`}
                 alt=""
-                className="h-[195px] w-full object-cover"
+                className="h-48.75 w-full object-cover"
                 width={1254}
                 height={1254}
                 loading="lazy"

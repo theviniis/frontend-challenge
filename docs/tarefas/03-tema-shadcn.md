@@ -12,7 +12,7 @@ identidade visual pronta para as telas.
 
 ### 03.1 — Tokens de cor e raios (`@theme`)
 
-- Tailwind CSS v4 com `@theme` em `src/styles/globals.css`: 20 tokens de cor
+- Tailwind CSS v4 com `@theme` em `src/styles/global.css`: 20 tokens de cor
   (`ink`, `surface-*`, `foreground`, `primary*`, `border*`, `coral`, `success`, `error`…)
   e raios (`--radius*`, pill) conforme `docs/ESTILOS.md` §2–3
 

@@ -40,14 +40,14 @@ frontend-challenge/
 │   └── fonts/                    # Roboto Mono auto-hospedada (fontsource)
 ├── index.html
 ├── vite.config.ts                # React, alias @ → src, MSW, chunks
-├── tailwind (via src/styles/globals.css — Tailwind v4 @theme)
+├── tailwind (via src/styles/global.css — Tailwind v4 @theme)
 ├── components.json               # config shadcn/ui
 ├── playwright.config.ts
 ├── .env.example                  # FIGMA_TOKEN, VITE_MOCK_*, URLs
 └── src/
     ├── main.tsx                  # bootstrap: QueryClient, MSW (se VITE_MOCKS), SocketProvider, RouterProvider
     ├── styles/
-    │   └── globals.css           # @theme tokens (cores/fontes/raios) + utilitários shadcn
+    │   └── global.css           # @theme tokens (cores/fontes/raios) + utilitários shadcn
     ├── routes/                   # ← file-based router (TanStack Router)
     │   ├── __root.tsx            # layout raiz: Header, Footer, Toaster, ErrorBoundary, Outlet
     │   ├── index.tsx             # /            → Início (catálogo)

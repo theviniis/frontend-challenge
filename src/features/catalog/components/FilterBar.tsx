@@ -115,7 +115,7 @@ export function FilterBar({
         />
         <p
           id={`${id}-range`}
-          className="text-body-lg text-foreground mt-1 break-words"
+          className="text-body-lg text-foreground mt-1 wrap-break-word"
         >
           {rangeText}
         </p>
@@ -128,8 +128,7 @@ export function FilterBar({
           </p>
         )}
         <Button
-          className="mt-2"
-          style={{ fontSize: 'var(--text-body-lg)' }}
+          className="mt-2 text-(length:--text-body-lg)"
           onClick={applyPrice}
         >
           Aplicar

@@ -48,7 +48,7 @@
 
 \* line-height menor que o tamanho: rótulos de linha única (badges, botões).
 
-### 1.2 Tokens recomendados (`@theme` em `globals.css`)
+### 1.2 Tokens recomendados (`@theme` em `global.css`)
 
 ```css
 @theme {

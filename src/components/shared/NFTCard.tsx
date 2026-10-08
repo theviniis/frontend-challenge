@@ -1,4 +1,3 @@
-import './NFTCard.css';
 import { Link } from '@tanstack/react-router';
 import type { Nft } from '@/types/api';
 import { Price } from './Price';
@@ -15,7 +14,7 @@ export function NFTCard({
   onFavorite: () => void;
 }) {
   return (
-    <article className="nft-card group min-w-0">
+    <article className="nft-card group min-w-0 transition-transform duration-150 hover:transform-[translateY(-2px)] motion-reduce:transition-none">
       <div className="bg-surface-card relative overflow-hidden rounded-lg">
         <Link
           to="/nfts/$nftId"
@@ -53,7 +52,7 @@ export function NFTCard({
         )}
       </div>
       <div className="space-y-2 py-3">
-        <h3 className="text-body-sm font-medium">
+        <h3 className="md:text-body-sm text-[12px] leading-4 font-medium md:leading-5.5">
           <Link
             to="/nfts/$nftId"
             params={{ nftId: nft.id }}
@@ -62,10 +61,10 @@ export function NFTCard({
             {nft.name}
           </Link>
         </h3>
-        <p className="text-text-secondary text-tiny">
+        <p className="text-text-secondary md:text-tiny text-[10px] leading-3.5 md:leading-4">
           {nft.collection} · {nft.edition.current}/{nft.edition.total}
         </p>
-        <p className="text-caption font-bold">
+        <p className="md:text-caption text-[10px] leading-3.5 font-bold md:leading-4">
           <Price value={nft.price} previousPrice={nft.previousPrice} />
         </p>
       </div>
