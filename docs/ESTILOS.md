@@ -72,6 +72,7 @@
   --text-caption:    13px;  --text-caption--line-height: 16px;
   --text-caption-bold: 12px; --text-caption-bold--line-height: 14px; --text-caption-bold--font-weight: 700; --text-caption-bold--letter-spacing: 0em;
   --text-tiny:       12px;  --text-tiny--line-height: 16px;
+  --text-tiny-bold: 9px; --text-tiny-bold--line-height: 11.9px; --text-tiny-bold--font-weight: 700; --text-tiny-bold--letter-spacing: 0em;
   --text-micro:      10px;  --text-micro--line-height: 13px;      --text-micro--font-weight: 500;
 }
 ```

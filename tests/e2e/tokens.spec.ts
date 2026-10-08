@@ -17,7 +17,14 @@ test('typography classes can be copied with accessible feedback', async ({
   });
   await expect(
     page.getByRole('button', { name: /^Copiar classe / })
-  ).toHaveCount(21);
+  ).toHaveCount(22);
+  const tinyBoldSample = page.getByText('Bold tiny text — 9px / 11.9px', {
+    exact: true,
+  });
+  await expect(tinyBoldSample).toHaveCSS('font-size', '9px');
+  await expect(tinyBoldSample).toHaveCSS('line-height', '11.9px');
+  await expect(tinyBoldSample).toHaveCSS('font-weight', '700');
+  await expect(tinyBoldSample).toHaveCSS('letter-spacing', 'normal');
   const body18Sample = page.getByText('Bold body text — 18px / 16px', {
     exact: true,
   });

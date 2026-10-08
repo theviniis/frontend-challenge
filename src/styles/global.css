@@ -95,6 +95,11 @@
   --text-tiny: 12px;
   --text-tiny--line-height: 16px;
 
+  --text-tiny-bold: 9px;
+  --text-tiny-bold--line-height: 11.9px;
+  --text-tiny-bold--font-weight: 700;
+  --text-tiny-bold--letter-spacing: 0em;
+
   --text-micro: 10px;
   --text-micro--line-height: 13px;
   --text-micro--font-weight: 500;

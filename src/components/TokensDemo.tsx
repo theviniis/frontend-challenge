@@ -243,6 +243,15 @@ export const TokensDemo = () => {
               Tiny badges and tags — 12px
             </span>
           </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
+              Tiny / 9 Bold · lh 11.9 · tracking 0%
+              <CopyTypographyClass value="text-tiny-bold" />
+            </span>
+            <span className="text-tiny-bold">
+              Bold tiny text — 9px / 11.9px
+            </span>
+          </div>
           <div className="flex flex-col justify-between gap-2 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Micro / 10 Medium
