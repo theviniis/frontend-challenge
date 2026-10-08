@@ -48,6 +48,11 @@
   --text-body: 15px;
   --text-body--line-height: 24px;
 
+  --text-body-combo: 15px;
+  --text-body-combo--line-height: 16px;
+  --text-body-combo--font-weight: 500;
+  --text-body-combo--letter-spacing: 0em;
+
   --text-body-regular: 14px;
   --text-body-regular--line-height: 24px;
   --text-body-regular--font-weight: 400;

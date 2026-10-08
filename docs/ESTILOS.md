@@ -61,6 +61,7 @@
   --text-body-lg-bold: 16px; --text-body-lg-bold--line-height: 24px; --text-body-lg-bold--font-weight: 700;
   --text-body-lg-medium: 16px; --text-body-lg-medium--line-height: 24px; --text-body-lg-medium--font-weight: 500;
   --text-body:       15px;  --text-body--line-height: 24px;
+  --text-body-combo: 15px; --text-body-combo--line-height: 16px; --text-body-combo--font-weight: 500; --text-body-combo--letter-spacing: 0em;
   --text-body-regular: 14px; --text-body-regular--line-height: 24px; --text-body-regular--font-weight: 400;
   --text-body-medium: 14px; --text-body-medium--line-height: 16px; --text-body-medium--font-weight: 500;
   --text-body-bold: 14px; --text-body-bold--line-height: 16px; --text-body-bold--font-weight: 700; --text-body-bold--letter-spacing: 0em;
