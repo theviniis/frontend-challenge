@@ -94,7 +94,7 @@ export function Footer() {
 
   return (
     <>
-      <footer className="bg-surface-card mt-24 grid grid-cols-4">
+      <footer className="bg-surface-card mt-24 hidden grid-cols-4 md:grid">
         <FooterHighlight
           icon="W"
           title="Segurança da carteira"
@@ -195,7 +195,7 @@ export function Footer() {
           </div>
         </div>
       </footer>
-      <p className="text-body-regular mt-1.5 text-center">
+      <p className="text-body-regular mt-1.5 hidden text-center md:block">
         © 2026 Kurio. Propriedade digital para todos.
       </p>
     </>
