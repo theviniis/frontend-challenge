@@ -1,9 +1,15 @@
-import { Outlet, createRootRoute, Link } from '@tanstack/react-router';
-import { NuqsAdapter } from 'nuqs/adapters/tanstack-router';
+import {
+  Outlet,
+  createRootRouteWithContext,
+  Link,
+} from '@tanstack/react-router';
+import type { RouterContext } from '@/lib/session/demo';
+import { subscribeSession } from '@/lib/session/storage';
+import { useRouter } from '@tanstack/react-router';
 import { getStoredSession } from '@/lib/session/guards';
 import { useState, useEffect } from 'react';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
   notFoundComponent: RootNotFoundComponent,
   errorComponent: RootErrorComponent,
@@ -12,41 +18,24 @@ export const Route = createRootRoute({
 function RootComponent() {
   const [session, setSession] = useState(() => getStoredSession());
 
-  useEffect(() => {
-    // Sincroniza estado de sessão ao navegar ou disparar evento no storage
-    const sync = () => setSession(getStoredSession());
-    window.addEventListener('storage', sync);
-    return () => window.removeEventListener('storage', sync);
-  }, []);
-
-  const handleSimulateLogin = () => {
-    const mockSession = {
-      token: 'mock.token.' + Date.now(),
-      user: {
-        id: 'usr_ana',
-        name: 'Ana Colecionadora',
-        email: 'ana@greenmint.test',
-        username: 'ana.eth',
-        createdAt: new Date().toISOString(),
-      },
-      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-    };
-    localStorage.setItem('gm_session', JSON.stringify(mockSession));
-    setSession(mockSession);
-  };
-
-  const handleSimulateLogout = () => {
-    localStorage.removeItem('gm_session');
-    setSession(null);
-  };
+  const { demoSession } = Route.useRouteContext();
+  const router = useRouter();
+  useEffect(
+    () =>
+      subscribeSession(() => {
+        setSession(getStoredSession());
+        void router.invalidate();
+      }),
+    [router]
+  );
 
   return (
-    <div className="min-h-screen bg-ink text-foreground font-mono">
+    <div className="bg-ink text-foreground min-h-screen font-mono">
       {/* Barra de utilidades / status de sessão para dev e testes */}
-      <div className="border-b border-border bg-surface-card px-4 py-2 text-tiny">
+      <div className="border-border bg-surface-card text-tiny border-b px-4 py-2">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-primary">GreenMint Router</span>
+            <span className="text-primary font-bold">GreenMint Router</span>
             <span className="text-text-secondary">|</span>
             <span>
               Sessão:{' '}
@@ -60,40 +49,45 @@ function RootComponent() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {session ? (
-              <button
-                type="button"
-                onClick={handleSimulateLogout}
-                className="rounded border border-coral/50 bg-coral/10 px-2 py-0.5 text-coral hover:bg-coral/20 cursor-pointer"
-              >
-                Simular Logout
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSimulateLogin}
-                className="rounded border border-primary/50 bg-primary/10 px-2 py-0.5 text-primary hover:bg-primary/20 cursor-pointer"
-              >
-                Simular Login Rápido (Ana)
-              </button>
-            )}
+            {demoSession &&
+              (session ? (
+                <button
+                  type="button"
+                  onClick={() => demoSession?.logout()}
+                  className="border-coral/50 bg-coral/10 text-coral hover:bg-coral/20 cursor-pointer rounded border px-2 py-0.5"
+                >
+                  Simular Logout
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => demoSession?.login()}
+                  className="border-primary/50 bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer rounded border px-2 py-0.5"
+                >
+                  Simular Login Rápido (Ana)
+                </button>
+              ))}
           </div>
         </div>
       </div>
 
       <main className="mx-auto max-w-7xl p-6 md:p-12">
-        <NuqsAdapter>
-          <Outlet />
-        </NuqsAdapter>
+        <Outlet />
       </main>
     </div>
   );
 }
 
-function RootErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
+function RootErrorComponent({
+  error,
+  reset,
+}: {
+  error: unknown;
+  reset: () => void;
+}) {
   return (
-    <div className="rounded-md border border-coral/40 bg-surface-card p-6 font-mono text-foreground space-y-4">
-      <h2 className="text-h2 font-bold text-coral">Erro ao carregar rota</h2>
+    <div className="border-coral/40 bg-surface-card text-foreground space-y-4 rounded-md border p-6 font-mono">
+      <h2 className="text-h2 text-coral font-bold">Erro ao carregar rota</h2>
       <p className="text-body-sm text-foreground/80">
         {error instanceof Error ? error.message : 'Ocorreu um erro inesperado.'}
       </p>
@@ -101,13 +95,14 @@ function RootErrorComponent({ error, reset }: { error: unknown; reset: () => voi
         <button
           type="button"
           onClick={reset}
-          className="rounded border border-border bg-surface-raised px-4 py-2 text-tiny hover:border-primary"
+          className="border-border bg-surface-raised text-tiny hover:border-primary rounded border px-4 py-2"
         >
           Tentar novamente
         </button>
         <Link
           to="/"
-          className="rounded border border-primary bg-primary/20 px-4 py-2 text-tiny text-primary hover:bg-primary/30"
+          search={{ sort: 'relevance', page: 1 }}
+          className="border-primary bg-primary/20 text-tiny text-primary hover:bg-primary/30 rounded border px-4 py-2"
         >
           Voltar ao Início
         </Link>
@@ -118,13 +113,14 @@ function RootErrorComponent({ error, reset }: { error: unknown; reset: () => voi
 
 function RootNotFoundComponent() {
   return (
-    <div className="rounded-md border border-border bg-surface-card p-8 text-center font-mono space-y-4">
-      <h1 className="text-display font-bold text-coral">404</h1>
+    <div className="border-border bg-surface-card space-y-4 rounded-md border p-8 text-center font-mono">
+      <h1 className="text-display text-coral font-bold">404</h1>
       <p className="text-body text-text-secondary">Página não encontrada</p>
       <div>
         <Link
           to="/"
-          className="inline-block rounded border border-primary bg-primary/20 px-4 py-2 text-tiny text-primary hover:bg-primary/30"
+          search={{ sort: 'relevance', page: 1 }}
+          className="border-primary bg-primary/20 text-tiny text-primary hover:bg-primary/30 inline-block rounded border px-4 py-2"
         >
           Voltar para a página inicial
         </Link>

@@ -45,11 +45,20 @@ params tipados, placeholders navegáveis — sem UI de layout nem dados.
 
 ## Critérios de aceite (gate) — checklist do `routes.md` §3
 
-- [ ] URL direta + refresh em todas as rotas
-- [ ] Privada sem sessão → `/login?redirect=…` ida e volta
-- [ ] `/?q=abc&page=2` sobrevive a refresh e histórico
-- [ ] `*` → 404 · `grep` confirma guards não duplicados em componentes
-- [ ] `pnpm typecheck && pnpm lint` verdes
+- [x] URL direta + refresh em todas as rotas
+- [x] Privada sem sessão → `/login?redirect=…` ida e volta
+- [x] `/?q=abc&page=2` sobrevive a refresh e histórico
+- [x] `*` → 404 · `grep` confirma guards não duplicados em componentes
+- [x] `pnpm typecheck && pnpm lint` verdes
+
+Validação em 08/10/2026: 32 testes Playwright (desktop 1440 e mobile 390),
+13 testes de contrato, typecheck, lint e build aprovados. Testes de rotas em
+`tests/e2e/routes.spec.ts`; incluem quantidade na URL, query/hash no retorno,
+logout, sessões expiradas/malformadas e rejeição de redirect externo.
+
+O login nesta etapa é um controle de demonstração injetado pelo bootstrap quando
+mocks estão ativos; criação da sessão/fixtures ficam em `src/mocks/`. As telas
+continuam placeholders sem consultas de dados. Detalhes em `routes.md` §2.
 
 ## Referências
 

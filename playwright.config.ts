@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: 'http://127.0.0.1:54123',
     trace: 'retain-on-failure',
   },
   projects: [
@@ -26,8 +26,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm dev --host 127.0.0.1 --port 5173 --strictPort',
-    url: 'http://127.0.0.1:5173',
-    reuseExistingServer: !process.env.CI,
+    command: 'pnpm dev --host 127.0.0.1 --port 54123 --strictPort',
+    url: 'http://127.0.0.1:54123',
+    reuseExistingServer: false,
+    env: { VITE_MOCKS: 'true' },
   },
 });

@@ -57,6 +57,7 @@ export function RoutePlaceholder({
         <div className="flex flex-wrap gap-2">
           <Link
             to="/"
+            search={{ sort: 'relevance', page: 1 }}
             className="border-border bg-surface-card text-tiny text-foreground hover:border-primary hover:text-primary [&.active]:border-primary [&.active]:bg-primary/10 [&.active]:text-primary rounded border px-3 py-1.5 font-mono transition-colors"
           >
             Início
@@ -69,6 +70,7 @@ export function RoutePlaceholder({
           </Link>
           <Link
             to="/nfts/$nftId"
+            search={{ qty: 1 }}
             params={{ nftId: 'nft_neon_samurai' }}
             className="border-border bg-surface-card text-tiny text-foreground hover:border-primary hover:text-primary [&.active]:border-primary [&.active]:bg-primary/10 [&.active]:text-primary rounded border px-3 py-1.5 font-mono transition-colors"
           >

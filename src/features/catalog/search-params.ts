@@ -1,33 +1,25 @@
-import { parseAsJson, parseAsString, parseAsInteger } from 'nuqs';
 import { z } from 'zod';
-
-export const catalogSortOptions = [
-  'relevance',
-  'recent',
-  'price_asc',
-  'price_desc',
-  'popular',
-] as const;
-
-export type CatalogSort = (typeof catalogSortOptions)[number];
-
-// 1. Zod Schema dos filtros do catálogo
+import { ethSchema, nftSortSchema } from '@/lib/http/schemas';
+export const emptyToUndefined = (value: unknown) =>
+  typeof value === 'string' && !value.trim() ? undefined : value;
 export const catalogFilterSchema = z.object({
-  q: z.string().optional(),
-  categories: z.array(z.string()).optional(),
-  minPrice: z.string().optional(),
-  maxPrice: z.string().optional(),
-  sort: z.enum(catalogSortOptions).optional(),
-  page: z.number().int().min(1).optional(),
+  q: z.preprocess(emptyToUndefined, z.string().optional()),
+  categories: z.preprocess((value) => {
+    if (value === undefined) return undefined;
+    const values = Array.isArray(value) ? value : [value];
+    const nonempty = values.filter(
+      (item) => emptyToUndefined(item) !== undefined
+    );
+    return nonempty.length ? nonempty : undefined;
+  }, z.array(z.string()).optional()),
+  minPrice: z.preprocess(emptyToUndefined, ethSchema.optional()),
+  maxPrice: z.preprocess(emptyToUndefined, ethSchema.optional()),
+  sort: z.preprocess(emptyToUndefined, nftSortSchema.default('relevance')),
+  page: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(1).default(1)
+  ),
 });
-
 export type CatalogFilterState = z.infer<typeof catalogFilterSchema>;
-
-// 2. Parser com nuqs + parseAsJson
-export const catalogFilterParser = parseAsJson(catalogFilterSchema).withDefault({});
-
-// Parsers granulares para uso alternativo / direto se desejado
-export const catalogParamParsers = {
-  q: parseAsString.withDefault(''),
-  page: parseAsInteger.withDefault(1),
-};
+export const parseCatalogSearch = (search: Record<string, unknown>) =>
+  catalogFilterSchema.parse(search);

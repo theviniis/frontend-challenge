@@ -8,13 +8,26 @@ import './styles/globals.css';
 import { TooltipProvider } from './components/ui/tooltip';
 import { Toaster } from './components/ui/sonner';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <RouterProvider router={router} />
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
-  </StrictMode>
-);
+async function bootstrap() {
+  if (
+    import.meta.env.VITE_MOCKS === 'true' ||
+    (import.meta.env.DEV && import.meta.env.VITE_MOCKS !== 'false')
+  ) {
+    const { worker } = await import('./mocks/browser');
+    await worker.start({ onUnhandledRequest: 'bypass' });
+    const { demoSession } = await import('./mocks/session-controls');
+    router.update({ context: { demoSession } });
+  }
+
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </StrictMode>
+  );
+}
+void bootstrap();
