@@ -43,8 +43,8 @@ erros, sessão, socket) — contrato entre features e rede.
 
 ## Critérios de aceite (gate)
 
-- [ ] `pnpm typecheck && pnpm lint` verdes
-- [ ] Nenhum import de `src/mocks` fora de `lib/http`/setup de teste (grep)
+- [x] `pnpm typecheck && pnpm lint` verdes
+- [x] Nenhum import de `src/mocks` fora de `lib/http`/setup de teste (grep)
 
 ## Referências
 
