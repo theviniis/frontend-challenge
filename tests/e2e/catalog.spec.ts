@@ -25,6 +25,31 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('.nft-card')).toHaveCount(9);
 });
 
+test('active catalog tab preserves typography and primary color', async ({
+  page,
+}) => {
+  const group = page.getByRole('group', { name: 'Seleção de catálogo' });
+  const active = group.getByRole('button', {
+    name: 'Todos os NFTs',
+    exact: true,
+  });
+  await expect(active).toHaveCSS('font-size', '14px');
+  await expect(active).toHaveCSS('font-weight', '700');
+  await expect(active).toHaveCSS('line-height', '16px');
+  await expect(active).toHaveCSS('color', 'rgb(210, 138, 76)');
+
+  const recent = group.getByRole('button', {
+    name: 'Novos lançamentos',
+    exact: true,
+  });
+  await recent.click();
+  await expect(recent).toHaveAttribute('aria-pressed', 'true');
+  await expect(recent).toHaveCSS('font-weight', '700');
+  await expect(recent).toHaveCSS('color', 'rgb(210, 138, 76)');
+  await expect(active).toHaveCSS('font-weight', '400');
+  await expect(active).toHaveCSS('color', 'rgb(245, 241, 235)');
+});
+
 test('mobile filters open by click and keyboard and restore trigger focus', async ({
   page,
 }, info) => {
