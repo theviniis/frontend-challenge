@@ -38,8 +38,8 @@ combináveis, ordenação e paginação — tudo persistido na URL.
 
 ## Critérios de aceite (gate)
 
-- [ ] Refresh/histórico restauram exatamente busca+filtros+ordem+página
-- [ ] `pnpm typecheck && pnpm lint` verdes · conferência visual com o frame Figma
+- [x] Refresh/histórico restauram exatamente busca+filtros+ordem+página
+- [x] `pnpm typecheck && pnpm lint` verdes · conferência visual com o frame Figma
 
 ## Referências
 

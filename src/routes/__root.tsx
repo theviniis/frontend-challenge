@@ -79,7 +79,7 @@ function RootComponent() {
         </div>
       </div>
 
-      <main className="px-6 py-10 md:px-30 md:py-6">
+      <main className="mx-auto max-w-[1640px] px-6 py-10 md:px-30 md:py-6">
         <Header
           marketHref="#catalogo"
           learnHref="#diario"
