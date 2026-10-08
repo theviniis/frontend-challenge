@@ -151,10 +151,19 @@ Observações adicionais do usuário: $ARGUMENTS
 
 ## Critérios de aceite (gate) — §4 do comando `/mocks`
 
-- [ ] `pnpm typecheck && pnpm lint && pnpm test:contract` verdes
-- [ ] `?scenario=lento|offline|sessao-expirada` comprova comportamento no `pnpm dev`
-- [ ] Reset 2× → mesmo estado · grep sem import de mocks fora da camada de rede
+- [x] `pnpm typecheck && pnpm lint && pnpm test:contract` verdes
+- [x] `?scenario=lento|offline|sessao-expirada` comprova comportamento no `pnpm dev`
+- [x] Reset 2× → mesmo estado · grep sem import de mocks fora da camada de rede
+
+## Evidências de validação — 08/10/2026
+
+- `pnpm typecheck`, `pnpm lint` e `pnpm test:contract` passaram: 33 testes de contrato em 12 arquivos.
+- No navegador com `pnpm dev`: `lento` levou aproximadamente 3 segundos na consulta do catálogo; `offline` retornou erro de transporte; `sessao-expirada` retornou HTTP 401 com `SESSION_EXPIRED` após login.
+- Dois resets consecutivos produziram o mesmo conteúdo de `gm_db_v1`; `?reset=1` também restaurou o seed e foi removido da URL.
+- Busca com `rg` em `src/features`, `src/components` e `src/lib` não encontrou imports de mocks nem chamadas diretas a `fetch`.
+- Verificações adicionais: 34 E2E de bootstrap/rotas passaram em desktop e mobile; builds com e sem mocks passaram; `nft.updated` foi recebido pelo cliente Socket.IO real no navegador.
 
 ## Referências
 
 - `.opencode/commands/mocks.md` · `docs/MOCKS.md` · `docs/api/` · `ARCHITECTURE.md`
+
