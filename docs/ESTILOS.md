@@ -61,8 +61,12 @@
   --text-body-lg-bold: 16px; --text-body-lg-bold--line-height: 24px; --text-body-lg-bold--font-weight: 700;
   --text-body-lg-medium: 16px; --text-body-lg-medium--line-height: 24px; --text-body-lg-medium--font-weight: 500;
   --text-body:       15px;  --text-body--line-height: 24px;
+  --text-body-regular: 14px; --text-body-regular--line-height: 24px; --text-body-regular--font-weight: 400;
+  --text-body-medium: 14px; --text-body-medium--line-height: 16px; --text-body-medium--font-weight: 500;
+  --text-body-bold: 14px; --text-body-bold--line-height: 16px; --text-body-bold--font-weight: 700; --text-body-bold--letter-spacing: 0em;
   --text-body-sm:    14px;  --text-body-sm--line-height: 22px;
   --text-caption:    13px;  --text-caption--line-height: 16px;
+  --text-caption-bold: 12px; --text-caption-bold--line-height: 14px; --text-caption-bold--font-weight: 700; --text-caption-bold--letter-spacing: 0em;
   --text-tiny:       12px;  --text-tiny--line-height: 16px;
   --text-micro:      10px;  --text-micro--line-height: 13px;      --text-micro--font-weight: 500;
 }
@@ -71,6 +75,14 @@
 **Regra de uso:** o token é o default; quando o Figma pedir um line-height diferente do token,
 use o utilitário arbitrário (`text-[14px] leading-[30px]`) mantendo peso/cores do token.
 Não crie um token por variante de line-height.
+
+**Tipografia responsiva:** use a mesma classe em desktop e mobile, por exemplo
+`text-body-medium`. Ajustes mobile dos tokens ficam na media query
+`@media (width < 48rem)` de `global.css`, alinhada ao breakpoint `md` do Tailwind.
+`--text-body-medium` mantém 14 px em ambos os tamanhos por enquanto; novos ajustes
+devem ser centralizados nesse bloco, sem criar classes com sufixo `-mobile`.
+`text-body-regular` usa 14 px / line-height 24 px no desktop e 12 px / line-height
+18 px abaixo de 48 rem, mantendo peso 400.
 
 ## 2. Cores
 
@@ -126,7 +138,7 @@ Não crie um token por variante de line-height.
 | Cards, diálogos, painéis | 16–20px | média |
 | Pill (segmented, preços, avatares redondos) | 37px / full | média |
 
-Tokens: `--radius-sm: 4px; --radius: 6px; --radius-md: 8px; --radius-lg: 16px; --radius-xl: 20px; --radius-pill: 9999px`.
+Tokens: `--radius-sm: 4px; --radius: 6px; --radius-md: 8px; --radius-lg: 16px; --radius-xl: 20px; --radius-2xl: 24px; --radius-pill: 9999px`.
 
 - **Bordas:** 1px (`border` padrão) e 1.5px (destaques/inputs focados); 2px só em anéis/ícones.
 - **Sombras** (não há effect styles nomeados — padrões observados):

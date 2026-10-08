@@ -48,11 +48,29 @@
   --text-body: 15px;
   --text-body--line-height: 24px;
 
+  --text-body-regular: 14px;
+  --text-body-regular--line-height: 24px;
+  --text-body-regular--font-weight: 400;
+
+  --text-body-medium: 14px;
+  --text-body-medium--line-height: 16px;
+  --text-body-medium--font-weight: 500;
+
+  --text-body-bold: 14px;
+  --text-body-bold--line-height: 16px;
+  --text-body-bold--font-weight: 700;
+  --text-body-bold--letter-spacing: 0em;
+
   --text-body-sm: 14px;
   --text-body-sm--line-height: 22px;
 
   --text-caption: 13px;
   --text-caption--line-height: 16px;
+
+  --text-caption-bold: 12px;
+  --text-caption-bold--line-height: 14px;
+  --text-caption-bold--font-weight: 700;
+  --text-caption-bold--letter-spacing: 0em;
 
   --text-tiny: 12px;
   --text-tiny--line-height: 16px;
@@ -101,6 +119,7 @@
   --radius-md: 8px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  --radius-2xl: 24px;
   --radius-pill: 9999px;
 
   /* Shadows (docs/ESTILOS.md §3) */
@@ -108,6 +127,21 @@
   --shadow-glow: 0 0 20px rgb(0 0 0 / 45%);
   --shadow-popover: 0 4px 12px rgb(0 0 0 / 15%);
   --shadow-cta: 0 0 20px rgb(210 138 76 / 25%);
+
+  /* Brand gradient */
+  --background-image-brand-gradient: linear-gradient(137.05deg, rgba(210, 138, 76, 0.45) -24.6%, #D28A4C 100%);
+}
+
+/* Responsive typography: keep the same utility class at every viewport size. */
+@media (width < 48rem) {
+  :root,
+  .dark {
+    --text-body-medium: 14px;
+    --text-body-regular: 12px;
+    --text-body-regular--line-height: 18px;
+    --text-display: 18px;
+    --text-display--line-height: 29px;
+  }
 }
 
 @theme inline {
@@ -172,6 +206,7 @@
   }
 
   html {
+    scroll-behavior: smooth;
     color-scheme: dark;
     @apply font-mono;
   }
@@ -247,4 +282,9 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+:where(img) {
+  display: block;
+  max-width: 100%;
 }

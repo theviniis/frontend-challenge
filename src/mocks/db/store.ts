@@ -73,12 +73,29 @@ const hydrateDb = (): MockDb => {
     saveDb(seed);
     return seed;
   }
-  return {
+  const seedNfts = new Map(seed.nfts.map((nft) => [nft.id, nft]));
+  // Persisted catalogs from before network filters lack the new fixture fields.
+  // Keep user state and mutable NFT values while upgrading those records once.
+  const nfts = parsed.nfts.map((nft) => {
+    if (nft.network !== undefined) return nft;
+    const reference = seedNfts.get(nft.id);
+    return {
+      ...nft,
+      network: reference?.network ?? 'ethereum',
+      categories: [
+        ...new Set([...nft.categories, ...(reference?.categories ?? [])]),
+      ],
+    };
+  });
+  const hydrated = {
     ...seed,
     ...parsed,
+    nfts,
     seq: { ...seed.seq, ...parsed.seq },
     flags: { ...seed.flags, ...parsed.flags },
   };
+  saveDb(hydrated);
+  return hydrated;
 };
 
 export const getDb = (): MockDb => {

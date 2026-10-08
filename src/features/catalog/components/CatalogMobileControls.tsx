@@ -1,5 +1,4 @@
 import { SearchInput } from '@/components/shared/SearchInput';
-import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -10,25 +9,24 @@ import {
 } from '@/components/ui/sheet';
 import { FilterBar } from './FilterBar';
 import type { CatalogControlsProps } from '../types';
+import { FilterButton } from '@/components/ui/filter-button';
 
 export function CatalogMobileControls({
   filters,
   onChange,
   onSearch,
+  facets,
+  loading,
+  failed,
+  onRetry,
 }: CatalogControlsProps) {
   const filterKey = JSON.stringify([filters.minPrice, filters.maxPrice]);
   return (
     <div className="catalog-mobile-search mb-4 flex gap-2 md:hidden">
-      <SearchInput
-        key={filters.q ?? ''}
-        value={filters.q ?? ''}
-        onSearch={onSearch}
-      />
+      <SearchInput value={filters.q ?? ''} onSearch={onSearch} />
       <Sheet>
         <SheetTrigger asChild>
-          <Button size="icon" aria-label="Abrir filtros">
-            <img src="/icons/iconly-curved-filter-15-5488.svg" alt="" />
-          </Button>
+          <FilterButton />
         </SheetTrigger>
         <SheetContent className="overflow-y-auto">
           <SheetHeader>
@@ -37,7 +35,15 @@ export function CatalogMobileControls({
               Combine coleções e preços para explorar NFTs.
             </SheetDescription>
           </SheetHeader>
-          <FilterBar key={filterKey} filters={filters} onChange={onChange} />
+          <FilterBar
+            key={filterKey}
+            filters={filters}
+            onChange={onChange}
+            facets={facets}
+            loading={loading}
+            failed={failed}
+            onRetry={onRetry}
+          />
         </SheetContent>
       </Sheet>
     </div>

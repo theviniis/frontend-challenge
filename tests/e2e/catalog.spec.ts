@@ -25,6 +25,62 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('.nft-card')).toHaveCount(9);
 });
 
+test('mobile filters open by click and keyboard and restore trigger focus', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'mobile', 'Mobile filter trigger');
+  const trigger = page.getByRole('button', {
+    name: 'Abrir filtros',
+    includeHidden: true,
+  });
+  const panel = page.getByRole('dialog', { name: 'Filtros', exact: true });
+
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await trigger.click();
+  await expect(panel).toBeVisible();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await panel.getByRole('button', { name: 'Close', exact: true }).click();
+  await expect(panel).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  await trigger.press('Enter');
+  await expect(panel).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(panel).toBeHidden();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(trigger).toBeFocused();
+});
+
+test('debounced search preserves focus and syncs with history', async ({
+  page,
+}, info) => {
+  test.skip(
+    info.project.name !== 'mobile',
+    'Search input is currently visible only on mobile'
+  );
+  const search = page
+    .getByRole('searchbox', { name: 'Buscar NFTs' })
+    .filter({ visible: true });
+  await search.fill('Golden');
+  await expect(page).toHaveURL(/q=Golden/);
+  await expect(search).toBeFocused();
+  await expect(page.locator('.nft-card')).toHaveCount(3);
+  await expect(search).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Limpar busca' })).toHaveCount(
+    0
+  );
+  await search.fill('Violet');
+  await expect(page).toHaveURL(/q=Violet/);
+  await expect(search).toBeFocused();
+  await page.goBack();
+  await expect(search).toHaveValue('Golden');
+  await search.fill('');
+  await expect
+    .poll(() => new URL(page.url()).searchParams.has('q'))
+    .toBe(false);
+  await expect(search).toBeFocused();
+});
+
 test('search, combined filters, sorting, refresh and history preserve URL state', async ({
   page,
 }, info) => {
@@ -55,15 +111,15 @@ test('search, combined filters, sorting, refresh and history preserve URL state'
   ).toBeChecked();
   await expect(
     page.getByRole('checkbox', { name: 'Música', exact: true })
-  ).toBeChecked();
+  ).not.toBeChecked();
   await expect(
     page.getByRole('slider', { name: 'Preço mínimo' }).filter({ visible: true })
   ).toHaveAttribute('aria-valuetext', '0,02 ETH');
-  await page
-    .getByRole('button', { name: 'Limpar filtros' })
-    .filter({ visible: true })
-    .click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page
+      .locator('[data-slot="catalog-filters"]')
+      .getByRole('button', { name: 'Limpar filtros' })
+  ).toHaveCount(0);
 });
 
 test('pagination restores results and default search leaves a clean URL', async ({
@@ -84,18 +140,11 @@ test('pagination restores results and default search leaves a clean URL', async 
 test('price slider changes are applied explicitly and can be cleared', async ({
   page,
 }, info) => {
-  const search = page
-    .getByRole('searchbox', { name: 'Buscar NFTs' })
-    .filter({ visible: true });
-  await search.fill('nenhum-resultado');
-  await search.press('Enter');
+  await page.goto('/?q=nenhum-resultado');
   await expect(
     page.getByRole('heading', { name: 'Nenhum NFT encontrado' })
   ).toBeVisible();
-  await page
-    .getByRole('button', { name: 'Limpar busca' })
-    .filter({ visible: true })
-    .click();
+  await page.goto('/');
   await expect(page.locator('.nft-card')).toHaveCount(9);
   if (info.project.name === 'mobile')
     await page.getByRole('button', { name: 'Abrir filtros' }).click();
@@ -129,10 +178,11 @@ test('price slider changes are applied explicitly and can be cleared', async ({
   expect(
     new URL(page.url()).searchParams.get('maxPrice')?.replace(/^"|"$/g, '')
   ).toBe('19.99');
-  await page
-    .getByRole('button', { name: 'Limpar filtros', exact: true })
-    .filter({ visible: true })
-    .click();
+  await minimum.focus();
+  await minimum.press('Home');
+  await maximum.focus();
+  await maximum.press('End');
+  await page.getByRole('button', { name: 'Aplicar', exact: true }).click();
   await expect.poll(() => new URL(page.url()).search).toBe('');
   await expect(
     page.getByRole('slider', { name: 'Preço mínimo' }).filter({ visible: true })
@@ -364,7 +414,7 @@ test('desktop sections load only at the desktop breakpoint', async ({
   await expect(learn).toHaveAttribute('data-status', 'active');
 });
 
-test('decimal precision and repeated categories survive direct URLs', async ({
+test('decimal precision survives and legacy URLs select only the first collection', async ({
   page,
 }, info) => {
   const response = page.waitForResponse(
@@ -378,15 +428,19 @@ test('decimal precision and repeated categories survive direct URLs', async ({
   expect(params.get('q')).toBe('160');
   expect(params.get('minPrice')).toBe('0.020000000000000001');
   expect(params.get('maxPrice')).toBe('12.30');
-  expect(params.getAll('categories')).toEqual(['Arte digital', 'Arte 3D']);
+  expect(params.getAll('categories')).toEqual(['Arte digital']);
   await page.reload();
-  await expect(
-    page
-      .getByRole('searchbox', { name: 'Buscar NFTs' })
-      .filter({ visible: true })
-  ).toHaveValue('160');
-  if (info.project.name === 'mobile')
+  expect(new URL(page.url()).searchParams.get('q')?.replace(/^"|"$/g, '')).toBe(
+    '160'
+  );
+  if (info.project.name === 'mobile') {
+    await expect(
+      page
+        .getByRole('searchbox', { name: 'Buscar NFTs' })
+        .filter({ visible: true })
+    ).toHaveValue('160');
     await page.getByRole('button', { name: 'Abrir filtros' }).click();
+  }
   await expect(
     page.getByRole('slider', { name: 'Preço mínimo' }).filter({ visible: true })
   ).toHaveAttribute('aria-valuetext', '0,020000000000000001 ETH');
@@ -396,4 +450,123 @@ test('decimal precision and repeated categories survive direct URLs', async ({
       new URL(page.url()).searchParams.get('minPrice')?.replace(/^"|"$/g, '')
     )
     .toBe('0.020000000000000001');
+});
+
+test('network filters combine, persist and remain keyboard accessible', async ({
+  page,
+}, info) => {
+  await page.goto(
+    '/?categories=Arte+digital&minPrice=0.02&maxPrice=12.30&page=2'
+  );
+  if (info.project.name === 'mobile')
+    await page.getByRole('button', { name: 'Abrir filtros' }).click();
+  const panel = page
+    .locator('[data-slot="catalog-filters"]')
+    .filter({ visible: true });
+  const ethereum = panel.getByRole('checkbox', {
+    name: 'Ethereum',
+    exact: true,
+  });
+  await expect(panel.locator('label')).toHaveCount(12);
+  await expect(panel.locator('[data-slot="skeleton"]')).toHaveCount(0);
+  const counts = await panel.locator('label').allTextContents();
+  await ethereum.focus();
+  await ethereum.press('Space');
+  await expect(ethereum).toBeChecked();
+  await expect
+    .poll(() => new URL(page.url()).searchParams.has('page'))
+    .toBe(false);
+  await expect
+    .poll(() => panel.locator('label').allTextContents())
+    .toEqual(counts);
+  await expect(
+    page
+      .getByRole('checkbox', { name: 'Arte digital', exact: true })
+      .filter({ visible: true })
+  ).toBeChecked();
+  await page.reload();
+  if (info.project.name === 'mobile')
+    await page.getByRole('button', { name: 'Abrir filtros' }).click();
+  await expect(ethereum).toBeChecked();
+  await panel.getByText('Polygon', { exact: true }).click();
+  await expect(
+    panel.getByRole('checkbox', { name: 'Polygon', exact: true })
+  ).toBeChecked();
+  await page.goBack();
+  await expect(
+    panel.getByRole('checkbox', { name: 'Polygon', exact: true })
+  ).not.toBeChecked();
+  await ethereum.focus();
+  await ethereum.press('Space');
+  await expect
+    .poll(() => new URL(page.url()).searchParams.has('networks'))
+    .toBe(false);
+  const category = panel.getByRole('checkbox', {
+    name: 'Fotografia',
+    exact: true,
+  });
+  await panel.getByText('Fotografia', { exact: true }).click();
+  await expect(category).toBeChecked();
+  await expect(
+    panel.getByRole('checkbox', { name: 'Arte digital', exact: true })
+  ).not.toBeChecked();
+  await expect(panel.getByRole('checkbox', { checked: true })).toHaveCount(1);
+  await category.focus();
+  await category.press('Space');
+  await expect(category).not.toBeChecked();
+  await expect
+    .poll(() => new URL(page.url()).searchParams.has('categories'))
+    .toBe(false);
+  await expect(
+    panel.getByRole('button', { name: 'Limpar filtros' })
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth
+    )
+  ).toBe(true);
+  await page.screenshot({
+    path: `test-results/filter-bar-${info.project.name}.png`,
+    fullPage: true,
+  });
+});
+
+test('filter counts show loading, errors with retry and empty catalog zeros', async ({
+  page,
+}, info) => {
+  const setScenario = async (id: string) =>
+    page.evaluate(async (id) => {
+      const moduleUrl = '/src/lib/http/client.ts';
+      const { http } = await import(moduleUrl);
+      await http.post('/api/_mock/scenario', { id });
+    }, id);
+  const open = async () => {
+    if (info.project.name === 'mobile')
+      await page.getByRole('button', { name: 'Abrir filtros' }).click();
+  };
+  await open();
+  const panel = page
+    .locator('[data-slot="catalog-filters"]')
+    .filter({ visible: true });
+  await expect(panel.locator('[data-slot="skeleton"]')).toHaveCount(0);
+  await setScenario('lento');
+  await panel.getByText('Fotografia', { exact: true }).click();
+  await expect(panel.locator('[data-slot="skeleton"]')).toHaveCount(12);
+  await expect(panel.locator('[data-slot="skeleton"]')).toHaveCount(0, {
+    timeout: 15000,
+  });
+  await setScenario('erro-5xx');
+  await panel.getByText('Ethereum', { exact: true }).click();
+  await expect(panel.getByRole('alert')).toBeVisible({ timeout: 15000 });
+  await setScenario('padrao');
+  await panel
+    .getByRole('button', { name: 'Tentar novamente contagens' })
+    .click();
+  await expect(panel.getByRole('alert')).toHaveCount(0);
+  await expect(panel.locator('label')).toHaveCount(12);
+  await setScenario('vazio');
+  await panel.getByText('Música', { exact: true }).click();
+  await expect(panel.locator('label').filter({ hasText: '(0)' })).toHaveCount(
+    12
+  );
 });

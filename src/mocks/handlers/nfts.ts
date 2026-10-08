@@ -1,5 +1,6 @@
 import * as s from '@/lib/http/schemas';
 import { cmpEth } from '@/lib/money';
+import { NFT_CATEGORIES } from '../fixtures/nfts';
 import { getDb } from '../db/store';
 import { route, parse, reply, fail } from './runtime';
 export const nftHandlers = [
@@ -7,24 +8,35 @@ export const nftHandlers = [
     const params = new URL(request.url).searchParams;
     const raw: Record<string, unknown> = Object.fromEntries(params);
     if (params.has('categories')) raw.categories = params.getAll('categories');
+    if (params.has('networks')) raw.networks = params.getAll('networks');
     const q = parse(s.nftListQuerySchema, raw);
     if (q.minPrice && q.maxPrice && cmpEth(q.minPrice, q.maxPrice) > 0)
       fail(422, 'VALIDATION_ERROR', 'Intervalo inválido', {
         minPrice: ['Maior que maxPrice'],
       });
-    let items = getDb().flags.forceEmptyCatalog
-      ? []
-      : getDb().nfts.filter(
-          (n) =>
-            (!q.q ||
-              `${n.name} ${n.collection} ${n.creator.name}`
-                .toLowerCase()
-                .includes(q.q.toLowerCase())) &&
-            (!q.categories ||
-              q.categories.every((c) => n.categories.includes(c))) &&
-            (!q.minPrice || cmpEth(n.price, q.minPrice) >= 0) &&
-            (!q.maxPrice || cmpEth(n.price, q.maxPrice) <= 0)
-        );
+    const all = getDb().flags.forceEmptyCatalog ? [] : getDb().nfts;
+    const facets = {
+      categories: NFT_CATEGORIES.map((id) => ({
+        id,
+        count: all.filter((n) => n.categories.includes(id)).length,
+      })),
+      networks: s.catalogNetworkSchema.options.map((id) => ({
+        id,
+        count: all.filter((n) => n.network === id).length,
+      })),
+    };
+    let items = all.filter(
+      (n) =>
+        (!q.q ||
+          `${n.name} ${n.collection} ${n.creator.name}`
+            .toLowerCase()
+            .includes(q.q.toLowerCase())) &&
+        (!q.categories ||
+          q.categories.every((c) => n.categories.includes(c))) &&
+        (!q.networks || q.networks.includes(n.network)) &&
+        (!q.minPrice || cmpEth(n.price, q.minPrice) >= 0) &&
+        (!q.maxPrice || cmpEth(n.price, q.maxPrice) <= 0)
+    );
     items = [...items].sort((a, b) =>
       q.sort === 'price_asc'
         ? cmpEth(a.price, b.price)
@@ -39,6 +51,7 @@ export const nftHandlers = [
     return reply(s.nftListResponseSchema, {
       items: items.slice((q.page - 1) * q.pageSize, q.page * q.pageSize),
       total: items.length,
+      facets,
       page: q.page,
       pageSize: q.pageSize,
     });

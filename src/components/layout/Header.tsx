@@ -31,7 +31,7 @@ export function Header({
   return (
     <header
       className={cn(
-        'catalog-header hidden h-11.25 items-start justify-between md:flex',
+        'catalog-header mb-8 hidden h-11.25 items-start justify-between md:flex',
         divider && 'border-border border-b'
       )}
     >

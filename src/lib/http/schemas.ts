@@ -130,6 +130,9 @@ export const raritySchema = z.enum(['RARO', 'COMUM', 'ÚNICO']);
 
 export type Rarity = z.infer<typeof raritySchema>;
 
+export const catalogNetworkSchema = z.enum(['ethereum', 'polygon', 'solana']);
+export type CatalogNetwork = z.infer<typeof catalogNetworkSchema>;
+
 export const nftSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -139,6 +142,7 @@ export const nftSchema = z.object({
   price: ethSchema,
   previousPrice: ethSchema.optional(),
   categories: z.array(z.string()),
+  network: catalogNetworkSchema,
   image: z.string(),
   images: z.array(z.string()).min(1),
   description: z.string(),
@@ -161,7 +165,24 @@ export const nftSortSchema = z.enum(
 
 export type NftSort = z.infer<typeof nftSortSchema>;
 
+export const catalogFacetsSchema = z.object({
+  categories: z.array(
+    z.object({ id: z.string(), count: z.number().int().nonnegative() })
+  ),
+  networks: z.array(
+    z.object({
+      id: catalogNetworkSchema,
+      count: z.number().int().nonnegative(),
+    })
+  ),
+});
+export type CatalogFacets = z.infer<typeof catalogFacetsSchema>;
+
 export const nftListQuerySchema = z.object({
+  networks: z
+    .union([catalogNetworkSchema, z.array(catalogNetworkSchema)])
+    .transform((v) => (Array.isArray(v) ? v : [v]))
+    .optional(),
   q: z.string('Busca inválida').optional(),
   categories: z
     .union([z.string(), z.array(z.string())], 'Categorias inválidas')
@@ -182,6 +203,7 @@ export const nftListQuerySchema = z.object({
 
 export const nftListResponseSchema = listMetaSchema.extend({
   items: z.array(nftSchema),
+  facets: catalogFacetsSchema,
 });
 
 export type Nft = z.infer<typeof nftSchema>;

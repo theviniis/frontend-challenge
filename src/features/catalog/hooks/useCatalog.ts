@@ -17,7 +17,7 @@ export function useCatalog() {
     () => getStoredSession()?.user.id,
     () => undefined
   );
-  const query = useQuery(catalogOptions(filters));
+  const query = useQuery(catalogOptions(filters, userId));
   const { favorites, mutation } = useFavorites(userId);
 
   function onFiltersChange(next: Partial<CatalogFilterState>) {

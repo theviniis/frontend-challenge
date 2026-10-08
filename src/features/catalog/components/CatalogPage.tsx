@@ -18,6 +18,10 @@ export function CatalogPage() {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const controls = {
     filters: catalog.filters,
+    facets: catalog.query.data?.facets,
+    loading: catalog.query.isPending,
+    failed: catalog.query.isError,
+    onRetry: catalog.onRetry,
     onChange: catalog.onFiltersChange,
     onSearch: catalog.onSearch,
   };

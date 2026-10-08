@@ -17,9 +17,12 @@ import type { CatalogFilterState } from './search-params';
 
 export const CATALOG_PAGE_SIZE = 9;
 
-export const catalogOptions = (filters: CatalogFilterState) =>
+export const catalogOptions = (filters: CatalogFilterState, userId?: string) =>
   queryOptions({
-    queryKey: keyFactory.nfts.list({ ...filters, pageSize: CATALOG_PAGE_SIZE }),
+    queryKey: keyFactory.nfts.list(
+      { ...filters, pageSize: CATALOG_PAGE_SIZE },
+      userId
+    ),
     queryFn: async ({ signal }) =>
       nftListResponseSchema.parse(
         (

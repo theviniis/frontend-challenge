@@ -1,5 +1,8 @@
 import { useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import type { CatalogFacets } from '@/lib/http/schemas';
 import { Slider } from '@/components/ui/slider';
 import { ethSchema } from '@/lib/http/schemas';
 import {
@@ -26,8 +29,16 @@ const categories = [
 export function FilterBar({
   filters,
   onChange,
+  facets,
+  loading,
+  failed,
+  onRetry,
 }: {
   filters: CatalogFilterState;
+  facets?: CatalogFacets;
+  loading: boolean;
+  failed: boolean;
+  onRetry: () => void;
   onChange: (next: Partial<CatalogFilterState>) => void;
 }) {
   const id = useId();
@@ -59,101 +70,162 @@ export function FilterBar({
         !max || (edited[1] && cmpEth(max, limit) === 0) ? undefined : max,
     });
   }
+  function count(id: string, kind: keyof CatalogFacets) {
+    if (failed) return <span aria-label="Contagem indisponível">—</span>;
+    if (loading || !facets)
+      return <Skeleton className="h-4 w-9" aria-label="Carregando contagem" />;
+    return (
+      <span className={kind === 'categories' ? 'font-bold' : undefined}>
+        ({facets[kind].find((item) => item.id === id)?.count ?? 0})
+      </span>
+    );
+  }
+  const headingClass = 'mb-3 text-lg font-bold leading-4';
+  const rowClass =
+    'relative flex h-10 w-full cursor-pointer items-center justify-between gap-2 text-body leading-10';
+  const inputClass = 'peer sr-only';
+  const focusClass =
+    'pointer-events-none absolute inset-0 rounded-default peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface-card';
   return (
-    <div className="border-border bg-surface-card space-y-8 rounded-lg border p-5">
-      <fieldset className="space-y-4">
-        <legend className="text-body-lg mb-5 font-bold">Coleções</legend>
-        {categories.map((category) => (
-          <label
-            key={category}
-            className="text-body-sm text-text-secondary flex cursor-pointer items-center gap-3"
-          >
-            <input
-              type="checkbox"
-              className="accent-primary size-4"
-              checked={filters.categories?.includes(category) ?? false}
-              onChange={(event) => {
-                const selected = event.target.checked
-                  ? [...(filters.categories ?? []), category]
-                  : filters.categories?.filter((value) => value !== category);
-                onChange({
-                  categories: selected?.length ? selected : undefined,
-                });
-              }}
-            />
-            {category}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset>
-        <legend className="text-title font-bold">Faixa de preço</legend>
-        <Slider
-          min={0}
-          max={ethToPriceStep(limit)}
-          step={1}
-          value={positions}
-          thumbLabels={['Preço mínimo', 'Preço máximo']}
-          thumbValueTexts={prices.map(
-            (price) => `${formatPriceRangeValue(price)} ETH`
-          )}
-          aria-describedby={error ? `${id}-error` : `${id}-range`}
-          aria-invalid={!!error}
-          onValueChange={(next) => {
-            if (next[0] !== positions[0]) setMin(priceStepToEth(next[0]));
-            if (next[1] !== positions[1]) setMax(priceStepToEth(next[1]));
-            setEdited((previous) => [
-              previous[0] || next[0] !== positions[0],
-              previous[1] || next[1] !== positions[1],
-            ]);
-            setError('');
-          }}
-          onValueCommit={(next) =>
-            setAnnouncement(
-              `Preço: ${next.map((position, index) => formatPriceRangeValue(position === positions[index] ? prices[index] : priceStepToEth(position))).join(' - ')} ETH`
-            )
-          }
-        />
-        <p
-          id={`${id}-range`}
-          className="text-body-lg text-foreground mt-1 wrap-break-word"
-        >
-          {rangeText}
+    <div className="bg-surface-card space-y-10 p-5" data-slot="catalog-filters">
+      <fieldset className="min-w-0">
+        <legend className={headingClass}>Coleções</legend>
+        <p id={`${id}-collections-help`} className="sr-only">
+          Selecione uma coleção. Para remover o filtro, desmarque a coleção
+          selecionada.
         </p>
-        <span className="sr-only" aria-live="polite">
-          {announcement}
-        </span>
-        {error && (
-          <p id={`${id}-error`} className="text-tiny text-coral" role="alert">
-            {error}
-          </p>
-        )}
-        <Button
-          className="mt-2 text-(length:--text-body-lg)"
-          onClick={applyPrice}
-        >
-          Aplicar
-        </Button>
+        <div className="px-3">
+          {categories.map((category) => {
+            const checked = filters.categories?.includes(category) ?? false;
+            return (
+              <label
+                key={category}
+                className={cn(
+                  rowClass,
+                  checked ? 'text-text-accent' : 'text-text-secondary'
+                )}
+              >
+                <input
+                  type="checkbox"
+                  aria-label={category}
+                  aria-describedby={`${id}-collections-help`}
+                  className={inputClass}
+                  checked={checked}
+                  onChange={(event) => {
+                    onChange({
+                      categories: event.target.checked ? [category] : undefined,
+                    });
+                  }}
+                />
+                <span className={focusClass} />
+                <span>{category}</span>
+                {count(category, 'categories')}
+              </label>
+            );
+          })}
+        </div>
       </fieldset>
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={() => {
-          setMin('');
-          setMax('');
-          setEdited([false, false]);
-          setError('');
-          setAnnouncement('Filtros limpos');
-          onChange({
-            q: undefined,
-            categories: undefined,
-            minPrice: undefined,
-            maxPrice: undefined,
-            sort: 'relevance',
-          });
-        }}
-      >
-        Limpar filtros
-      </Button>
+      <fieldset className="min-w-0">
+        <legend className={headingClass}>Faixa de preço</legend>
+        <div className="space-y-3 pl-3">
+          <Slider
+            className="h-5.25 [&_[role=slider]]:size-5.25"
+            min={0}
+            max={ethToPriceStep(limit)}
+            step={1}
+            value={positions}
+            thumbLabels={['Preço mínimo', 'Preço máximo']}
+            thumbValueTexts={prices.map(
+              (price) => `${formatPriceRangeValue(price)} ETH`
+            )}
+            aria-describedby={error ? `${id}-error` : `${id}-range`}
+            aria-invalid={!!error}
+            onValueChange={(next) => {
+              if (next[0] !== positions[0]) setMin(priceStepToEth(next[0]));
+              if (next[1] !== positions[1]) setMax(priceStepToEth(next[1]));
+              setEdited((previous) => [
+                previous[0] || next[0] !== positions[0],
+                previous[1] || next[1] !== positions[1],
+              ]);
+              setError('');
+            }}
+            onValueCommit={(next) =>
+              setAnnouncement(
+                `Preço: ${next.map((position, index) => formatPriceRangeValue(position === positions[index] ? prices[index] : priceStepToEth(position))).join(' - ')} ETH`
+              )
+            }
+          />
+          <p
+            id={`${id}-range`}
+            className="text-body text-foreground leading-5 wrap-break-word"
+          >
+            {rangeText}
+          </p>
+          <span className="sr-only" aria-live="polite">
+            {announcement}
+          </span>
+          {error && (
+            <p id={`${id}-error`} className="text-tiny text-coral" role="alert">
+              {error}
+            </p>
+          )}
+          <Button
+            size="sm"
+            className="text-ink rounded-default h-9 px-3 py-2 text-base leading-5 font-bold shadow-none"
+            onClick={applyPrice}
+          >
+            Aplicar
+          </Button>
+        </div>
+      </fieldset>
+      <fieldset className="min-w-0">
+        <legend className={headingClass}>Rede</legend>
+        <div className="pl-3">
+          {(['ethereum', 'polygon', 'solana'] as const).map((network) => {
+            const name = {
+              ethereum: 'Ethereum',
+              polygon: 'Polygon',
+              solana: 'Solana',
+            }[network];
+            const checked = filters.networks?.includes(network) ?? false;
+            return (
+              <label
+                key={network}
+                className={cn(
+                  rowClass,
+                  checked ? 'text-text-accent' : 'text-text-secondary'
+                )}
+              >
+                <input
+                  type="checkbox"
+                  aria-label={name}
+                  className={inputClass}
+                  checked={checked}
+                  onChange={(event) => {
+                    const selected = event.target.checked
+                      ? [...(filters.networks ?? []), network]
+                      : filters.networks?.filter((value) => value !== network);
+                    onChange({
+                      networks: selected?.length ? selected : undefined,
+                    });
+                  }}
+                />
+                <span className={focusClass} />
+                <span>{name}</span>
+                {count(network, 'networks')}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+      {failed && (
+        <div role="alert" className="text-tiny text-coral">
+          <p>Não foi possível carregar as contagens.</p>
+          <Button variant="link" size="xsm" onClick={onRetry}>
+            Tentar novamente contagens
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

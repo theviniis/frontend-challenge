@@ -1,7 +1,40 @@
+import { useState } from 'react';
+import { Check, Copy } from 'lucide-react';
 import { ThemeControls } from './ThemeControls';
 import { Button } from './ui/button';
 import { IconBadge } from './ui/icon-badge';
 import CartIcon from '@/assets/cart.svg?react';
+
+function CopyTypographyClass({ value }: { value: string }) {
+  const [status, setStatus] = useState('');
+  const copied = status === `Classe ${value} copiada.`;
+
+  return (
+    <span className="mt-1 flex items-center gap-1">
+      <code className="min-w-0 break-words">{value}</code>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label={`Copiar classe ${value}`}
+        title={`Copiar ${value}`}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(value);
+            setStatus(`Classe ${value} copiada.`);
+          } catch {
+            setStatus('Não foi possível copiar. Tente novamente.');
+          }
+        }}
+      >
+        {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+      </Button>
+      <span className="sr-only" role="status" aria-live="polite">
+        {status}
+      </span>
+    </span>
+  );
+}
 
 export const TokensDemo = () => {
   return (
@@ -42,12 +75,14 @@ export const TokensDemo = () => {
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Display / 43 Bold
+              <CopyTypographyClass value="text-display" />
             </span>
             <span className="text-display">The GreenMint NFT 43px</span>
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Display-2 / 32 Bold
+              <CopyTypographyClass value="text-display-2" />
             </span>
             <span className="text-display-2">
               Discover Rare Digital Art 32px
@@ -56,24 +91,28 @@ export const TokensDemo = () => {
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               H1 / 28 Bold
+              <CopyTypographyClass value="text-h1" />
             </span>
             <span className="text-h1">Featured Collections 28px</span>
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               H2 / 24 Bold
+              <CopyTypographyClass value="text-h2" />
             </span>
             <span className="text-h2">Recent Transactions 24px</span>
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Title / 20 Regular
+              <CopyTypographyClass value="text-title" />
             </span>
             <span className="text-title">Cyber Samurai #0492 — 20px</span>
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Body-lg / 16 Bold
+              <CopyTypographyClass value="text-body-lg-bold" />
             </span>
             <span className="text-body-lg-bold">
               Large body text for descriptions and highlights — 16px
@@ -82,6 +121,7 @@ export const TokensDemo = () => {
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Body-lg / 16 Medium
+              <CopyTypographyClass value="text-body-lg-medium" />
             </span>
             <span className="text-body-lg-medium">
               Large body text for descriptions and highlights — 16px
@@ -90,6 +130,7 @@ export const TokensDemo = () => {
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Body-lg / 16 Regular
+              <CopyTypographyClass value="text-body-lg" />
             </span>
             <span className="text-body-lg">
               Large body text for descriptions and highlights — 16px
@@ -99,6 +140,7 @@ export const TokensDemo = () => {
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Body / 15 Regular
+              <CopyTypographyClass value="text-body" />
             </span>
             <span className="text-body">
               Standard body text across the catalog and cards — 15px
@@ -106,7 +148,33 @@ export const TokensDemo = () => {
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
+              Body / 14 Regular · lh 24
+              <CopyTypographyClass value="text-body-regular" />
+            </span>
+            <span className="text-body-regular">
+              Regular body text — 14px / 24px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
+              Body / 14 Medium · lh 16
+              <CopyTypographyClass value="text-body-medium" />
+            </span>
+            <span className="text-body-medium">
+              Medium body text — 14px / 16px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
+              Body / 14 Bold · lh 16 · tracking 0%
+              <CopyTypographyClass value="text-body-bold" />
+            </span>
+            <span className="text-body-bold">Bold body text — 14px / 16px</span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
               Body-sm / 14 Regular
+              <CopyTypographyClass value="text-body-sm" />
             </span>
             <span className="text-body-sm">
               Small body text for secondary details and metadata — 14px
@@ -114,7 +182,17 @@ export const TokensDemo = () => {
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
+              Caption / 12 Bold · lh 14 · tracking 0%
+              <CopyTypographyClass value="text-caption-bold" />
+            </span>
+            <span className="text-caption-bold">
+              Bold caption text — 12px / 14px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
               Caption / 13
+              <CopyTypographyClass value="text-caption" />
             </span>
             <span className="text-caption text-text-secondary">
               Caption notes, inputs helper labels — 13px
@@ -123,6 +201,7 @@ export const TokensDemo = () => {
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Tiny / 12
+              <CopyTypographyClass value="text-tiny" />
             </span>
             <span className="text-tiny text-text-secondary">
               Tiny badges and tags — 12px
@@ -131,6 +210,7 @@ export const TokensDemo = () => {
           <div className="flex flex-col justify-between gap-2 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Micro / 10 Medium
+              <CopyTypographyClass value="text-micro" />
             </span>
             <span className="text-micro text-text-secondary font-medium">
               Micro timestamps and status tags — 10px
@@ -301,13 +381,26 @@ export const TokensDemo = () => {
               Tamanhos
             </h3>
             <div className="flex flex-wrap items-center gap-4">
-              <Button size="xsm">Extra Small (xsm)</Button>
-              <Button size="sm">Small (sm)</Button>
-              <Button size="default">Default / Medium</Button>
-              <Button size="lg">Large (lg)</Button>
-              <Button size="icon" aria-label="Ação">
-                ★
-              </Button>
+              <Button size="xsm">Extra Small (xsm) · 32px</Button>
+              <Button size="sm">Small (sm) · 36px</Button>
+              <Button size="default">Default / Medium · 40px</Button>
+              <Button size="lg">Large (lg) · 48px</Button>
+              <div className="flex flex-col items-center gap-2">
+                <Button size="icon" aria-label="Ação">
+                  ★
+                </Button>
+                <span className="text-tiny text-text-secondary">
+                  Icon · 40px
+                </span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Button size="icon-sm" aria-label="Ação pequena">
+                  ★
+                </Button>
+                <span className="text-tiny text-text-secondary">
+                  Icon Small · 32px
+                </span>
+              </div>
             </div>
           </div>
 
@@ -330,7 +423,7 @@ export const TokensDemo = () => {
             <h3 className="text-body-sm text-text-secondary font-bold uppercase">
               Full Width
             </h3>
-            <Button size="full">Comprar Agora (Full Width)</Button>
+            <Button size="full">Comprar Agora (Full Width) · 40px</Button>
           </div>
         </div>
       </section>
@@ -358,6 +451,9 @@ export const TokensDemo = () => {
               </div>
               <div className="bg-surface-raised border-border text-micro rounded-xl border px-3 py-1.5">
                 xl (20px)
+              </div>
+              <div className="bg-surface-raised border-border text-micro rounded-2xl border px-3 py-1.5">
+                2xl (24px)
               </div>
               <div className="bg-surface-raised border-border rounded-pill text-micro border px-3 py-1.5">
                 pill

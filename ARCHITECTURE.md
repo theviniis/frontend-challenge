@@ -64,7 +64,7 @@ token). Expiração = sessão nova explícita, com contexto preservado.
 
 ```ts
 keyFactory.nfts.all                    // ["nfts"]
-keyFactory.nfts.list(searchParams)     // ["nfts", "list", { q, categories, sort, page, … }] ← hash da URL
+keyFactory.nfts.list(searchParams, userId) // ["nfts", "list", { q, categories, networks, sort, page, … }, userId] ← hash da URL
 keyFactory.nfts.detail(id)             // ["nfts", "detail", id]
 keyFactory.favorites.all(userId)       // ["favorites", userId]
 keyFactory.cart(userId)                // ["cart", userId]

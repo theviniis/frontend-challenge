@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { ethSchema, nftSortSchema } from '@/lib/http/schemas';
+import {
+  ethSchema,
+  nftSortSchema,
+  catalogNetworkSchema,
+} from '@/lib/http/schemas';
 export const emptyToUndefined = (value: unknown) =>
   typeof value === 'string' && !value.trim() ? undefined : value;
 export const catalogFilterSchema = z.object({
@@ -10,8 +14,16 @@ export const catalogFilterSchema = z.object({
     const nonempty = values.filter(
       (item) => emptyToUndefined(item) !== undefined
     );
-    return nonempty.length ? nonempty : undefined;
-  }, z.array(z.string()).optional()),
+    // Older shared URLs can contain multiple categories; keep the first one.
+    return nonempty.length ? nonempty.slice(0, 1) : undefined;
+  }, z.array(z.string()).max(1).optional()),
+  networks: z.preprocess((value) => {
+    if (value === undefined) return undefined;
+    const values = (Array.isArray(value) ? value : [value]).filter(
+      (item) => emptyToUndefined(item) !== undefined
+    );
+    return values.length ? values : undefined;
+  }, z.array(catalogNetworkSchema).optional()),
   minPrice: z.preprocess(emptyToUndefined, ethSchema.optional()),
   maxPrice: z.preprocess(emptyToUndefined, ethSchema.optional()),
   sort: z.preprocess(emptyToUndefined, nftSortSchema.default('relevance')),

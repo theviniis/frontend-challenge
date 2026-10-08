@@ -5,7 +5,8 @@ const user = (userId?: string | null) => userId || 'anon';
 export const keyFactory = {
   nfts: {
     all: ['nfts'] as const,
-    list: (params: Partial<NftListQuery>) => ['nfts', 'list', params] as const,
+    list: (params: Partial<NftListQuery>, userId?: string | null) =>
+      ['nfts', 'list', params, user(userId)] as const,
     detail: (id: string) => ['nfts', 'detail', id] as const,
   },
   favorites: {
