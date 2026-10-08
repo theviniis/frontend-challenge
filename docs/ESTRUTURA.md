@@ -30,6 +30,7 @@ frontend-challenge/
 │   ├── lighthouse.config.js      # perfis mobile/desktop, 3 medições
 │   └── reports/                  # HTML/JSON versionados
 ├── tests/
+│   ├── contract/            # Vitest — handlers MSW × schemas zod (`pnpm test:contract`)
 │   └── e2e/
 │       ├── fixtures/             # dados de teste Playwright
 │       └── *.spec.ts             # 12 fluxos do enunciado + regressão visual
@@ -176,6 +177,7 @@ Regras:
 | `pnpm build` / `pnpm preview` | build de produção / preview local |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` / `pnpm lint:fix` | ESLint (+ Prettier) |
+| `pnpm test:contract` | Vitest — testes de contrato dos handlers MSW |
 | `pnpm test:e2e` | Playwright (headless, Chromium desktop+mobile) |
 | `pnpm test:e2e:ui` | Playwright com UI mode |
 | `pnpm lighthouse` | auditoria (3 medições/página/perfil, mediana) |

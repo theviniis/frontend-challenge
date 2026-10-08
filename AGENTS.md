@@ -13,6 +13,7 @@ referência rápida para sessões de agente; detalhes estão nos docs indicados 
 | `pnpm build` / `pnpm preview` | build de produção / preview local |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` / `pnpm lint:fix` | ESLint + Prettier |
+| `pnpm test:contract` | Vitest — handlers MSW validados contra os schemas zod |
 | `pnpm test:e2e` / `pnpm test:e2e:ui` | Playwright (Chromium desktop 1440 + mobile 390) |
 | `pnpm lighthouse` | auditoria Lighthouse (3 medições/página/perfil) |
 | `pnpm fig:extract` | exporta frames/estilos/ícones do Figma → `docs/figma/`, `public/` |
