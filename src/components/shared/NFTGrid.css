@@ -1,0 +1,13 @@
+@media (max-width: 767px) {
+  .nft-grid .nft-card:nth-child(even) {
+    transform: translateY(32px);
+  }
+}
+@media (max-width: 359px) {
+  .nft-grid {
+    grid-template-columns: 1fr;
+  }
+  .nft-grid .nft-card:nth-child(even) {
+    transform: none;
+  }
+}

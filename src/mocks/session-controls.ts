@@ -1,14 +1,15 @@
 import { storeSession } from '@/lib/session/storage';
 import type { DemoSessionControls } from '@/lib/session/demo';
-import { SEED_USERS } from './fixtures/users';
-import { toUserPublic } from './db/store';
+import { http } from '@/lib/http/client';
+import { endpoints } from '@/lib/http/endpoints';
+import { sessionSchema } from '@/lib/http/schemas';
 export const demoSession: DemoSessionControls = {
-  login() {
-    storeSession({
-      token: 'mock.routes.ana',
-      user: toUserPublic(SEED_USERS[0]),
-      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+  async login() {
+    const response = await http.post<unknown>(endpoints.login, {
+      email: 'ana@greenmint.test',
+      password: 'Ana12345',
     });
+    storeSession(sessionSchema.parse(response.data));
   },
   logout() {
     storeSession(null);

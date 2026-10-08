@@ -2,6 +2,7 @@ import {
   Outlet,
   createRootRouteWithContext,
   Link,
+  useRouterState,
 } from '@tanstack/react-router';
 import type { RouterContext } from '@/lib/session/demo';
 import { subscribeSession } from '@/lib/session/storage';
@@ -20,6 +21,9 @@ function RootComponent() {
 
   const { demoSession } = Route.useRouteContext();
   const router = useRouter();
+  const isCatalog = useRouterState({
+    select: (state) => state.location.pathname === '/',
+  });
   useEffect(
     () =>
       subscribeSession(() => {
@@ -32,7 +36,9 @@ function RootComponent() {
   return (
     <div className="bg-ink text-foreground min-h-screen font-mono">
       {/* Barra de utilidades / status de sessão para dev e testes */}
-      <div className="border-border bg-surface-card text-tiny border-b px-4 py-2">
+      <div
+        className={`border-border bg-surface-card text-tiny border-b px-4 py-2 ${isCatalog ? 'hidden' : ''}`}
+      >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-primary font-bold">GreenMint Router</span>
@@ -71,7 +77,13 @@ function RootComponent() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl p-6 md:p-12">
+      <main
+        className={
+          isCatalog
+            ? 'mx-auto max-w-[1200px] md:mx-6 xl:mx-auto'
+            : 'mx-auto max-w-7xl p-6 md:p-12'
+        }
+      >
         <Outlet />
       </main>
     </div>

@@ -12,7 +12,7 @@ function LoginPage() {
   const router = useRouter();
   const safeRedirect = sanitizeRedirect(search.redirect);
   async function login() {
-    demoSession?.login();
+    await demoSession?.login();
     await router.invalidate();
     await router.navigate({ href: safeRedirect });
   }

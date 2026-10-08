@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as NotFoundRouteImport } from './routes/not-found'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as TesteRouteImport } from './routes/teste'
 import { Route as TokensRouteImport } from './routes/tokens'
 import { Route as WalletsRouteImport } from './routes/wallets'
 import { Route as NftsNftIdRouteImport } from './routes/nfts.$nftId'
@@ -25,7 +26,7 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -54,6 +55,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TesteRoute = TesteRouteImport.update({
+  id: '/teste',
+  path: '/teste',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TokensRoute = TokensRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/not-found': typeof NotFoundRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/teste': typeof TesteRoute
   '/tokens': typeof TokensRoute
   '/wallets': typeof WalletsRoute
   '/nfts/$nftId': typeof NftsNftIdRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/not-found': typeof NotFoundRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/teste': typeof TesteRoute
   '/tokens': typeof TokensRoute
   '/wallets': typeof WalletsRoute
   '/nfts/$nftId': typeof NftsNftIdRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/not-found': typeof NotFoundRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/teste': typeof TesteRoute
   '/tokens': typeof TokensRoute
   '/wallets': typeof WalletsRoute
   '/nfts/$nftId': typeof NftsNftIdRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/profile'
     | '/signup'
+    | '/teste'
     | '/tokens'
     | '/wallets'
     | '/nfts/$nftId'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/profile'
     | '/signup'
+    | '/teste'
     | '/tokens'
     | '/wallets'
     | '/nfts/$nftId'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/profile'
     | '/signup'
+    | '/teste'
     | '/tokens'
     | '/wallets'
     | '/nfts/$nftId'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   NotFoundRoute: typeof NotFoundRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
+  TesteRoute: typeof TesteRoute
   TokensRoute: typeof TokensRoute
   WalletsRoute: typeof WalletsRoute
   NftsNftIdRoute: typeof NftsNftIdRoute
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teste': {
+      id: '/teste'
+      path: '/teste'
+      fullPath: '/teste'
+      preLoaderRoute: typeof TesteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tokens': {
       id: '/tokens'
       path: '/tokens'
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotFoundRoute: NotFoundRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
+  TesteRoute: TesteRoute,
   TokensRoute: TokensRoute,
   WalletsRoute: WalletsRoute,
   NftsNftIdRoute: NftsNftIdRoute,

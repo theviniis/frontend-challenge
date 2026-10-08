@@ -7,16 +7,17 @@ referência rápida para sessões de agente; detalhes estão nos docs indicados 
 
 > Válidos após o scaffolding (fase 1). Gerenciador: **pnpm**.
 
-| Comando | O que faz |
-| --- | --- |
-| `pnpm dev` | dev server com mocks MSW ativos |
-| `pnpm build` / `pnpm preview` | build de produção / preview local |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm lint` / `pnpm lint:fix` | ESLint + Prettier |
-| `pnpm test:contract` | Vitest — handlers MSW validados contra os schemas zod |
-| `pnpm test:e2e` / `pnpm test:e2e:ui` | Playwright (Chromium desktop 1440 + mobile 390) |
-| `pnpm lighthouse` | auditoria Lighthouse (3 medições/página/perfil) |
-| `pnpm fig:extract` | exporta frames/estilos/ícones do Figma → `docs/figma/`, `public/` |
+| Comando                              | O que faz                                                         |
+| ------------------------------------ | ----------------------------------------------------------------- |
+| `pnpm dev`                           | dev server com mocks MSW ativos                                   |
+| `pnpm build` / `pnpm preview`        | build de produção / preview local                                 |
+| `pnpm typecheck`                     | `tsc --noEmit`                                                    |
+| `pnpm lint` / `pnpm lint:fix`        | ESLint + Prettier                                                 |
+| `pnpm test:contract`                 | Vitest — handlers MSW validados contra os schemas zod             |
+| `pnpm test:e2e` / `pnpm test:e2e:ui` | Playwright (Chromium desktop 1440 + mobile 390)                   |
+| `pnpm lighthouse`                    | auditoria Lighthouse (3 medições/página/perfil)                   |
+| `pnpm fig:extract`                   | exporta frames/estilos/ícones do Figma → `docs/figma/`, `public/` |
+| `pnpm format`                        | formata arquivos com prettier                                     |
 
 **Antes de concluir qualquer tarefa:** rodar `pnpm typecheck` e `pnpm lint`.
 Depois de tocar em testes/fluxos: `pnpm test:e2e` nos specs afetados.
@@ -59,11 +60,11 @@ Depois de tocar em testes/fluxos: `pnpm test:e2e` nos specs afetados.
 
 ## Onde ler antes de mexer em algo
 
-| Assunto | Arquivo |
-| --- | --- |
-| Estrutura de pastas, rotas, scripts, fases | `docs/ESTRUTURA.md` |
-| Cores, tipografia, componentes reutilizáveis | `docs/ESTILOS.md` |
-| Contratos REST (endpoints, erros, modelos) | `docs/api/README.md` (+ resource files) |
-| Sessão, cache, tempo real, dinheiro, erros | `ARCHITECTURE.md` |
-| Cenários MSW, Socket.IO no mock, Playwright | `docs/MOCKS.md` |
-| Enunciado do desafio (critérios, entregas) | `README.md` |
+| Assunto                                      | Arquivo                                 |
+| -------------------------------------------- | --------------------------------------- |
+| Estrutura de pastas, rotas, scripts, fases   | `docs/ESTRUTURA.md`                     |
+| Cores, tipografia, componentes reutilizáveis | `docs/ESTILOS.md`                       |
+| Contratos REST (endpoints, erros, modelos)   | `docs/api/README.md` (+ resource files) |
+| Sessão, cache, tempo real, dinheiro, erros   | `ARCHITECTURE.md`                       |
+| Cenários MSW, Socket.IO no mock, Playwright  | `docs/MOCKS.md`                         |
+| Enunciado do desafio (critérios, entregas)   | `README.md`                             |

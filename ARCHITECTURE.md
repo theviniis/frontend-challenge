@@ -218,3 +218,30 @@ determinísticos, transporte Socket.IO via `@mswjs/socket.io-binding`, integraç
 - Sem blockchain real: carteiras, conexão e transações são simuladas (por escopo do desafio).
 - Transporte Socket.IO via MSW — ver limitações em `docs/MOCKS.md` §6.
 - Token de sessão opaco sem refresh — expiração sempre exige novo login.
+
+## 11. Catálogo (fase 08)
+
+- `/` apresenta o catálogo; o placeholder anterior e seus controles permanecem em `/teste`.
+- Busca por Enter/submit, categorias AND, preço decimal, ordenação e paginação usam
+  `validateSearch`. Defaults `sort=relevance` e `page=1` são omitidos na navegação.
+  O parser preserva busca textual e ETH sem conversão numérica, aceita categorias
+  repetidas e também a serialização JSON de arrays do TanStack Router.
+- A UI solicita `pageSize=9`, permitido pelo contrato existente, para compor três
+  linhas de três cards como no frame desktop. Esse tamanho faz parte da query key.
+  O default de 12 itens da API permanece disponível para outros consumidores.
+- Favoritos usam autenticação, cache por usuário e cancel→snapshot→apply→rollback;
+  o controle de login de demonstração agora obtém uma sessão válida via Axios/MSW.
+- Figma MCP: `get_design_context` e `get_screenshot` dos frames `2:2` / `14:5226`
+  recusaram a leitura por falta de acesso de edição da conta conectada. Medidas,
+  textos e slots de imagens vieram da exportação completa `docs/figma/file.json`;
+  quatro PNGs e SVGs Iconly locais foram reutilizados. A validação visual direta
+  com screenshots desses frames pelo MCP continua pendente dessa permissão.
+- Adaptações: busca desktop acima dos filtros; preço com inputs decimais para
+  precisão/teclado; ordenação também acessível no mobile; coleção e edição nos
+  cards, conforme a tarefa. Filtros de rede e contagens por categoria não são
+  oferecidos porque o contrato não fornece esses parâmetros/agregações.
+- Links editoriais sem destino e inscrição de newsletter ficam indisponíveis;
+  não existe endpoint correspondente. Ações de coleção/marketplace levam ao
+  catálogo real. O rodapé desktop não integra o frame mobile de 896px.
+- Capturas Playwright em `test-results/catalog-desktop.png` e
+  `test-results/catalog-mobile.png` ocultam somente o painel utilitário de mocks.

@@ -1,5 +1,5 @@
 export interface DemoSessionControls {
-  login: () => void;
+  login: () => Promise<void>;
   logout: () => void;
 }
 export interface RouterContext {

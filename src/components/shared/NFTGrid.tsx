@@ -1,0 +1,42 @@
+import './NFTGrid.css';
+import type { Nft } from '@/types/api';
+import { NFTCardSkeleton } from './NFTCardSkeleton';
+import { NFTCard } from './NFTCard';
+
+export function NFTGrid({
+  items,
+  loading,
+  ids,
+  pending,
+  onFavorite,
+  skeletonCount = 9,
+}: {
+  items: Nft[];
+  loading: boolean;
+  ids: string[];
+  pending: boolean;
+  onFavorite: (nft: Nft) => void;
+  skeletonCount?: number;
+}) {
+  return (
+    <div
+      className="nft-grid grid grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-10"
+      aria-label="NFTs do catálogo"
+      aria-busy={loading}
+    >
+      {loading
+        ? Array.from({ length: skeletonCount }, (_, index) => (
+            <NFTCardSkeleton key={index} />
+          ))
+        : items.map((nft) => (
+            <NFTCard
+              key={nft.id}
+              nft={nft}
+              favorite={ids.includes(nft.id)}
+              pending={pending}
+              onFavorite={() => onFavorite(nft)}
+            />
+          ))}
+    </div>
+  );
+}

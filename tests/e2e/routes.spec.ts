@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 const routes = [
   ['/', 'Início'],
+  ['/teste', 'Início'],
   ['/nfts/sample', 'Detalhes do NFT'],
   ['/cart', 'Carrinho'],
   ['/login', 'Login'],
@@ -68,7 +69,7 @@ for (const [path, title] of privateRoutes)
 test('catalog URL survives refresh and back/forward; filters reset page', async ({
   page,
 }) => {
-  await page.goto('/?q=abc&page=2');
+  await page.goto('/teste?q=abc&page=2');
   const state = page.getByLabel('Filtros atuais');
   await expect(state).toContainText('"q": "abc"');
   await expect(state).toContainText('"page": 2');
@@ -108,9 +109,11 @@ test('external redirect is rejected', async ({ page }) => {
 test('expired and malformed sessions cannot access private routes', async ({
   page,
 }) => {
+  await page.goto('/teste');
   await page
     .getByRole('button', { name: 'Simular Login Rápido (Ana)', exact: true })
     .click();
+  await expect(page.getByText('Ativa (Ana', { exact: false })).toBeVisible();
   await page.evaluate(() => {
     const session = JSON.parse(localStorage.getItem('gm_session')!);
     session.expiresAt = '2000-01-01T00:00:00.000Z';
@@ -127,9 +130,11 @@ test('expired and malformed sessions cannot access private routes', async ({
   ).toBeVisible();
 });
 test('all marketplace screens reachable by click', async ({ page }) => {
+  await page.goto('/teste');
   await page
     .getByRole('button', { name: 'Simular Login Rápido (Ana)', exact: true })
     .click();
+  await expect(page.getByText('Ativa (Ana', { exact: false })).toBeVisible();
   for (const name of [
     'Detalhes NFT (#1)',
     'Carrinho',
