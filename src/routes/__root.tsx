@@ -9,6 +9,7 @@ import { subscribeSession } from '@/lib/session/storage';
 import { useRouter } from '@tanstack/react-router';
 import { getStoredSession } from '@/lib/session/guards';
 import { useState, useEffect } from 'react';
+import { Header } from '@/components/layout/Header';
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
@@ -77,13 +78,12 @@ function RootComponent() {
         </div>
       </div>
 
-      <main
-        className={
-          isCatalog
-            ? 'mx-auto max-w-300 md:mx-6 xl:mx-auto'
-            : 'mx-auto max-w-7xl p-6 md:p-12'
-        }
-      >
+      <main className="px-6 py-10 md:px-30 md:py-6">
+        <Header
+          marketHref="#catalogo"
+          learnHref="#diario"
+          divider={!!isCatalog}
+        />
         <Outlet />
       </main>
     </div>

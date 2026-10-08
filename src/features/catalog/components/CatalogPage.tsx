@@ -1,5 +1,4 @@
 import { lazy, Suspense } from 'react';
-import { Header } from '@/components/layout/Header';
 import { MobileNavigation } from '@/components/layout/MobileNavigation';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 import { useCatalog } from '../hooks/useCatalog';
@@ -24,9 +23,8 @@ export function CatalogPage() {
   };
 
   return (
-    <div className="mx-auto max-w-300 px-6 pt-10 pb-22.5 md:px-0 md:py-6">
+    <div className="mx-auto">
       <h1 className="sr-only">Início</h1>
-      <Header marketHref="#catalogo" learnHref="#diario" divider />
       <CatalogMobileControls {...controls} />
       <CatalogHero />
       <section
