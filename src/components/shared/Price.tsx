@@ -8,14 +8,12 @@ export function Price({
   previousPrice?: string;
 }) {
   return (
-    <span className="inline-flex flex-wrap items-center gap-2">
-      <span className={previousPrice ? 'text-coral' : 'text-foreground'}>
-        {displayEth(value)}
-      </span>
+    <span className="inline-flex flex-wrap items-center gap-3">
+      <span className="text-accent">{displayEth(value)}</span>
       {previousPrice && (
-        <del className="text-text-secondary text-tiny">
+        <span className="text-text-secondary text-body-18-regular">
           {displayEth(previousPrice)}
-        </del>
+        </span>
       )}
     </span>
   );

@@ -111,6 +111,24 @@ export const TokensDemo = () => {
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
+              Body / 18 Bold · lh 16 · tracking 0% · usos: 95
+              <CopyTypographyClass value="text-body-18-bold" />
+            </span>
+            <span className="text-body-18-bold">
+              Bold body text — 18px / 16px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
+              Body / 18 Regular · lh 16 · tracking 0% · usos: 10
+              <CopyTypographyClass value="text-body-18-regular" />
+            </span>
+            <span className="text-body-18-regular">
+              Regular body text — 18px / 16px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
               Body-lg / 16 Bold
               <CopyTypographyClass value="text-body-lg-bold" />
             </span>

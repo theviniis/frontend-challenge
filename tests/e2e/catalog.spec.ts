@@ -27,16 +27,37 @@ test.beforeEach(async ({ page }) => {
 
 test('active catalog tab preserves typography and primary color', async ({
   page,
-}) => {
+}, info) => {
+  const desktop = info.project.name === 'desktop';
   const group = page.getByRole('group', { name: 'Seleção de catálogo' });
   const active = group.getByRole('button', {
     name: 'Todos os NFTs',
     exact: true,
   });
-  await expect(active).toHaveCSS('font-size', '14px');
-  await expect(active).toHaveCSS('font-weight', '700');
+  await expect(active).toHaveCSS('font-size', desktop ? '15px' : '14px');
+  await expect(active).toHaveCSS('font-weight', desktop ? '500' : '700');
   await expect(active).toHaveCSS('line-height', '16px');
   await expect(active).toHaveCSS('color', 'rgb(210, 138, 76)');
+
+  if (desktop) {
+    await page.evaluate(() => document.fonts.ready);
+    const select = page.getByLabel('Ordenar por:');
+    await expect(select.locator('..')).toHaveCSS('line-height', '16px');
+    const textTop = (element: HTMLElement | SVGElement) => {
+      const range = document.createRange();
+      range.selectNodeContents(element.firstChild!);
+      return range.getBoundingClientRect().y;
+    };
+    expect(await select.locator('..').evaluate(textTop)).toBeCloseTo(
+      await active.evaluate(textTop),
+      0
+    );
+    const selectBox = await select.boundingBox();
+    expect(selectBox!.height).toBeGreaterThan(16);
+    await select
+      .locator('../..')
+      .screenshot({ path: 'test-results/catalog-toolbar.png' });
+  }
 
   const recent = group.getByRole('button', {
     name: 'Novos lançamentos',
@@ -44,9 +65,9 @@ test('active catalog tab preserves typography and primary color', async ({
   });
   await recent.click();
   await expect(recent).toHaveAttribute('aria-pressed', 'true');
-  await expect(recent).toHaveCSS('font-weight', '700');
+  await expect(recent).toHaveCSS('font-weight', desktop ? '500' : '700');
   await expect(recent).toHaveCSS('color', 'rgb(210, 138, 76)');
-  await expect(active).toHaveCSS('font-weight', '400');
+  await expect(active).toHaveCSS('font-weight', desktop ? '500' : '400');
   await expect(active).toHaveCSS('color', 'rgb(245, 241, 235)');
 });
 

@@ -12,12 +12,12 @@ export function SortSelect({
   return (
     <label
       htmlFor={id}
-      className="text-body-combo text-foreground hidden items-center gap-2 border-b-2 border-transparent pb-1.5 md:flex"
+      className="text-body-combo text-foreground hidden items-baseline gap-2 md:flex"
     >
       Ordenar por:
       <select
         id={id}
-        className="text-body-combo text-foreground h-4 min-w-0 p-0"
+        className="text-body-combo text-foreground min-w-0 p-0"
         value={value}
         onChange={(event) =>
           onChange(event.target.value as CatalogFilterState['sort'])

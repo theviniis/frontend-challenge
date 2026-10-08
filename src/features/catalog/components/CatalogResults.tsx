@@ -36,9 +36,6 @@ export function CatalogResults({ catalog }: { catalog: CatalogController }) {
           <NFTGrid
             items={query.data?.items ?? []}
             loading={query.isPending}
-            ids={catalog.favoriteIds}
-            pending={catalog.isFavoritePending}
-            onFavorite={catalog.onFavorite}
             skeletonCount={CATALOG_PAGE_SIZE}
           />
         </div>

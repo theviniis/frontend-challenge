@@ -5,16 +5,10 @@ import { NFTCard } from './NFTCard';
 export function NFTGrid({
   items,
   loading,
-  ids,
-  pending,
-  onFavorite,
   skeletonCount = 9,
 }: {
   items: Nft[];
   loading: boolean;
-  ids: string[];
-  pending: boolean;
-  onFavorite: (nft: Nft) => void;
   skeletonCount?: number;
 }) {
   return (
@@ -27,15 +21,7 @@ export function NFTGrid({
         ? Array.from({ length: skeletonCount }, (_, index) => (
             <NFTCardSkeleton key={index} />
           ))
-        : items.map((nft) => (
-            <NFTCard
-              key={nft.id}
-              nft={nft}
-              favorite={ids.includes(nft.id)}
-              pending={pending}
-              onFavorite={() => onFavorite(nft)}
-            />
-          ))}
+        : items.map((nft) => <NFTCard key={nft.id} nft={nft} />)}
     </div>
   );
 }
