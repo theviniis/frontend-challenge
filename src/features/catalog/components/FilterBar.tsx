@@ -1,8 +1,14 @@
 import { useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import { ethSchema } from '@/lib/http/schemas';
-import { cmpEth } from '@/lib/money';
+import {
+  cmpEth,
+  ethToPriceStep,
+  priceStepToEth,
+  priceSliderLimit,
+  formatPriceRangeValue,
+} from '@/lib/money';
 import type { CatalogFilterState } from '../search-params';
 
 const categories = [
@@ -27,7 +33,13 @@ export function FilterBar({
   const id = useId();
   const [min, setMin] = useState(filters.minPrice ?? '');
   const [max, setMax] = useState(filters.maxPrice ?? '');
+  const [edited, setEdited] = useState([false, false]);
+  const limit = priceSliderLimit(filters.minPrice, filters.maxPrice);
+  const [announcement, setAnnouncement] = useState('');
   const [error, setError] = useState('');
+  const prices = [min || '0', max || limit];
+  const positions = prices.map(ethToPriceStep);
+  const rangeText = `Preço: ${formatPriceRangeValue(prices[0])} - ${formatPriceRangeValue(prices[1])} ETH`;
   function applyPrice() {
     if (
       (min && !ethSchema.safeParse(min).success) ||
@@ -41,7 +53,11 @@ export function FilterBar({
       return;
     }
     setError('');
-    onChange({ minPrice: min || undefined, maxPrice: max || undefined });
+    onChange({
+      minPrice: !min || (edited[0] && cmpEth(min, '0') === 0) ? undefined : min,
+      maxPrice:
+        !max || (edited[1] && cmpEth(max, limit) === 0) ? undefined : max,
+    });
   }
   return (
     <div className="border-border bg-surface-card space-y-8 rounded-lg border p-5">
@@ -69,49 +85,54 @@ export function FilterBar({
           </label>
         ))}
       </fieldset>
-      <fieldset className="border-border space-y-4 border-t pt-6">
-        <legend className="text-body-lg font-bold">Faixa de preço</legend>
-        <div className="grid grid-cols-2 gap-3">
-          <label
-            className="text-tiny text-text-secondary"
-            htmlFor={`${id}-min`}
-          >
-            Mínimo (ETH)
-            <Input
-              id={`${id}-min`}
-              className="mt-2"
-              inputMode="decimal"
-              value={min}
-              placeholder="0.02"
-              onChange={(event) => setMin(event.target.value)}
-              aria-invalid={!!error}
-              aria-describedby={error ? `${id}-error` : undefined}
-            />
-          </label>
-          <label
-            className="text-tiny text-text-secondary"
-            htmlFor={`${id}-max`}
-          >
-            Máximo (ETH)
-            <Input
-              id={`${id}-max`}
-              className="mt-2"
-              inputMode="decimal"
-              value={max}
-              placeholder="12.30"
-              onChange={(event) => setMax(event.target.value)}
-              aria-invalid={!!error}
-              aria-describedby={error ? `${id}-error` : undefined}
-            />
-          </label>
-        </div>
+      <fieldset>
+        <legend className="text-title font-bold">Faixa de preço</legend>
+        <Slider
+          min={0}
+          max={ethToPriceStep(limit)}
+          step={1}
+          value={positions}
+          thumbLabels={['Preço mínimo', 'Preço máximo']}
+          thumbValueTexts={prices.map(
+            (price) => `${formatPriceRangeValue(price)} ETH`
+          )}
+          aria-describedby={error ? `${id}-error` : `${id}-range`}
+          aria-invalid={!!error}
+          onValueChange={(next) => {
+            if (next[0] !== positions[0]) setMin(priceStepToEth(next[0]));
+            if (next[1] !== positions[1]) setMax(priceStepToEth(next[1]));
+            setEdited((previous) => [
+              previous[0] || next[0] !== positions[0],
+              previous[1] || next[1] !== positions[1],
+            ]);
+            setError('');
+          }}
+          onValueCommit={(next) =>
+            setAnnouncement(
+              `Preço: ${next.map((position, index) => formatPriceRangeValue(position === positions[index] ? prices[index] : priceStepToEth(position))).join(' - ')} ETH`
+            )
+          }
+        />
+        <p
+          id={`${id}-range`}
+          className="text-body-lg text-foreground mt-1 break-words"
+        >
+          {rangeText}
+        </p>
+        <span className="sr-only" aria-live="polite">
+          {announcement}
+        </span>
         {error && (
           <p id={`${id}-error`} className="text-tiny text-coral" role="alert">
             {error}
           </p>
         )}
-        <Button className="w-full" onClick={applyPrice}>
-          Aplicar preço
+        <Button
+          className="mt-2"
+          style={{ fontSize: 'var(--text-body-lg)' }}
+          onClick={applyPrice}
+        >
+          Aplicar
         </Button>
       </fieldset>
       <Button
@@ -120,7 +141,9 @@ export function FilterBar({
         onClick={() => {
           setMin('');
           setMax('');
+          setEdited([false, false]);
           setError('');
+          setAnnouncement('Filtros limpos');
           onChange({
             q: undefined,
             categories: undefined,

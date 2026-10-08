@@ -4,6 +4,36 @@ const D = Decimal.clone({ precision: 34, rounding: Decimal.ROUND_HALF_UP });
 
 export type Eth = string;
 
+// Slider numbers are integer positions, never monetary values.
+export function ethToPriceStep(value: Eth): number {
+  const index = parseEth(value).mul('100').toDecimalPlaces(0).toNumber();
+  if (!Number.isSafeInteger(index) || index < 0)
+    throw new RangeError('Preço fora da escala segura do slider');
+  return index;
+}
+
+export function priceStepToEth(index: number): Eth {
+  if (!Number.isSafeInteger(index) || index < 0)
+    throw new RangeError('Posição inválida do slider');
+  return formatEth(new D(index).div('100'));
+}
+
+export function priceSliderLimit(...values: (Eth | undefined)[]): Eth {
+  return formatEth(
+    D.max(
+      '20',
+      ...values.filter((v): v is Eth => v !== undefined).map(parseEth)
+    ).ceil()
+  );
+}
+
+export function formatPriceRangeValue(value: Eth): string {
+  const decimal = parseEth(value);
+  return decimal
+    .toFixed(Math.max(2, decimal.decimalPlaces()))
+    .replace('.', ',');
+}
+
 export const parseEth = (v: Eth): Decimal => {
   if (typeof v !== 'string' || !/^-?\d+(\.\d{1,18})?$/.test(v)) {
     throw new TypeError('ETH deve ser uma string decimal com até 18 casas');

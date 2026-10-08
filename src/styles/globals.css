@@ -37,6 +37,14 @@
   --text-body-lg: 16px;
   --text-body-lg--line-height: 24px;
 
+  --text-body-lg-bold: 16px;
+  --text-body-lg-bold--line-height: 24px;
+  --text-body-lg-bold--font-weight: 700;
+
+  --text-body-lg-medium: 16px;
+  --text-body-lg-medium--line-height: 24px;
+  --text-body-lg-medium--font-weight: 500;
+
   --text-body: 15px;
   --text-body--line-height: 24px;
 
@@ -138,8 +146,8 @@
   --secondary-foreground: #140d0a;
   --muted: #2f1d15;
   --muted-foreground: #cfb28c;
-  --accent: #2f1d15;
-  --accent-foreground: #f5f1eb;
+  --accent: #e89b55;
+  --accent-foreground: #140d0a;
   --destructive: #ed1b2e;
   --destructive-foreground: #ffffff;
   --border: #3f2319;

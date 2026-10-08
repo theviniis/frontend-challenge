@@ -22,7 +22,7 @@ function IndexPage() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xsm"
           onClick={() =>
             navigate({
               search: (prev) => ({ ...prev, q: 'cyberpunk', page: 1 }),
@@ -34,7 +34,7 @@ function IndexPage() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xsm"
           onClick={() =>
             navigate({
               search: (prev) => ({
@@ -53,7 +53,7 @@ function IndexPage() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xsm"
           onClick={() =>
             navigate({ search: (prev) => ({ ...prev, page: prev.page + 1 }) })
           }
@@ -63,7 +63,7 @@ function IndexPage() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xsm"
           onClick={() => navigate({ search: { sort: 'relevance', page: 1 } })}
         >
           Limpar filtros

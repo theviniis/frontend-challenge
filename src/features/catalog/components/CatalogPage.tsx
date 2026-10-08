@@ -25,9 +25,9 @@ export function CatalogPage() {
   };
 
   return (
-    <div className="catalog-page mx-auto max-w-[1200px]">
+    <div className="catalog-page mx-auto max-w-300">
       <h1 className="sr-only">Início</h1>
-      <Header marketHref="#catalogo" learnHref="#diario" />
+      <Header marketHref="#catalogo" learnHref="#diario" divider />
       <CatalogMobileControls {...controls} />
       <CatalogHero />
       <section

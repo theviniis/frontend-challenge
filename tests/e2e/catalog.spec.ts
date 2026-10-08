@@ -57,8 +57,8 @@ test('search, combined filters, sorting, refresh and history preserve URL state'
     page.getByRole('checkbox', { name: 'Música', exact: true })
   ).toBeChecked();
   await expect(
-    page.getByLabel('Mínimo (ETH)').filter({ visible: true })
-  ).toHaveValue('0.02');
+    page.getByRole('slider', { name: 'Preço mínimo' }).filter({ visible: true })
+  ).toHaveAttribute('aria-valuetext', '0,02 ETH');
   await page
     .getByRole('button', { name: 'Limpar filtros' })
     .filter({ visible: true })
@@ -81,7 +81,7 @@ test('pagination restores results and default search leaves a clean URL', async 
   await expect(page.locator('.nft-card h3').first()).toHaveText(first);
 });
 
-test('empty search can be cleared and invalid price shows associated feedback', async ({
+test('price slider changes are applied explicitly and can be cleared', async ({
   page,
 }, info) => {
   const search = page
@@ -99,14 +99,101 @@ test('empty search can be cleared and invalid price shows associated feedback', 
   await expect(page.locator('.nft-card')).toHaveCount(9);
   if (info.project.name === 'mobile')
     await page.getByRole('button', { name: 'Abrir filtros' }).click();
-  await page.getByLabel('Mínimo (ETH)').filter({ visible: true }).fill('5');
-  await page.getByLabel('Máximo (ETH)').filter({ visible: true }).fill('1');
-  await page.getByRole('button', { name: 'Aplicar preço' }).click();
-  await expect(page.getByRole('alert')).toContainText('mínimo');
-  await expect(
-    page.getByLabel('Mínimo (ETH)').filter({ visible: true })
-  ).toHaveAttribute('aria-invalid', 'true');
+  const minimum = page
+    .getByRole('slider', { name: 'Preço mínimo' })
+    .filter({ visible: true });
+  const maximum = page
+    .getByRole('slider', { name: 'Preço máximo' })
+    .filter({ visible: true });
+  const priceRequests: string[] = [];
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/nfts' && url.searchParams.has('minPrice'))
+      priceRequests.push(request.url());
+  });
+  await minimum.focus();
+  await minimum.press('ArrowRight');
+  await minimum.press('ArrowRight');
+  await maximum.focus();
+  await maximum.press('ArrowLeft');
+  await expect(minimum).toHaveAttribute('aria-valuetext', '0,02 ETH');
+  await expect(maximum).toHaveAttribute('aria-valuetext', '19,99 ETH');
   expect(new URL(page.url()).search).toBe('');
+  expect(priceRequests).toHaveLength(0);
+  await page.getByRole('button', { name: 'Aplicar', exact: true }).click();
+  await expect
+    .poll(() =>
+      new URL(page.url()).searchParams.get('minPrice')?.replace(/^"|"$/g, '')
+    )
+    .toBe('0.02');
+  expect(
+    new URL(page.url()).searchParams.get('maxPrice')?.replace(/^"|"$/g, '')
+  ).toBe('19.99');
+  await page
+    .getByRole('button', { name: 'Limpar filtros', exact: true })
+    .filter({ visible: true })
+    .click();
+  await expect.poll(() => new URL(page.url()).search).toBe('');
+  await expect(
+    page.getByRole('slider', { name: 'Preço mínimo' }).filter({ visible: true })
+  ).toHaveAttribute('aria-valuetext', '0,00 ETH');
+});
+
+test('range accepts pointer input, equal bounds and expanded URL prices', async ({
+  page,
+}, info) => {
+  await page.goto('/?minPrice=0.02&maxPrice=25.123');
+  if (info.project.name === 'mobile')
+    await page.getByRole('button', { name: 'Abrir filtros' }).click();
+  const minimum = page
+    .getByRole('slider', { name: 'Preço mínimo' })
+    .filter({ visible: true });
+  const maximum = page
+    .getByRole('slider', { name: 'Preço máximo' })
+    .filter({ visible: true });
+  await expect(maximum).toHaveAttribute('aria-valuemax', '2600');
+  await expect(maximum).toHaveAttribute('aria-valuetext', '25,123 ETH');
+  await page.getByRole('button', { name: 'Aplicar', exact: true }).click();
+  expect(
+    new URL(page.url()).searchParams.get('maxPrice')?.replace(/^"|"$/g, '')
+  ).toBe('25.123');
+  await minimum.scrollIntoViewIfNeeded();
+  const slider = page.locator('[data-slot="slider"]').filter({ visible: true });
+  const position = await slider.boundingBox();
+  expect(position).not.toBeNull();
+  const x = position!.x + position!.width * 0.25;
+  const y = position!.y + position!.height / 2;
+  if (info.project.name === 'mobile') await page.touchscreen.tap(x, y);
+  else {
+    const thumb = (await minimum.boundingBox())!;
+    await page.mouse.move(
+      thumb.x + thumb.width / 2,
+      thumb.y + thumb.height / 2
+    );
+    await page.mouse.down();
+    await page.mouse.move(x, y, { steps: 5 });
+    await page.mouse.up();
+  }
+  await expect(minimum).not.toHaveAttribute('aria-valuenow', '2');
+  await minimum.press('Home');
+  await expect(minimum).toHaveAttribute('aria-valuenow', '0');
+  await maximum.press('End');
+  await page.getByRole('button', { name: 'Aplicar', exact: true }).click();
+  await expect.poll(() => new URL(page.url()).search).toBe('');
+  await page.goto('/?minPrice=1&maxPrice=1');
+  if (info.project.name === 'mobile')
+    await page.getByRole('button', { name: 'Abrir filtros' }).click();
+  await expect(minimum).toHaveAttribute('aria-valuenow', '100');
+  await expect(maximum).toHaveAttribute('aria-valuenow', '100');
+  await page.goto('/?minPrice=0.02&maxPrice=12.30');
+  if (info.project.name === 'mobile')
+    await page.getByRole('button', { name: 'Abrir filtros' }).click();
+  const priceGroup = page
+    .locator('fieldset')
+    .filter({ has: page.locator('[data-slot="slider"]') })
+    .filter({ visible: true });
+  await expect(priceGroup).toContainText('Preço: 0,02 - 12,30 ETH');
+  await priceGroup.screenshot({ path: info.outputPath('price-slider.png') });
 });
 
 test('loading, failure and retry use the network and preserve layout', async ({
@@ -238,7 +325,7 @@ test('desktop sections load only at the desktop breakpoint', async ({
       desktopModuleRequests.push(request.url());
     }
   });
-  await page.goto('/#diario');
+  await page.goto('/?q=Kurio#diario');
   const heading = page.getByRole('heading', { name: 'Diário da Cunhagem' });
   if (info.project.name === 'mobile') {
     await expect(
@@ -259,6 +346,22 @@ test('desktop sections load only at the desktop breakpoint', async ({
       )
     )
     .toBeLessThan(5);
+  const navigation = page.getByRole('navigation', {
+    name: 'Navegação principal',
+  });
+  const market = navigation.getByRole('link', { name: 'Mercado', exact: true });
+  const learn = navigation.getByRole('link', { name: 'Aprenda', exact: true });
+  await expect(learn).toHaveAttribute('data-status', 'active');
+  await market.click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#catalogo');
+  expect(new URL(page.url()).searchParams.get('q')?.replace(/^"|"$/g, '')).toBe(
+    'Kurio'
+  );
+  await expect(market).toHaveAttribute('data-status', 'active');
+  await expect(learn).not.toHaveAttribute('data-status', 'active');
+  await learn.click();
+  await expect.poll(() => new URL(page.url()).hash).toBe('#diario');
+  await expect(learn).toHaveAttribute('data-status', 'active');
 });
 
 test('decimal precision and repeated categories survive direct URLs', async ({
@@ -285,6 +388,12 @@ test('decimal precision and repeated categories survive direct URLs', async ({
   if (info.project.name === 'mobile')
     await page.getByRole('button', { name: 'Abrir filtros' }).click();
   await expect(
-    page.getByLabel('Mínimo (ETH)').filter({ visible: true })
-  ).toHaveValue('0.020000000000000001');
+    page.getByRole('slider', { name: 'Preço mínimo' }).filter({ visible: true })
+  ).toHaveAttribute('aria-valuetext', '0,020000000000000001 ETH');
+  await page.getByRole('button', { name: 'Aplicar', exact: true }).click();
+  await expect
+    .poll(() =>
+      new URL(page.url()).searchParams.get('minPrice')?.replace(/^"|"$/g, '')
+    )
+    .toBe('0.020000000000000001');
 });

@@ -1,5 +1,7 @@
 import { ThemeControls } from './ThemeControls';
 import { Button } from './ui/button';
+import { IconBadge } from './ui/icon-badge';
+import CartIcon from '@/assets/cart.svg?react';
 
 export const TokensDemo = () => {
   return (
@@ -22,6 +24,15 @@ export const TokensDemo = () => {
         </p>
       </header>
 
+      <section
+        className="border-border space-y-4 border-b py-6"
+        aria-label="Badge de contador"
+      >
+        <h2 className="text-body-lg-bold">Badge de contador</h2>
+        <IconBadge count={6}>
+          <CartIcon aria-hidden="true" />
+        </IconBadge>
+      </section>
       {/* 1. Typography */}
       <section className="space-y-6">
         <h2 className="text-h2 text-text-accent border-border-soft border-b pb-2">
@@ -62,12 +73,29 @@ export const TokensDemo = () => {
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
+              Body-lg / 16 Bold
+            </span>
+            <span className="text-body-lg-bold">
+              Large body text for descriptions and highlights — 16px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
+              Body-lg / 16 Medium
+            </span>
+            <span className="text-body-lg-medium">
+              Large body text for descriptions and highlights — 16px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
               Body-lg / 16 Regular
             </span>
             <span className="text-body-lg">
               Large body text for descriptions and highlights — 16px
             </span>
           </div>
+
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">
               Body / 15 Regular
@@ -273,6 +301,7 @@ export const TokensDemo = () => {
               Tamanhos
             </h3>
             <div className="flex flex-wrap items-center gap-4">
+              <Button size="xsm">Extra Small (xsm)</Button>
               <Button size="sm">Small (sm)</Button>
               <Button size="default">Default / Medium</Button>
               <Button size="lg">Large (lg)</Button>

@@ -58,6 +58,8 @@
   --text-h2:         24px;  --text-h2--line-height: 32px;         --text-h2--font-weight: 700;
   --text-title:      20px;  --text-title--line-height: 28px;
   --text-body-lg:    16px;  --text-body-lg--line-height: 24px;
+  --text-body-lg-bold: 16px; --text-body-lg-bold--line-height: 24px; --text-body-lg-bold--font-weight: 700;
+  --text-body-lg-medium: 16px; --text-body-lg-medium--line-height: 24px; --text-body-lg-medium--font-weight: 500;
   --text-body:       15px;  --text-body--line-height: 24px;
   --text-body-sm:    14px;  --text-body-sm--line-height: 22px;
   --text-caption:    13px;  --text-caption--line-height: 16px;
@@ -141,10 +143,22 @@ Instalar sob demanda e adaptar cores ao `@theme`:
 
 `button`, `input`, `label`, `textarea`, `badge`, `card`, `dialog`, `alert-dialog`, `sheet` (drawer mobile),
 `select`, `dropdown-menu`, `checkbox`, `radio-group`, `switch`, `tabs`, `separator`, `skeleton`,
-`tooltip`, `sonner` (toasts), `form` (react-hook-form + zod), `avatar`, `table`, `accordion`.
+`tooltip`, `sonner` (toasts), `form` (react-hook-form + zod), `avatar`, `table`, `accordion`, `slider`.
+
+O filtro de preço usa o Slider Range (Radix) com dois marcadores cobre, trilha de 4 px,
+foco visível e área de toque ampliada. Escala linear inicial de 0 a 20 ETH, passo de
+0,01 ETH; preços maiores da URL ampliam a escala até o próximo ETH inteiro. A seleção
+é provisória até **Aplicar**. Conversões entre posições inteiras e ETH ficam em
+`lib/money.ts`; valores exatos da URL são preservados até mover o respectivo marcador.
 
 Variantes novas do `Button`: `primary` (default), `secondary` (borda `border-soft`, texto foreground),
-`ghost`, `danger` (coral/error), `pill`, tamanhos `sm/md/lg` e `full-width`.
+`ghost`, `danger` (coral/error), `pill`, tamanhos `xsm/sm/md/lg` e `full-width`.
+`xsm` preserva o tamanho compacto anterior (32 px de altura); `sm` tem 36 px de altura
+e padding de 9 px vertical / 7 px horizontal.
+
+`IconBadge` envolve um ícone e recebe `count`. O contador usa fundo `primary`, texto
+`ink`, altura de 16 px e fica sobreposto no canto superior direito. Oculta zero e
+valores inválidos, exibe `99+` acima de 99 e anuncia a quantidade completa via `aria-live`.
 
 ### 4.2 Componentes custom (`src/components/shared/`)
 

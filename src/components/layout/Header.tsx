@@ -1,43 +1,59 @@
-import { Link } from '@tanstack/react-router';
+import { Logo } from '../shared/Logo';
+import { HeaderNav } from '../shared/HeaderNav';
+import { ActiveLink } from '../ui/active-link';
+import { cn } from 'cn';
+import { HeaderActions } from '../shared/HeaderActions';
+
+type HeaderSectionHref = `#${string}` | `/#${string}`;
 
 interface HeaderProps {
-  marketHref?: string;
-  learnHref?: string;
+  marketHref?: HeaderSectionHref;
+  learnHref?: HeaderSectionHref;
+  creatorsHref?: HeaderSectionHref;
+  divider?: boolean;
 }
+
+function sectionLink(href: HeaderSectionHref) {
+  return {
+    to: href.startsWith('/') ? ('/' as const) : ('.' as const),
+    hash: href.slice(href.indexOf('#') + 1),
+    search: true as const,
+    activeOptions: { includeHash: true },
+  };
+}
+
 export function Header({
   marketHref = '/#catalogo',
   learnHref = '/#diario',
+  creatorsHref = '#criadores',
+  divider = false,
 }: HeaderProps) {
   return (
-    <header className="catalog-header border-border hidden h-[45px] items-center justify-between border-b md:flex">
-      <Link
-        to="/"
-        search={{ sort: 'relevance', page: 1 }}
-        className="text-body-sm w-[160px] font-bold tracking-[1.4px]"
-      >
-        KURIO
-      </Link>
-      <nav aria-label="Navegação principal" className="text-body-sm flex gap-8">
-        <Link
+    <header
+      className={cn(
+        'catalog-header hidden h-11.25 items-start justify-between md:flex',
+        divider && 'border-border border-b'
+      )}
+    >
+      <Logo />
+      <HeaderNav aria-label="Navegação principal">
+        <ActiveLink
           to="/"
           search={{ sort: 'relevance', page: 1 }}
+          activeOptions={{ exact: true, includeHash: true }}
           className="text-primary"
         >
           Início
-        </Link>
-        <a href={marketHref}>Mercado</a>
-        <span aria-disabled="true">Criadores</span>
-        <a href={learnHref}>Aprenda</a>
-      </nav>
-      <div className="flex items-center gap-4">
-        <Link to="/cart">Carrinho</Link>
-        <Link
-          to="/login"
-          className="border-primary text-primary rounded border px-4 py-2"
-        >
-          Entrar
-        </Link>
-      </div>
+        </ActiveLink>
+        <ActiveLink {...sectionLink(marketHref)}>Mercado</ActiveLink>
+        <ActiveLink {...sectionLink(creatorsHref)}>
+          Criadores{/* TODO: Verificar para onde vai esse link */}
+        </ActiveLink>
+        <ActiveLink {...sectionLink(learnHref)}>
+          Aprenda{/* TODO: Verificar para onde vai esse link */}
+        </ActiveLink>
+      </HeaderNav>
+      <HeaderActions />
     </header>
   );
 }

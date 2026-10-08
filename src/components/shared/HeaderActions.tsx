@@ -1,0 +1,39 @@
+import { Link } from '@tanstack/react-router';
+import SearchIcon from '@/assets/search.svg?react';
+import CartIcon from '@/assets/cart.svg?react';
+import SignIn from '@/assets/signin.svg?react';
+import { Button } from '../ui/button';
+import { IconBadge } from '../ui/icon-badge';
+
+export function HeaderActions({ cartCount = 0 }: { cartCount?: number }) {
+  return (
+    <div className="flex items-center gap-7">
+      <Link to="/search" aria-label="Buscar">
+        {/* TODO: validar esse link */}
+        <SearchIcon aria-hidden="true" />
+      </Link>
+      <Link
+        to="/cart"
+        className="flex items-center justify-center"
+        aria-label={
+          cartCount > 0
+            ? `Carrinho, ${cartCount} ${cartCount === 1 ? 'item' : 'itens'}`
+            : 'Carrinho'
+        }
+      >
+        <IconBadge count={cartCount}>
+          <CartIcon aria-hidden="true" />
+        </IconBadge>
+      </Link>
+      <Button size="sm" asChild>
+        <Link
+          className="text-ink text-body-lg-medium flex items-center gap-1"
+          to="/login"
+        >
+          <SignIn />
+          Entrar
+        </Link>
+      </Button>
+    </div>
+  );
+}
