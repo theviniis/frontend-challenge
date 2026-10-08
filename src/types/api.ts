@@ -1,4 +1,5 @@
 export type { Eth } from '../lib/money'
+export type { AppError } from '../lib/http/errors'
 
 export type {
   AddCartItemRequest,
