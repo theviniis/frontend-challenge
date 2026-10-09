@@ -54,7 +54,7 @@ export function CatalogDiary() {
               <p className="text-tiny text-text-secondary font-medium">
                 {description}
               </p>
-              {/* @ts-expect-error TODO: Verificar pra onde vai esse link */}
+              {/* @ts-expect-error TODO: Verificar para onde vai esse link */}
               <Link
                 to="/"
                 aria-disabled="true"

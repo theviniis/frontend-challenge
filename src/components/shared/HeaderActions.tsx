@@ -7,7 +7,7 @@ import { IconBadge } from '../ui/icon-badge';
 export function HeaderActions({ cartCount = 0 }: { cartCount?: number }) {
   return (
     <div className="flex items-center gap-7">
-      {/* @ts-expect-error TODO: validar esse link */}
+      {/* @ts-expect-error TODO: Verificar para onde vai esse link */}
       <Link to="/search" aria-label="Buscar">
         <SearchIcon aria-hidden="true" />
       </Link>
