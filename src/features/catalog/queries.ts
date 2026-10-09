@@ -14,6 +14,7 @@ import {
 import type { FavoritesResponse } from '@/types/api';
 import { keyFactory } from '@/lib/query/keys';
 import type { CatalogFilterState } from './search-params';
+import { getStoredSession } from '@/lib/session/storage';
 
 export const CATALOG_PAGE_SIZE = 9;
 
@@ -35,6 +36,8 @@ export const catalogOptions = (filters: CatalogFilterState, userId?: string) =>
   });
 
 export function useFavorites(userId?: string) {
+  const isCurrentUser = () =>
+    !!userId && getStoredSession()?.user.id === userId;
   const client = useQueryClient();
   const queryKey = keyFactory.favorites.all(userId);
   const favorites = useQuery({
@@ -54,6 +57,7 @@ export function useFavorites(userId?: string) {
     },
     onMutate: async ({ id, selected }) => {
       await client.cancelQueries({ queryKey });
+      if (!isCurrentUser()) return { snapshot: undefined };
       const snapshot = client.getQueryData<FavoritesResponse>(queryKey);
       const ids = selected
         ? (snapshot?.ids ?? []).filter((value) => value !== id)
@@ -62,14 +66,19 @@ export function useFavorites(userId?: string) {
       return { snapshot };
     },
     onError: (_error, _variables, context) => {
+      if (!isCurrentUser()) return;
       client.setQueryData(queryKey, context?.snapshot ?? { ids: [], count: 0 });
       toast.error('Não foi possível atualizar o favorito. Tente novamente.');
     },
-    onSuccess: (_data, { selected }) =>
+    onSuccess: (_data, { selected }) => {
+      if (!isCurrentUser()) return;
       toast.success(
         selected ? 'NFT removido dos favoritos' : 'NFT adicionado aos favoritos'
-      ),
-    onSettled: () => client.invalidateQueries({ queryKey }),
+      );
+    },
+    onSettled: () => {
+      if (isCurrentUser()) return client.invalidateQueries({ queryKey });
+    },
   });
   return { favorites, mutation };
 }

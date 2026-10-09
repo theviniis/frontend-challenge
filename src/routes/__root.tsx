@@ -7,30 +7,44 @@ import {
 import type { RouterContext } from '@/lib/session/demo';
 import { subscribeSession } from '@/lib/session/storage';
 import { useRouter } from '@tanstack/react-router';
-import { getStoredSession } from '@/lib/session/guards';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { useSession } from '@/lib/session/state';
+import { AuthModal } from '@/features/auth/components/AuthModal';
+import { parseAuthSearch } from '@/features/auth/search-params';
+import { SocketProvider } from '@/lib/socket/provider';
+import { AccountActions } from '@/components/shared/AccountActions';
+import { sessionService } from '@/lib/session/service';
+import { openAuth } from '@/features/auth/navigation';
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  validateSearch: parseAuthSearch,
   component: RootComponent,
   notFoundComponent: RootNotFoundComponent,
   errorComponent: RootErrorComponent,
 });
 
 function RootComponent() {
-  const [session, setSession] = useState(() => getStoredSession());
+  const { session } = useSession();
 
   const { demoSession } = Route.useRouteContext();
   const router = useRouter();
   const isCatalog = useRouterState({
     select: (state) => state.location.pathname === '/',
   });
+  const isTest = useRouterState({
+    select: (state) => state.location.pathname === '/teste',
+  });
   useEffect(
     () =>
       subscribeSession(() => {
-        setSession(getStoredSession());
-        void router.invalidate();
+        if (
+          sessionService.getSnapshot().endReason === 'expired' &&
+          !router.state.location.search.auth
+        ) {
+          void openAuth(router);
+        } else void router.invalidate();
       }),
     [router]
   );
@@ -39,7 +53,7 @@ function RootComponent() {
     <div className="bg-ink text-foreground min-h-screen font-mono">
       {/* Barra de utilidades / status de sessão para dev e testes */}
       <div
-        className={`border-border bg-surface-card text-tiny border-b px-4 py-2 ${isCatalog ? 'hidden' : ''}`}
+        className={`border-border bg-surface-card text-tiny border-b px-4 py-2 ${isTest ? '' : 'hidden'}`}
       >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -85,9 +99,14 @@ function RootComponent() {
           learnHref="#diario"
           divider={!!isCatalog}
         />
+        <div className="mb-6 flex justify-end md:hidden">
+          <AccountActions />
+        </div>
         <Outlet />
         <Footer />
       </main>
+      <SocketProvider />
+      <AuthModal />
     </div>
   );
 }

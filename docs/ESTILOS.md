@@ -173,6 +173,11 @@ Variantes novas do `Button`: `primary` (default), `secondary` (borda `border-sof
 `xsm` preserva o tamanho compacto anterior (32 px de altura); `sm` tem 36 px de altura
 e padding de 9 px vertical / 7 px horizontal.
 
+`CatalogButton` (`ui/catalog-button`) é um botão de seleção com sublinhado, reutilizável
+entre telas. Recebe `active` (false por padrão), conteúdo em `children` e props nativas
+de botão, incluindo `onClick`, `disabled`, `ref` e `className`. A tela controla a seleção;
+o componente anuncia o estado via `aria-pressed` e usa `type="button"` por padrão.
+
 `IconBadge` envolve um ícone e recebe `count`. O contador usa fundo `primary`, texto
 `ink`, altura de 16 px e fica sobreposto no canto superior direito. Oculta zero e
 valores inválidos, exibe `99+` acima de 99 e anuncia a quantidade completa via `aria-live`.

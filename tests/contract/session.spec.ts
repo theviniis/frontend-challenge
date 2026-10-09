@@ -44,3 +44,13 @@ test('expired session', async () => {
     headers
   );
 });
+
+test('signup supports remote field validation scenario', async () => {
+  await scenario('validacao-api');
+  const failure = await error('post', '/auth/signup', 'VALIDATION_ERROR', 422, {
+    name: 'Carlos',
+    email: 'carlos@greenmint.test',
+    password: 'Carlos1234',
+  });
+  expect(failure.error.fields?.email).toEqual(['E-mail rejeitado pela API']);
+});

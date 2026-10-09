@@ -1,4 +1,5 @@
 import { test, expect as baseExpect } from '@playwright/test';
+import { loginThroughForm } from './auth-helpers';
 
 const expect = baseExpect.configure({ timeout: 15_000 });
 
@@ -401,7 +402,7 @@ test.fixme('favorites require login, then persist through refresh (catalog favor
     .getByRole('button', { name: 'Adicionar Golden Signal #160 aos favoritos' })
     .click();
   await expect(page).toHaveURL(/\/login\?redirect/);
-  await page.getByRole('button', { name: 'Simular login e continuar' }).click();
+  await loginThroughForm(page);
   const toggle = page.getByRole('button', {
     name: /Golden Signal #160.*favoritos/,
   });

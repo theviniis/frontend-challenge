@@ -1,11 +1,9 @@
 import axios from 'axios';
 import {
   getAnonymousId,
-  getStoredSession,
-  storeSession,
+  getPersistedSession,
+  expireSession,
 } from '../session/storage';
-import { queryClient } from '../query/client';
-import { disconnectSocket } from '../socket/client';
 import { toAppError } from './errors';
 
 export const HTTP_TIMEOUT_MS = 10_000;
@@ -27,8 +25,9 @@ export const http = axios.create({
 });
 
 http.interceptors.request.use((config) => {
-  const session = getStoredSession();
-  if (session) config.headers.set('Authorization', `Bearer ${session.token}`);
+  const session = getPersistedSession();
+  if (session && !config.headers.has('Authorization'))
+    config.headers.set('Authorization', `Bearer ${session.token}`);
   else if (typeof window !== 'undefined')
     config.headers.set('X-Anonymous-Id', getAnonymousId());
   return config;
@@ -39,15 +38,19 @@ http.interceptors.response.use(
   (error: unknown) => {
     const mapped = toAppError(error);
     // An old request must never invalidate a newly authenticated session.
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      const session = getStoredSession();
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 401 &&
+      !['/api/auth/login', '/api/auth/signup', '/api/auth/logout'].includes(
+        error.config?.url ?? ''
+      )
+    ) {
+      const session = getPersistedSession();
       if (
         session &&
         error.config?.headers.get('Authorization') === `Bearer ${session.token}`
       ) {
-        storeSession(null);
-        queryClient.clear();
-        disconnectSocket();
+        expireSession(session.token);
       }
     }
     return Promise.reject(mapped);

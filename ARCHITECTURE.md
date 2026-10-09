@@ -30,17 +30,17 @@ importam Axios nem socket diretamente; mocks nunca são importados pelo app (fic
 
 ## 2. Sessão e autenticação
 
-| Aspecto | Decisão |
-| --- | --- |
-| Credencial | `token` opaco (`mock.…`) devolvido por login/signup |
-| Persistência | `localStorage gm_session = { token, user, expiresAt }` |
-| Expiração | 2h no mock; verificada no boot (`GET /auth/session`) e por interceptor em 401 |
-| Guard das rotas privadas | `beforeLoad` → sem sessão válida: `redirect({ to: '/login', search: { redirect: <url atual> } })` |
-| Retorno ao fluxo | `/login?redirect=/checkout?draft=…`; após login, `router.navigate` ao redirect validado (só rotas internas — evitar open redirect) |
-| Expiração durante checkout | rascunho do formulário salvo em `localStorage gm_checkout_draft`; 401 → login → retorna ao checkout com rascunho restaurado |
-| Logout / troca de usuário | `queryClient.removeQueries({ queryKey: keyFactory.all })` (prefixo do usuário), limpar `gm_session`, `gm_pending_order` e dados privados do socket, desconectar/reautenticar o socket |
-| Isolamento | query keys incluem `userId`; favoritos/carrinho/perfil/carteiras/pedidos nunca compartilham cache entre usuários |
-| Visitante | `X-Anonymous-Id` (`gm_anon_id`); no login a API funde o carrinho visitante; no logout o cliente volta ao carrinho anônimo vazio |
+| Aspecto                    | Decisão                                                                                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Credencial                 | `token` opaco (`mock.…`) devolvido por login/signup                                                                                                                                   |
+| Persistência               | `localStorage gm_session = { token, user, expiresAt }`                                                                                                                                |
+| Expiração                  | 2h no mock; verificada no boot (`GET /auth/session`) e por interceptor em 401                                                                                                         |
+| Guard das rotas privadas   | `beforeLoad` → sem sessão válida: `redirect({ to: '/login', search: { redirect: <url atual> } })`                                                                                     |
+| Retorno ao fluxo           | `/login?redirect=/checkout?draft=…`; após login, `router.navigate` ao redirect validado (só rotas internas — evitar open redirect)                                                    |
+| Expiração durante checkout | rascunho do formulário salvo em `localStorage gm_checkout_draft`; 401 → login → retorna ao checkout com rascunho restaurado                                                           |
+| Logout / troca de usuário  | `queryClient.removeQueries({ queryKey: keyFactory.all })` (prefixo do usuário), limpar `gm_session`, `gm_pending_order` e dados privados do socket, desconectar/reautenticar o socket |
+| Isolamento                 | query keys incluem `userId`; favoritos/carrinho/perfil/carteiras/pedidos nunca compartilham cache entre usuários                                                                      |
+| Visitante                  | `X-Anonymous-Id` (`gm_anon_id`); no login a API funde o carrinho visitante; no logout o cliente volta ao carrinho anônimo vazio                                                       |
 
 **Política de reautenticação:** o cliente NÃO renova token silenciosamente (não há refresh
 token). Expiração = sessão nova explícita, com contexto preservado.
@@ -49,12 +49,12 @@ token). Expiração = sessão nova explícita, com contexto preservado.
 
 ### 3.1 Defaults (`lib/query/client.ts`)
 
-| Query | `staleTime` | `gcTime` | `refetchOnWindowFocus` | `retry` |
-| --- | ---: | ---: | --- | --- |
-| Catálogo, detalhe, favoritos, perfil, carteiras | 30s | 5min | sim | 2× backoff exponencial (1s, 2s) — só GET |
-| Carrinho, cotação | **0** | 5min | sim | 2× (idempotente) |
-| Pedido `pending` | 0 | 10min | sim | 2× |
-| Pedidos terminais (`confirmed`/`declined`) | ∞ (snapshot) | 10min | não | 1× |
+| Query                                           |  `staleTime` | `gcTime` | `refetchOnWindowFocus` | `retry`                                  |
+| ----------------------------------------------- | -----------: | -------: | ---------------------- | ---------------------------------------- |
+| Catálogo, detalhe, favoritos, perfil, carteiras |          30s |     5min | sim                    | 2× backoff exponencial (1s, 2s) — só GET |
+| Carrinho, cotação                               |        **0** |     5min | sim                    | 2× (idempotente)                         |
+| Pedido `pending`                                |            0 |    10min | sim                    | 2×                                       |
+| Pedidos terminais (`confirmed`/`declined`)      | ∞ (snapshot) |    10min | não                    | 1×                                       |
 
 - `retry: 0` para **qualquer mutation** — novas tentativas são explícitas na UI (botão
   "Tentar novamente"), nunca automáticas (evita duplicar operações).
@@ -63,15 +63,15 @@ token). Expiração = sessão nova explícita, com contexto preservado.
 ### 3.2 Query keys (`lib/query/keys.ts` — factory única)
 
 ```ts
-keyFactory.nfts.all                    // ["nfts"]
-keyFactory.nfts.list(searchParams, userId) // ["nfts", "list", { q, categories, networks, sort, page, … }, userId] ← hash da URL
-keyFactory.nfts.detail(id)             // ["nfts", "detail", id]
-keyFactory.favorites.all(userId)       // ["favorites", userId]
-keyFactory.cart(userId)                // ["cart", userId]
-keyFactory.quote(userId, coupon)       // ["quote", userId, coupon ?? null]
-keyFactory.order(userId, id)           // ["order", userId, id]
-keyFactory.profile(userId)             // ["profile", userId]
-keyFactory.wallets(userId)             // ["wallets", userId]
+keyFactory.nfts.all; // ["nfts"]
+keyFactory.nfts.list(searchParams, userId); // ["nfts", "list", { q, categories, networks, sort, page, … }, userId] ← hash da URL
+keyFactory.nfts.detail(id); // ["nfts", "detail", id]
+keyFactory.favorites.all(userId); // ["favorites", userId]
+keyFactory.cart(userId); // ["cart", userId]
+keyFactory.quote(userId, coupon); // ["quote", userId, coupon ?? null]
+keyFactory.order(userId, id); // ["order", userId, id]
+keyFactory.profile(userId); // ["profile", userId]
+keyFactory.wallets(userId); // ["wallets", userId]
 ```
 
 `userId` = `session.user.id` ou `"anon"`. Params de busca entram **serializados igual à URL**
@@ -79,18 +79,18 @@ para que invalidação/igualdade funcionem.
 
 ### 3.3 Invalidação após mutations
 
-| Mutation | O que fazer no sucesso |
-| --- | --- |
-| Favoritar/desfavoritar | otimista + rollback; `onSettled` → invalidate `favorites` (background) |
-| Carrinho (add/update/remove) | invalidate `cart` + `quote` |
-| Aplicar/remover cupom | invalidate `quote` |
-| Login / signup | `queryClient.clear()` + invalidate prefixo do novo usuário; reconectar socket com novo token |
-| Logout | §2 (removeQueries) |
-| Editar perfil | invalidate `profile` |
-| Carteiras | invalidate `wallets` |
-| Criar pedido | invalidate `cart` (após confirmed), invalidate `quote`, `setQueryData` do pedido com a resposta |
-| `nft.updated` (socket) | atualizar `setQueryData` de `nfts.detail` + merge nas listas visíveis (§5) |
-| `order.updated` (socket) | `setQueryData` do pedido (se versão maior) |
+| Mutation                     | O que fazer no sucesso                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| Favoritar/desfavoritar       | otimista + rollback; `onSettled` → invalidate `favorites` (background)                          |
+| Carrinho (add/update/remove) | invalidate `cart` + `quote`                                                                     |
+| Aplicar/remover cupom        | invalidate `quote`                                                                              |
+| Login / signup               | `queryClient.clear()` + invalidate prefixo do novo usuário; reconectar socket com novo token    |
+| Logout                       | §2 (removeQueries)                                                                              |
+| Editar perfil                | invalidate `profile`                                                                            |
+| Carteiras                    | invalidate `wallets`                                                                            |
+| Criar pedido                 | invalidate `cart` (após confirmed), invalidate `quote`, `setQueryData` do pedido com a resposta |
+| `nft.updated` (socket)       | atualizar `setQueryData` de `nfts.detail` + merge nas listas visíveis (§5)                      |
+| `order.updated` (socket)     | `setQueryData` do pedido (se versão maior)                                                      |
 
 ### 3.4 Atualização otimista (obrigatória — favoritos)
 
@@ -99,6 +99,7 @@ onMutate:  cancelQueries(favorites) → snapshot → setQueryData(otimista)
 onError:   setQueryData(snapshot) + toast de erro (feedback acessível)
 onSettled: invalidate(favorites)
 ```
+
 Qualquer outra otimismo adicionada depois deve seguir este molde (cancel → snapshot →
 apply → rollback → invalidate).
 
@@ -126,20 +127,24 @@ apply → rollback → invalidate).
 
 ```ts
 type NftUpdated = {
-  type: "nft.updated";
-  resourceId: string;        // nftId
-  version: number;           // crescente por recurso
+  type: 'nft.updated';
+  resourceId: string; // nftId
+  version: number; // crescente por recurso
   ts: string;
   payload: { price: string; available: number; previousPrice: string };
 };
 
 type OrderUpdated = {
-  type: "order.updated";
-  resourceId: string;        // orderId
+  type: 'order.updated';
+  resourceId: string; // orderId
   version: number;
   ts: string;
-  payload: { status: "pending" | "confirmed" | "declined"; txHash?: string;
-             explorerUrl?: string; declineReason?: string };
+  payload: {
+    status: 'pending' | 'confirmed' | 'declined';
+    txHash?: string;
+    explorerUrl?: string;
+    declineReason?: string;
+  };
 };
 ```
 
@@ -205,13 +210,13 @@ determinísticos, transporte Socket.IO via `@mswjs/socket.io-binding`, integraç
 > Seção viva — registrar aqui, durante a implementação, qualquer substituição de asset,
 > adaptação de componente ou desvio consciente em relação ao layout.
 
-| Item | Decisão | Motivo |
-| --- | --- | --- |
-| Mobile de Perfil/Carteiras/Confirmação | sem frame no Figma — seguir padrão visual das telas mobile existentes (414px) | exigência do enunciado |
-| Ícones Iconly | exportar SVGs reais do Figma (`fig:extract`) | fidelidade; lucide só como fallback documentado |
-| Fonte | Roboto Mono auto-hospedada (fontsource) | Lighthouse (sem dependência de rede em runtime) |
-| Páginas editoriais/suporte/atividade | links presentes no footer, mas **inertes** (sem navegação falsa, com `aria-disabled`/nota) | fora do escopo e não devem aparentar sucesso |
-| Text/Primary (estilo legado do Figma) | não implementado — headings usam `Color/Foreground` | estilo descrito como legado no próprio arquivo |
+| Item                                   | Decisão                                                                                    | Motivo                                          |
+| -------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| Mobile de Perfil/Carteiras/Confirmação | sem frame no Figma — seguir padrão visual das telas mobile existentes (414px)              | exigência do enunciado                          |
+| Ícones Iconly                          | exportar SVGs reais do Figma (`fig:extract`)                                               | fidelidade; lucide só como fallback documentado |
+| Fonte                                  | Roboto Mono auto-hospedada (fontsource)                                                    | Lighthouse (sem dependência de rede em runtime) |
+| Páginas editoriais/suporte/atividade   | links presentes no footer, mas **inertes** (sem navegação falsa, com `aria-disabled`/nota) | fora do escopo e não devem aparentar sucesso    |
+| Text/Primary (estilo legado do Figma)  | não implementado — headings usam `Color/Foreground`                                        | estilo descrito como legado no próprio arquivo  |
 
 ## 10. Limitações conhecidas (atualizar na entrega)
 
@@ -245,3 +250,39 @@ determinísticos, transporte Socket.IO via `@mswjs/socket.io-binding`, integraç
   catálogo real. O rodapé desktop não integra o frame mobile de 896px.
 - Capturas Playwright em `test-results/catalog-desktop.png` e
   `test-results/catalog-mobile.png` ocultam somente o painel utilitário de mocks.
+
+## 12. Conta e sessão (fase 09)
+
+- Login e cadastro usam o mesmo Dialog e campos RHF/zod reutilizáveis. Desktop segue
+  os frames `9:115` / `9:1022`; mobile usa diálogo de tela inteira e scroll interno,
+  conforme `16:1022` / `16:1228`, inclusive quando o teclado reduz a área disponível.
+- O modal é controlado por `auth` e `redirect` no search interno da rota pública.
+  Route masking apresenta `/login` ou `/signup`; acesso direto e refresh abrem
+  sobre o catálogo. Fechar restaura a origem; trocar o formulário substitui a entrada
+  do histórico. `HistoryState.authBackground` preserva query/hash completos ao
+  voltar/avançar, inclusive com a normalização de hash do router em URLs mascaradas.
+- `SessionProvider` e `sessionService` compartilham uma hidratação aguardável.
+  `GET /auth/session` valida a credencial uma vez no boot antes do router renderizar;
+  falha de rede mantém a credencial armazenada e oferece retry, sem liberar tela privada.
+  Hidratação válida não limpa o cache. Guards privados continuam em `beforeLoad`.
+- Encerrar sessão cancela/remove apenas queries vinculadas ao usuário (incluindo listas
+  personalizadas do catálogo), limpa credenciais, pedido pendente, rascunho e socket,
+  e gera outra identidade anônima. Isso ocorre mesmo se o logout REST falhar.
+  Login/signup seguem a limpeza integral de cache prevista no §3.3. Uma resposta
+  autenticada 401 antiga não invalida o usuário atual; respostas de login ultrapassadas
+  por uma nova transição são descartadas.
+- `gm_checkout_draft` contém `{ userId, walletId?, network?, coupon? }`, validado por
+  zod, sem totais/preços/cotação. Expiração preserva o rascunho; login do mesmo usuário
+  permite restauração. Outro usuário, dados inválidos ou logout o descartam. A UI de
+  checkout permanece para sua própria etapa; os helpers foram testados por integração.
+- Adaptações do Figma: indicação visível de indisponibilidade para Google/Facebook e
+  recuperação de senha (sem endpoints); confirmação de senha apenas local; ajuda da
+  regra de senha; ações de conta no mobile; fechamento acessível e espaço para erros.
+  Reutiliza-se a marca do Logo existente. Ícones de senha usam Lucide como fallback;
+  os símbolos sociais indisponíveis são textuais, sem simular logos oficiais.
+- Acessibilidade: nomes de campo, IDs únicos, `aria-describedby` sem referências
+  ausentes, `aria-invalid`, anúncios de erro/sucesso, foco no primeiro campo inválido,
+  foco contido no modal e devolvido ao acionador. Animações seguem a política global
+  de `prefers-reduced-motion`.
+- O cenário `validacao-api` também rejeita o e-mail do cadastro com 422 e `fields.email`,
+  permitindo testar precedência dos erros remotos sem alterar o contrato REST.

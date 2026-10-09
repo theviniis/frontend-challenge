@@ -3,7 +3,7 @@ import { requireSession } from '@/lib/session/guards';
 import { RoutePlaceholder } from '@/components/shared/RoutePlaceholder';
 
 export const Route = createFileRoute('/profile')({
-  beforeLoad: ({ location }) => requireSession({ location }),
+  beforeLoad: ({ location, context }) => requireSession({ location, context }),
   component: ProfilePage,
 });
 

@@ -6,3 +6,9 @@ export const loginSearchSchema = z.object({
 export type LoginSearchParams = z.infer<typeof loginSearchSchema>;
 export const parseLoginSearch = (raw: Record<string, unknown>) =>
   loginSearchSchema.parse(raw);
+
+export const authSearchSchema = loginSearchSchema.extend({
+  auth: z.enum(['login', 'signup']).optional().catch(undefined),
+});
+export const parseAuthSearch = (raw: Record<string, unknown>) =>
+  authSearchSchema.parse(raw);

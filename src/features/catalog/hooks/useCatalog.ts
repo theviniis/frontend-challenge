@@ -5,11 +5,14 @@ import { getStoredSession, subscribeSession } from '@/lib/session/storage';
 import type { Nft } from '@/types/api';
 import { catalogOptions, useFavorites } from '../queries';
 import type { CatalogFilterState } from '../search-params';
+import { openAuth } from '@/features/auth/navigation';
+import { useRouter } from '@tanstack/react-router';
 
 // Access route state without importing its module into the lazy page chunk.
 const catalogRoute = getRouteApi('/');
 
 export function useCatalog() {
+  const router = useRouter();
   const filters = catalogRoute.useSearch();
   const navigate = catalogRoute.useNavigate();
   const userId = useSyncExternalStore(
@@ -28,10 +31,7 @@ export function useCatalog() {
 
   function onFavorite(nft: Nft) {
     if (!userId) {
-      void navigate({
-        to: '/login',
-        search: { redirect: window.location.pathname + window.location.search },
-      });
+      void openAuth(router);
       return;
     }
     mutation.mutate({

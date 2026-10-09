@@ -9,6 +9,7 @@ export interface SessionState {
   login: (input: LoginRequest) => Promise<Session>;
   signup: (input: SignupRequest) => Promise<Session>;
   logout: () => Promise<void>;
+  retryHydration: () => Promise<void>;
 }
 
 export const SessionContext = createContext<SessionState | null>(null);

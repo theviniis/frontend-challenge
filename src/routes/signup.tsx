@@ -1,17 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { RoutePlaceholder } from '@/components/shared/RoutePlaceholder';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { parseLoginSearch } from '@/features/auth/search-params';
+import { authLocation } from '@/features/auth/navigation';
 
 export const Route = createFileRoute('/signup')({
-  component: SignupPage,
+  validateSearch: parseLoginSearch,
+  beforeLoad: ({ search }) => {
+    throw redirect({
+      ...authLocation('/', 'signup', search.redirect),
+      replace: true,
+    });
+  },
 });
-
-function SignupPage() {
-  return (
-    <RoutePlaceholder
-      title="Cadastro"
-      frames="9:1022 (desktop) / 16:1228 (mobile)"
-      access="pública"
-      description="Criação de nova conta de usuário colecionador."
-    />
-  );
-}

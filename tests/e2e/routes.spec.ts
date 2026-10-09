@@ -1,4 +1,5 @@
 import { test, expect as baseExpect } from '@playwright/test';
+import { loginThroughForm } from './auth-helpers';
 const expect = baseExpect.configure({ timeout: 15_000 });
 const routes = [
   ['/', 'Início'],
@@ -49,9 +50,7 @@ for (const [path, title] of privateRoutes)
       page.getByRole('heading', { name: 'Login', exact: true })
     ).toBeVisible();
     expect(new URL(page.url()).searchParams.get('redirect')).toBe(target);
-    await page
-      .getByRole('button', { name: 'Simular login e continuar' })
-      .click();
+    await loginThroughForm(page);
     await expect(page).toHaveURL(
       new RegExp(path.replaceAll('/', '\\/') + '\\?draft=abc#review$')
     );
@@ -63,7 +62,8 @@ for (const [path, title] of privateRoutes)
       page.getByRole('heading', { name: title, exact: true })
     ).toBeVisible();
     await page
-      .getByRole('button', { name: 'Simular Logout', exact: true })
+      .getByRole('button', { name: 'Sair', exact: true })
+      .filter({ visible: true })
       .click();
     await expect(
       page.getByRole('heading', { name: 'Login', exact: true })
@@ -105,7 +105,7 @@ test('quantity survives refresh and history', async ({ page }) => {
 });
 test('external redirect is rejected', async ({ page }) => {
   await page.goto('/login?redirect=' + encodeURIComponent('//evil.com'));
-  await page.getByRole('button', { name: 'Simular login e continuar' }).click();
+  await loginThroughForm(page);
   await expect(
     page.getByRole('heading', { name: 'Início', exact: true })
   ).toBeVisible();
@@ -113,16 +113,13 @@ test('external redirect is rejected', async ({ page }) => {
 test('expired and malformed sessions cannot access private routes', async ({
   page,
 }) => {
+  await page.clock.install();
   await page.goto('/teste');
   await page
     .getByRole('button', { name: 'Simular Login Rápido (Ana)', exact: true })
     .click();
   await expect(page.getByText('Ativa (Ana', { exact: false })).toBeVisible();
-  await page.evaluate(() => {
-    const session = JSON.parse(localStorage.getItem('gm_session')!);
-    session.expiresAt = '2000-01-01T00:00:00.000Z';
-    localStorage.setItem('gm_session', JSON.stringify(session));
-  });
+  await page.clock.fastForward(2 * 60 * 60 * 1000 + 1);
   await page.goto('/checkout');
   await expect(
     page.getByRole('heading', { name: 'Login', exact: true })
@@ -160,6 +157,10 @@ test('all marketplace screens reachable by click', async ({ page }) => {
       .getByRole('link', { name, exact: true })
       .click();
     await expect(page.locator('h1')).toBeVisible();
+    if (name === 'Login' || name === 'Cadastro') {
+      await page.keyboard.press('Escape');
+      await page.goto('/teste');
+    }
     if (name === '404 (Rota Inexistente)')
       await page
         .getByRole('link', { name: 'Voltar para a página inicial' })

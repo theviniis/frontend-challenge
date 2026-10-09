@@ -31,6 +31,10 @@ function session(userId: string) {
 export const sessionHandlers = [
   route('post', '/auth/signup', 'auth', async (request) => {
     const data = await body(request, s.signupRequestSchema);
+    if (getDb().flags.forceFormValidationError)
+      fail(422, 'VALIDATION_ERROR', 'Validação remota', {
+        email: ['E-mail rejeitado pela API'],
+      });
     const email = data.email.toLowerCase();
     if (getDb().users.some((u) => u.email === email))
       fail(409, 'CONFLICT', 'E-mail já cadastrado', {
@@ -94,4 +98,3 @@ export const sessionHandlers = [
     return new Response(null, { status: 204 });
   }),
 ];
-

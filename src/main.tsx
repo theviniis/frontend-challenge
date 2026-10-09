@@ -7,6 +7,9 @@ import { queryClient } from './lib/query/client';
 import './styles/global.css';
 import { TooltipProvider } from './components/ui/tooltip';
 import { Toaster } from './components/ui/sonner';
+import { SessionProvider } from './lib/session/context';
+import { sessionService } from './lib/session/service';
+import { SessionBootstrap } from './features/auth/components/SessionBootstrap';
 
 async function bootstrap() {
   if (import.meta.env.VITE_MOCKS === 'true') {
@@ -22,7 +25,7 @@ async function bootstrap() {
     healthSchema.parse((await http.get('/api/_health')).data);
     const { demoSession } = await import('./mocks/session-controls');
     const { router } = await import('./router');
-    router.update({ context: { demoSession } });
+    router.update({ context: { session: sessionService, demoSession } });
   }
 
   const { router } = await import('./router');
@@ -30,7 +33,11 @@ async function bootstrap() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <RouterProvider router={router} />
+          <SessionProvider>
+            <SessionBootstrap>
+              <RouterProvider router={router} />
+            </SessionBootstrap>
+          </SessionProvider>
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>

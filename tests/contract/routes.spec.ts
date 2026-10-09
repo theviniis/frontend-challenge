@@ -65,6 +65,10 @@ describe('Route search contracts', () => {
       'https://evil.com',
       'javascript:alert(1)',
       '/\\evil.com',
+      '/./login',
+      '/%5cevil.com',
+      '/%2F%2Fevil.com',
+      '/signup',
       '',
     ])
       expect(sanitizeRedirect(redirect)).toBe('/');

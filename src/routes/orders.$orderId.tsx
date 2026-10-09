@@ -3,7 +3,7 @@ import { requireSession } from '@/lib/session/guards';
 import { RoutePlaceholder } from '@/components/shared/RoutePlaceholder';
 
 export const Route = createFileRoute('/orders/$orderId')({
-  beforeLoad: ({ location }) => requireSession({ location }),
+  beforeLoad: ({ location, context }) => requireSession({ location, context }),
   component: OrderConfirmationPage,
 });
 
@@ -19,7 +19,7 @@ function OrderConfirmationPage() {
     >
       <div className="font-mono">
         <span className="text-tiny text-text-secondary">ID do Pedido:</span>
-        <p className="text-body font-bold text-primary">{orderId}</p>
+        <p className="text-body text-primary font-bold">{orderId}</p>
       </div>
     </RoutePlaceholder>
   );

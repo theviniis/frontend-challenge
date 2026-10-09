@@ -1,5 +1,6 @@
 import { createRouter, defaultParseSearch } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
+import { sessionService } from './lib/session/service';
 
 export const router = createRouter({
   routeTree,
@@ -31,7 +32,7 @@ export const router = createRouter({
     }
     return parsed;
   },
-  context: {},
+  context: { session: sessionService },
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
 });

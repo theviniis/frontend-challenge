@@ -3,6 +3,12 @@ import type { NftListQuery } from '@/types/api';
 const user = (userId?: string | null) => userId || 'anon';
 
 export const keyFactory = {
+  belongsToUser: (key: readonly unknown[], userId: string) =>
+    key[0] === 'nfts'
+      ? key[1] === 'list' && key[3] === userId
+      : ['favorites', 'cart', 'quote', 'order', 'profile', 'wallets'].includes(
+          String(key[0])
+        ) && key[1] === userId,
   nfts: {
     all: ['nfts'] as const,
     list: (params: Partial<NftListQuery>, userId?: string | null) =>
