@@ -115,6 +115,37 @@ const categoriesAt = (i: number): string[] => {
 const isoAt = (i: number): string =>
   new Date(BASE_TIME + i * DAY_MS).toISOString();
 
+const REVIEW_PAIRS = [
+  [5, 4],
+  [5, 5],
+  [3, 4],
+  [1, 2],
+  [0, 1],
+] as const;
+
+const reviewsAt = (i: number, nftId: string): Nft['reviews'] => {
+  // Keep both optional metadata and the explicit empty state testable.
+  if (i % 10 === 8) return undefined;
+  if (i % 10 === 9) return { average: 0, count: 0, items: [] };
+  const ratings = REVIEW_PAIRS[i % REVIEW_PAIRS.length];
+  return {
+    average: (ratings[0] + ratings[1]) / 2,
+    count: ratings.length,
+    items: ratings.map((rating, index) => ({
+      id: `review-${nftId}-${index + 1}`,
+      author: index === 0 ? 'Ana Costa' : 'Bruno Lima',
+      rating,
+      comment:
+        rating >= 4
+          ? 'Arte com ótimos detalhes para minha coleção.'
+          : rating >= 2
+            ? 'Uma edição interessante, mas esperava mais detalhes na arte.'
+            : 'A arte não correspondeu às minhas expectativas.',
+      date: isoAt(i + index + 1),
+    })),
+  };
+};
+
 const buildNft = (i: number): Nft => {
   const hero = HEROES[i];
   const slug = hero ? hero.slug : GENERATED_SLUGS[i % GENERATED_SLUGS.length];
@@ -149,6 +180,7 @@ const buildNft = (i: number): Nft => {
     editable: !NOT_EDITABLE.has(i),
     available,
     favoritesCount: (i * 7) % 130,
+    reviews: reviewsAt(i, id),
     rarity,
     attributes: [
       { trait: 'Fundo', value: BACKDROPS[i % 4] },

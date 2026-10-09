@@ -29,13 +29,29 @@ export const walletHandlers = [
           if (existing!.userId !== current.id)
             fail(403, 'FORBIDDEN', 'Carteira de outro usuário');
           if (
-            data.network &&
-            data.network !== existing!.network &&
+            ((data.network && data.network !== existing!.network) ||
+              ('address' in data &&
+                data.address !== undefined &&
+                data.address !== existing!.address) ||
+              ('provider' in data &&
+                data.provider !== undefined &&
+                data.provider !== (existing!.provider ?? 'metamask'))) &&
             getDb().orders.some(
               (o) => o.status === 'pending' && o.wallet.id === existing!.id
             )
           )
             fail(409, 'CONFLICT', 'Carteira vinculada a pedido pendente');
+          if (
+            'address' in data &&
+            wallets.some(
+              (w) =>
+                w.id !== existing!.id &&
+                w.address.toLowerCase() === String(data.address).toLowerCase()
+            )
+          )
+            fail(409, 'CONFLICT', 'Endereço já cadastrado', {
+              address: ['Endereço já cadastrado'],
+            });
         } else {
           if (wallets.length >= 2)
             fail(409, 'CONFLICT', 'Limite de duas carteiras atingido', {

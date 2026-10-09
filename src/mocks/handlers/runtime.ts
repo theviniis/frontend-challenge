@@ -71,6 +71,7 @@ export function cart(key: OwnerKey) {
     const nft = getDb().nfts.find((n) => n.id === item.nftId)!;
     return {
       ...item,
+      tokenId: nft.tokenId,
       price: nft.price,
       available: nft.available,
       lineTotal: mulQty(nft.price, item.qty),

@@ -35,6 +35,7 @@ export const cartHandlers = [
           else
             current.items.push({
               nftId: id,
+              tokenId: nft!.tokenId,
               name: nft!.name,
               image: nft!.image,
               price: nft!.price,

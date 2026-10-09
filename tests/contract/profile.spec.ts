@@ -63,3 +63,44 @@ test('profile editing uniqueness and password change', async () => {
     headers
   );
 });
+
+test('checkout profile fields persist and email becomes the login identity', async () => {
+  const headers = await login();
+  const value = await call(
+    'patch',
+    '/profile',
+    s.profileSchema,
+    {
+      name: 'Ana Editada',
+      email: 'ANA.NOVA@greenmint.test',
+      username: 'ana.nova',
+      profileName: 'Coleção da Ana',
+      referralCode: 'KURIO_2026',
+    },
+    headers
+  );
+  expect(value).toMatchObject({
+    email: 'ana.nova@greenmint.test',
+    profileName: 'Coleção da Ana',
+    referralCode: 'KURIO_2026',
+  });
+  expect(
+    await call('get', '/profile', s.profileSchema, undefined, headers)
+  ).toEqual(value);
+  const session = await call('post', '/auth/login', s.sessionSchema, {
+    email: value.email,
+    password: 'Ana12345',
+  });
+  expect(session.user.email).toBe(value.email);
+  await error(
+    'patch',
+    '/profile',
+    'CONFLICT',
+    409,
+    { email: 'bruno@greenmint.test' },
+    headers
+  );
+  expect(
+    (await call('get', '/profile', s.profileSchema, undefined, headers)).email
+  ).toBe(value.email);
+});

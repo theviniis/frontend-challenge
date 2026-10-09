@@ -56,9 +56,9 @@ test('CRUD, server totals and persistence', async ({ page }) => {
   await expect(table.getByRole('columnheader')).toHaveText([
     'NFT',
     'Preço',
-    'Quantidade',
-    'Total do item',
-    'Ações',
+    'Edições',
+    'Total',
+    '',
   ]);
   const item = table.getByRole('row', {
     name: 'Emerald Ape #042',
@@ -168,7 +168,21 @@ test('stock conflict preserves quantity and updates limit', async ({
     page.getByRole('status').filter({ hasText: 'Mantivemos' })
   ).toBeVisible();
   await expect(page.getByLabel('Quantidade', { exact: true })).toHaveText('2');
-  await expect(page.getByText('Disponíveis: 8', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Aumentar quantidade' })
+  ).toBeEnabled();
+  const available = await page.evaluate(async () => {
+    const queryPath = '/src/lib/query/client.ts';
+    const keysPath = '/src/lib/query/keys.ts';
+    const { queryClient } = await import(queryPath);
+    const { keyFactory } = await import(keysPath);
+    return queryClient
+      .getQueryData(keyFactory.cart())
+      ?.items.find(
+        (item: { nftId: string }) => item.nftId === 'emerald-ape-042'
+      )?.available;
+  });
+  expect(available).toBe(8);
 });
 test('cart error supports retry', async ({ page }) => {
   await setScenario(page, 'offline');

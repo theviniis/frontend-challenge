@@ -286,3 +286,29 @@ determinísticos, transporte Socket.IO via `@mswjs/socket.io-binding`, integraç
   de `prefers-reduced-motion`.
 - O cenário `validacao-api` também rejeita o e-mail do cadastro com 422 e `fields.email`,
   permitindo testar precedência dos erros remotos sem alterar o contrato REST.
+
+### 6.1 Checkout e retomada implementados
+
+O registro local de tentativa inclui `userId` e o `payload` original validado, além
+de `key`, `payloadHash` e `orderId?`. Expiração mantém esse registro; reautenticação
+do mesmo usuário permite recuperação. Logout ou troca de usuário limpa o registro.
+`gm_checkout_draft` preserva carteira/rede/cupom; conexão e revisão são transitórias.
+
+`order.updated` atualiza apenas pedidos já conhecidos no cache do usuário atual e
+com versão maior. Respostas REST passam pela mesma proteção de versão e estados
+terminais. Pedidos pendentes são consultados a cada 3 segundos; terminais usam
+snapshot com `staleTime: Infinity`, sem polling ou refetch por foco.
+
+### Formulário de pagamento
+
+O perfil do colecionador é editável com react-hook-form + zod. Nome de exibição,
+usuário, nome do perfil, e-mail, endereço, rede e tipo de carteira são obrigatórios.
+Código de indicação e Nome ENS (Select) são obrigatórios no checkout. ENS/carteira secundária e observação são opcionais. `gm_checkout_draft`
+inclui `collector` com os textos ainda não validados, preservando edições incompletas
+no refresh e na expiração; o rascunho continua isolado por usuário.
+
+A ação única "Confirmar compra" valida e atualiza perfil e carteira pelos endpoints existentes, depois abre a autorização simulada. Não há botão separado de salvamento ou de conexão. Os requests são
+sequenciais: se o perfil for salvo e a carteira falhar, a interface mantém as
+alterações aceitas, mostra erro e exige nova confirmação antes de enviar o pedido. Erros
+remotos por campo prevalecem sobre os locais. O e-mail atualizado é refletido na
+sessão e usado no próximo login. Não há retry automático das alterações.

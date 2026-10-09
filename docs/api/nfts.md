@@ -107,6 +107,15 @@ NFT removido depois de listado → `404` com estado vazio amigável + link ao ca
   (`Golden Signal #160`, `Sage Nomad #009`, `Golden Frequency #071`, `Violet Nomad #314`,
   `Golden Beat #207`, coleção `Kurio Editions` / `Kurio Apes`).
 - Campos `version` iniciam em `1` e sobem com eventos `nft.updated`.
+- Avaliações determinísticas no catálogo e detalhe: `golden-signal-160` tem média
+  4.5 (notas 5 e 4), `sage-nomad-009` tem média 5, `golden-frequency-071`
+  tem média 3.5, `violet-nomad-314` tem média 1.5 e `golden-beat-207`
+  tem média 0.5 (inclui nota zero). Cada um tem duas avaliações com autor,
+  comentário e data ISO. `kurio-teal-motion-008` omite `reviews`;
+  `kurio-ruby-circuit-009` retorna `{ average: 0, count: 0, items: [] }`.
+  O Emerald Ape preserva média 4.8 e total 19 com amostra de duas avaliações.
+  Para carregar o seed atualizado em um navegador com dados persistidos, use
+  **Reset cenário** ou `?reset=1`.
 
 ## Facetas globais
 

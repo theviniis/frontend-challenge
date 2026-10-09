@@ -91,3 +91,56 @@ test('wallet create duplicate limit promote ownership and pending network', asyn
     bruno
   );
 });
+
+test('checkout wallet edits persist, validate ENS and reject duplicate addresses', async () => {
+  const headers = await login();
+  const id = 'wal_ana_ens';
+  const data = {
+    address: `0x${'c'.repeat(40)}`,
+    network: 'ethereum',
+    provider: 'coinbase',
+    ensName: 'ana-nova.eth',
+    secondaryIdentity: 'colecao.eth',
+    note: 'Compra da coleção',
+  };
+  const wallet = await call(
+    'patch',
+    `/wallets/${id}`,
+    s.walletSchema,
+    data,
+    headers
+  );
+  expect(wallet).toMatchObject(data);
+  const wallets = await call(
+    'get',
+    '/wallets',
+    s.walletsListResponseSchema,
+    undefined,
+    headers
+  );
+  expect(wallets.items.find((item) => item.id === id)).toEqual(wallet);
+  await error(
+    'patch',
+    `/wallets/${id}`,
+    'CONFLICT',
+    409,
+    { address: wallets.items.find((item) => item.id !== id)!.address },
+    headers
+  );
+  await error(
+    'patch',
+    `/wallets/${id}`,
+    'VALIDATION_ERROR',
+    422,
+    { ensName: 'invalid' },
+    headers
+  );
+  await error(
+    'patch',
+    '/wallets/wal_ana_principal',
+    'CONFLICT',
+    409,
+    { address: `0x${'d'.repeat(40)}` },
+    headers
+  );
+});

@@ -83,6 +83,8 @@ export const userPublicSchema = z.object({
   name: z.string(),
   email: z.email(),
   username: z.string().optional(),
+  profileName: z.string().optional(),
+  referralCode: z.string().optional(),
   bio: z.string().optional(),
   avatarUrl: z.string().optional(),
   createdAt: isoDateSchema,
@@ -246,6 +248,7 @@ export type FavoritesResponse = z.infer<typeof favoritesResponseSchema>;
 
 export const cartItemSchema = z.object({
   nftId: z.string(),
+  tokenId: z.string().optional(),
   name: z.string(),
   image: z.string(),
   price: ethSchema,
@@ -377,7 +380,20 @@ export const orderSchema = z.object({
     id: z.string(),
     label: z.string(),
     address: addressSchema,
+    provider: z.enum(['metamask', 'walletconnect', 'coinbase']).optional(),
+    ensName: z.string().optional(),
+    secondaryIdentity: z.string().optional(),
+    note: z.string().optional(),
   }),
+  collector: z
+    .object({
+      name: z.string(),
+      email: z.email(),
+      username: z.string().optional(),
+      profileName: z.string().optional(),
+      referralCode: z.string().optional(),
+    })
+    .optional(),
   network: networkSchema,
   txHash: z.string().optional(),
   explorerUrl: z.string().optional(),
@@ -441,6 +457,8 @@ export const profileSchema = z.object({
   name: z.string(),
   email: z.email(),
   username: z.string().optional(),
+  profileName: z.string().optional(),
+  referralCode: z.string().optional(),
   bio: z.string().optional(),
   avatarUrl: z.string().optional(),
   createdAt: isoDateSchema,
@@ -448,6 +466,13 @@ export const profileSchema = z.object({
 });
 
 export const profilePatchSchema = z.object({
+  email: z.email('E-mail inválido').optional(),
+  profileName: z.string().min(2, nameMessage).max(60, nameMessage).optional(),
+  referralCode: z
+    .string()
+    .max(40, 'Código de indicação deve ter até 40 caracteres')
+    .regex(/^[a-zA-Z0-9_-]*$/, 'Código de indicação inválido')
+    .optional(),
   name: z
     .string(nameMessage)
     .min(2, nameMessage)
@@ -481,6 +506,26 @@ export type ProfilePatch = z.infer<typeof profilePatchSchema>;
 
 export type PasswordRequest = z.infer<typeof passwordRequestSchema>;
 
+export const walletProviderSchema = z.enum([
+  'metamask',
+  'walletconnect',
+  'coinbase',
+]);
+export const ensNameSchema = z
+  .string()
+  .regex(
+    /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.eth)?$/,
+    'Informe um nome ENS válido terminado em .eth'
+  );
+export const secondaryIdentitySchema = z
+  .string()
+  .refine(
+    (value) =>
+      value === '' ||
+      addressSchema.safeParse(value).success ||
+      (value.endsWith('.eth') && ensNameSchema.safeParse(value).success),
+    'Informe um endereço 0x válido ou nome .eth'
+  );
 export const walletSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -488,6 +533,8 @@ export const walletSchema = z.object({
   network: networkSchema,
   isPrimary: z.boolean(),
   ensName: z.string().optional(),
+  provider: walletProviderSchema.optional(),
+  secondaryIdentity: secondaryIdentitySchema.optional(),
   note: z.string().optional(),
   createdAt: isoDateSchema,
 });
@@ -505,11 +552,17 @@ export const createWalletRequestSchema = z.object({
   address: addressSchema,
   network: networkSchema,
   isPrimary: z.boolean(walletPrimaryMessage),
-  ensName: z.string('Nome ENS inválido').optional(),
+  ensName: ensNameSchema.optional(),
+  provider: walletProviderSchema.optional(),
+  secondaryIdentity: secondaryIdentitySchema.optional(),
   note: z.string('Observação inválida').optional(),
 });
 
 export const patchWalletRequestSchema = z.object({
+  address: addressSchema.optional(),
+  provider: walletProviderSchema.optional(),
+  ensName: ensNameSchema.optional(),
+  secondaryIdentity: secondaryIdentitySchema.optional(),
   label: z.string(walletLabelMessage).min(1, walletLabelMessage).optional(),
   note: z.string('Observação inválida').optional(),
   isPrimary: z.boolean(walletPrimaryMessage).optional(),

@@ -15,12 +15,14 @@ export function FormTextField<T extends FieldValues>({
   name,
   label,
   description,
+  labelHidden = true,
   ...props
 }: Omit<ComponentProps<typeof Input>, 'name'> & {
   control: Control<T>;
   name: FieldPath<T>;
   label: string;
   description?: string;
+  labelHidden?: boolean;
 }) {
   const fieldId = useId();
   return (
@@ -33,8 +35,12 @@ export function FormTextField<T extends FieldValues>({
           props.type === 'password' ? PasswordInput : Input;
         return (
           <FormItem>
-            <FormLabel className="sr-only" htmlFor={id}>
+            <FormLabel
+              className={labelHidden ? 'sr-only' : undefined}
+              htmlFor={id}
+            >
               {label}
+              {props.required && <span aria-hidden="true"> *</span>}
             </FormLabel>
             <InputComponent
               {...props}

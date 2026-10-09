@@ -13,6 +13,17 @@ export const profileHandlers = [
   route('patch', '/profile', 'profile', async (r) => {
     const current = user(r);
     const data = await body(r, s.profilePatchSchema);
+    if (data.email) {
+      data.email = data.email.toLowerCase();
+      if (
+        getDb().users.some(
+          (u) => u.id !== current.id && u.email.toLowerCase() === data.email
+        )
+      )
+        fail(409, 'CONFLICT', 'E-mail já cadastrado', {
+          email: ['E-mail já cadastrado'],
+        });
+    }
     if (getDb().flags.forceFormValidationError)
       fail(422, 'VALIDATION_ERROR', 'Validação remota', {
         name: ['Nome rejeitado pela API'],

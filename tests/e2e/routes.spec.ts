@@ -14,7 +14,7 @@ const routes = [
 ];
 const privateRoutes = [
   ['/checkout', 'Pagamento'],
-  ['/orders/sample', 'Confirmação'],
+  ['/orders/sample', 'Não foi possível consultar o pedido'],
   ['/profile', 'Perfil'],
   ['/wallets', 'Carteiras'],
 ];
@@ -40,14 +40,16 @@ test.beforeEach(async ({ page }) => {
   expect(status).toBe(200);
 });
 for (const [path, title] of routes)
-  test(`direct URL and refresh ${path}`, async ({ page }) => {
+  test(`direct URL and refresh ${path}`, async ({ page, isMobile }) => {
+    const visibleTitle =
+      path === '/cart' && !isMobile ? 'Início / Mercado / Carrinho' : title;
     await page.goto(path);
     await expect(
-      page.getByRole('heading', { name: title, exact: true })
+      page.getByRole('heading', { name: visibleTitle, exact: true })
     ).toBeVisible();
     await page.reload();
     await expect(
-      page.getByRole('heading', { name: title, exact: true })
+      page.getByRole('heading', { name: visibleTitle, exact: true })
     ).toBeVisible();
   });
 for (const [path, title] of privateRoutes)

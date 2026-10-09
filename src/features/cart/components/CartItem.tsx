@@ -6,7 +6,7 @@ export function CartItem({ item }: { item: Item }) {
     <div className="flex items-center gap-4">
       <img
         src={item.image}
-        alt={`NTF ${item.name}`}
+        alt={`NFT ${item.name}`}
         width={70}
         height={70}
         className="rounded-default"
@@ -20,7 +20,9 @@ export function CartItem({ item }: { item: Item }) {
         >
           {item.name}
         </Link>
-        <p className="text-body-sm text-secondary">ID do token: {item.nftId}</p>
+        <p className="text-body-sm text-secondary">
+          ID do token: {item.tokenId ? `#${item.tokenId}` : item.nftId}
+        </p>
       </div>
     </div>
   );

@@ -1,19 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireSession } from '@/lib/session/guards';
-import { RoutePlaceholder } from '@/components/shared/RoutePlaceholder';
-
+import { CheckoutPage } from '@/features/checkout/CheckoutPage';
+import { checkoutSearchSchema } from '@/features/checkout/search-params';
 export const Route = createFileRoute('/checkout')({
-  beforeLoad: ({ location, context }) => requireSession({ location, context }),
-  component: CheckoutPage,
+  validateSearch: checkoutSearchSchema,
+  beforeLoad: async ({ location, context }) => ({
+    checkoutSession: await requireSession({ location, context }),
+  }),
+  component: Page,
 });
-
-function CheckoutPage() {
+function Page() {
+  const { checkoutSession } = Route.useRouteContext();
+  const { coupon } = Route.useSearch();
   return (
-    <RoutePlaceholder
-      title="Pagamento"
-      frames="11:2862 (desktop) / 16:748 (mobile)"
-      access="privada"
-      description="Formulário de checkout, seleção de carteira e rede, revisão e envio do pedido."
+    <CheckoutPage
+      key={checkoutSession.user.id}
+      userId={checkoutSession.user.id}
+      coupon={coupon}
     />
   );
 }

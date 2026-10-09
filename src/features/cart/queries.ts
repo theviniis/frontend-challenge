@@ -12,6 +12,7 @@ import type { Cart, AppError, Quote } from '@/types/api';
 
 export const errorCode = (error: unknown) => {
   const failure = error as AppError | undefined;
+  if (failure?.kind === 'validation') return 'VALIDATION_ERROR';
   return failure?.kind === 'http' ? failure.code : undefined;
 };
 export function newestCart(incoming: Cart, userId?: string) {

@@ -136,7 +136,15 @@ async function authenticate(path: string, input: LoginRequest | SignupRequest) {
     throw { kind: 'canceled' } satisfies AppError;
   queryClient.clear();
   disconnectSocket();
-  localStorage.removeItem('gm_pending_order');
+  try {
+    const pending = JSON.parse(
+      localStorage.getItem('gm_pending_order') ?? 'null'
+    ) as { userId?: string } | null;
+    if (pending?.userId !== next.user.id)
+      localStorage.removeItem('gm_pending_order');
+  } catch {
+    localStorage.removeItem('gm_pending_order');
+  }
   restoreCheckoutDraft(next.user.id);
   storeSession(next);
   publish({

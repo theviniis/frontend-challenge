@@ -51,7 +51,7 @@ export function CartSummary({ controller }: { controller: CartController }) {
         !controller.pending &&
         !controller.couponPending && (
           <Button asChild>
-            <Link to="/checkout">
+            <Link to="/checkout" search={{ coupon: controller.coupon }}>
               {session ? 'Finalizar compra' : 'Conectar e finalizar'}
             </Link>
           </Button>

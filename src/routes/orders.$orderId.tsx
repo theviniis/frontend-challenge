@@ -1,26 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireSession } from '@/lib/session/guards';
-import { RoutePlaceholder } from '@/components/shared/RoutePlaceholder';
-
+import { OrderPage } from '@/features/orders/OrderPage';
 export const Route = createFileRoute('/orders/$orderId')({
-  beforeLoad: ({ location, context }) => requireSession({ location, context }),
-  component: OrderConfirmationPage,
+  beforeLoad: async ({ location, context }) => ({
+    orderSession: await requireSession({ location, context }),
+  }),
+  component: Page,
 });
-
-function OrderConfirmationPage() {
+function Page() {
+  const { orderSession } = Route.useRouteContext();
   const { orderId } = Route.useParams();
-
   return (
-    <RoutePlaceholder
-      title="Confirmação"
-      frames="11:4385 (desktop)"
-      access="privada"
-      description="Estado do pedido e recibo (snapshot final da transação)."
-    >
-      <div className="font-mono">
-        <span className="text-tiny text-text-secondary">ID do Pedido:</span>
-        <p className="text-body text-primary font-bold">{orderId}</p>
-      </div>
-    </RoutePlaceholder>
+    <OrderPage
+      key={`${orderSession.user.id}:${orderId}`}
+      userId={orderSession.user.id}
+      orderId={orderId}
+    />
   );
 }

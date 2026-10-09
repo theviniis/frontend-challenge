@@ -3,6 +3,7 @@ import { useSession } from '@/lib/session/state';
 import { queryClient } from '@/lib/query/client';
 import { keyFactory } from '@/lib/query/keys';
 import { connectSocket, disconnectSocket, socket } from './client';
+import { applyOrderEvent } from './order-cache';
 import { applyNftEvent } from './nft-cache';
 import { toast } from 'sonner';
 import { displayEth, cmpEth } from '@/lib/money';
@@ -46,10 +47,13 @@ export function SocketProvider() {
             'pending',
       });
     };
+    const onOrderUpdated = (raw: unknown) => applyOrderEvent(userId, raw);
+    socket.on('order.updated', onOrderUpdated);
     socket.on('connect', reconcile);
     socket.on('nft.updated', onNftUpdated);
     connectSocket(token);
     return () => {
+      socket.off('order.updated', onOrderUpdated);
       socket.off('connect', reconcile);
       socket.off('nft.updated', onNftUpdated);
       disconnectSocket();

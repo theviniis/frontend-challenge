@@ -29,6 +29,7 @@ test.beforeEach(async ({ page }) => {
 
 test('modal preserves background filters, history, switching and trigger focus', async ({
   page,
+  isMobile,
 }) => {
   await page.goto('/?q=Golden#catalogo');
   const trigger = page
@@ -51,12 +52,24 @@ test('modal preserves background filters, history, switching and trigger focus',
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goForward();
   await expect(page.getByRole('dialog', { name: 'Login' })).toBeVisible();
-  await page.getByRole('button', { name: 'Crie uma conta' }).click();
-  await expect(page.getByRole('dialog', { name: 'Cadastro' })).toBeVisible();
-  expect(new URL(page.url()).pathname).toBe('/signup');
-  expect(new URL(page.url()).searchParams.get('redirect')).toBe(
-    '/?q=Golden#catalogo'
-  );
+  if (isMobile) {
+    await expect(
+      page.getByRole('button', {
+        name: 'Criar conta',
+        exact: true,
+        includeHidden: true,
+      })
+    ).toBeHidden();
+  } else {
+    await page
+      .getByRole('button', { name: 'Criar conta', exact: true })
+      .click();
+    await expect(page.getByRole('dialog', { name: 'Cadastro' })).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe('/signup');
+    expect(new URL(page.url()).searchParams.get('redirect')).toBe(
+      '/?q=Golden#catalogo'
+    );
+  }
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page).toHaveURL(/\?q=Golden#catalogo$/);
@@ -72,6 +85,8 @@ test('local errors, password visibility and keyboard focus are accessible', asyn
   await page.goto('/login');
   const dialog = page.getByRole('dialog', { name: 'Login' });
   const form = dialog.getByRole('form');
+  await form.getByLabel('E-mail', { exact: true }).fill('');
+  await form.getByLabel('Senha', { exact: true }).fill('');
   await form.getByRole('button', { name: 'Entrar', exact: true }).click();
   const email = form.getByLabel('E-mail', { exact: true });
   await expect(email).toBeFocused();
@@ -249,17 +264,15 @@ test('checkout expiration preserves draft and restores only its owner', async ({
 }) => {
   await page.goto('/login?redirect=/checkout?draft=abc%23review');
   await loginThroughForm(page);
-  const draft = {
-    userId: 'usr_ana',
-    walletId: 'wal_principal',
-    network: 'ethereum',
-    coupon: 'LAUNCH10',
-  };
-  await page.evaluate(async (draft) => {
-    const path = '/src/features/checkout/draft.ts';
-    const { saveCheckoutDraft } = await import(path);
-    saveCheckoutDraft(draft);
-  }, draft);
+  const checkoutForm = page.getByRole('form', {
+    name: 'Perfil do colecionador',
+  });
+  await checkoutForm
+    .getByLabel('Observação do colecionador (opcional)', { exact: true })
+    .fill('Rascunho antes de expirar');
+  const draft = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('gm_checkout_draft')!)
+  );
   const destination = page.url().slice(new URL(page.url()).origin.length);
   await setScenario(page, 'sessao-expirada');
   await page.evaluate(async () => {
@@ -276,6 +289,11 @@ test('checkout expiration preserves draft and restores only its owner', async ({
   ).toEqual(draft);
   await setScenario(page, 'padrao');
   await loginThroughForm(page);
+  await expect(
+    checkoutForm.getByLabel('Observação do colecionador (opcional)', {
+      exact: true,
+    })
+  ).toHaveValue('Rascunho antes de expirar');
   expect(page.url().endsWith(destination)).toBe(true);
   expect(
     await page.evaluate(async () => {

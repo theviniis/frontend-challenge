@@ -45,10 +45,49 @@ tela de confirmação só para pedido efetivamente confirmado.
 
 ## Critérios de aceite (gate)
 
-- [ ] Cenários `timeout-pedido`, `pagamento-recusado`, `preco-muda` com portas de saída corretas
-- [ ] Refresh com pedido pendente recupera estado sem duplicar compra
-- [ ] `pnpm typecheck && pnpm lint` verdes
+- [x] Cenários `timeout-pedido`, `pagamento-recusado`, `preco-muda` com portas de saída corretas
+- [x] Refresh com pedido pendente recupera estado sem duplicar compra
+- [x] `pnpm typecheck && pnpm lint` verdes
 
 ## Referências
 
 - `docs/api/orders.md` · `ARCHITECTURE.md` §5–6 · `docs/MOCKS.md` §4 · frames citados
+
+## Implementação e evidências
+
+- Formulário editável com react-hook-form, zod e componentes shadcn/ui existentes.
+  Código de indicação e Nome ENS são obrigatórios; Nome ENS usa Select.
+  Perfil e carteira fornecem os valores iniciais. Contas sem indicação ou ENS
+  recebem `GREENMINT` e `greenmint.eth` para teste.
+- `OrderReview` é separado: miniaturas, identificação do token, quantidades,
+  subtotal por item, cupom, subtotal, desconto, taxa estimada e total. O grupo
+  de rádios de carteira fica abaixo da revisão e é sincronizado com o tipo
+  escolhido no formulário.
+- A ação única **Confirmar compra** valida e atualiza a conta, depois abre a
+  autorização simulada. Não há botões separados de salvamento ou de conexão.
+  Rejeitar ou fechar o diálogo impede a criação do pedido.
+- `timeout-pedido`: retry manual e refresh sem ID reaproveitam o mesmo payload
+  e a mesma chave; recibo confirmado recuperado sem segunda compra.
+- Refresh com ID mantém o mesmo pedido; polling sem socket confirma o pedido.
+  Snapshot preservado após alterações na conta; eventos antigos não regressam
+  pedido terminal; acesso de outro usuário ao recibo é recusado.
+- `preco-muda`: cotação obsoleta libera a tentativa, atualiza a cotação e exige
+  nova confirmação. `pagamento-recusado` mostra motivo, oferece retorno ao
+  carrinho e preserva seus itens. Estoque insuficiente bloqueia nova compra.
+- Confirmação remove somente quantidades compradas no servidor mock, preservando
+  adições durante a espera. Expiração preserva rascunho e tentativa do mesmo
+  usuário; logout/troca de usuário limpa dados privados.
+- `pnpm typecheck`, `pnpm lint` e os 50 testes de contrato passaram.
+  Playwright cobre checkout/pedidos, carrinho, autenticação e rotas em desktop
+  e mobile; expectativas antigas de botões/colunas foram atualizadas.
+- Diagnósticos `tailwindcss(suggestCanonicalClasses)` verificados separadamente
+  via Tailwind Language Server: nenhum diagnóstico nos 11 arquivos de UI.
+
+### Limites documentados
+
+A composição usa apenas estilos estruturais, conforme AGENTS.md; os estilos dos
+componentes reutilizados foram preservados. Não se declara paridade de cores,
+espaçamentos ou tipografia com a imagem. ENS e autorização são simulados, sem
+registro de domínio, extensão de carteira ou transação real. As atualizações de
+perfil e carteira são sequenciais: se a segunda falhar, a primeira permanece e
+a interface exige correção e nova confirmação antes de criar o pedido.

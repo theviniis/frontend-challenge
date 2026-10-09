@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { collectorDraftSchema } from './collector-draft';
 
 export const checkoutDraftSchema = z.object({
   userId: z.string().min(1),
   walletId: z.string().optional(),
   network: z.string().optional(),
   coupon: z.string().optional(),
+  collector: collectorDraftSchema.optional(),
 });
 export type CheckoutDraft = z.infer<typeof checkoutDraftSchema>;
 const storageKey = 'gm_checkout_draft';

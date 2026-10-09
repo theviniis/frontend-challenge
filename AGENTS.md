@@ -106,6 +106,12 @@ usuário, no escopo solicitado.**
 
 ## Onde ler antes de mexer em algo
 
+**Em caso de dúvidas, consultar primeiro o `README.md`**, que contém o enunciado,
+os critérios e as entregas do desafio, e depois os documentos específicos abaixo.
+Antes de perguntar ao usuário, procurar a resposta nessas referências. Se a dúvida
+persistir, indicar o que foi consultado e qual informação continua faltando; não
+presumir que o usuário conhece detalhes que o enunciado não esclarece.
+
 | Assunto                                      | Arquivo                                 |
 | -------------------------------------------- | --------------------------------------- |
 | Estrutura de pastas, rotas, scripts, fases   | `docs/ESTRUTURA.md`                     |

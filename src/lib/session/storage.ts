@@ -32,7 +32,6 @@ export function storeSession(session: Session | null): void {
     );
   else {
     localStorage.removeItem(SESSION_STORAGE_KEY);
-    localStorage.removeItem('gm_pending_order');
   }
   listeners.forEach((listener) => listener());
 }
