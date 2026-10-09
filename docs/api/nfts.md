@@ -16,6 +16,26 @@ type Nft = {
   image: string; // "/assets/nft/golden-signal-160.png"
   images: string[]; // galeria (mín. 1; usa as 4 imagens do Figma)
   description: string;
+  tokenId?: string; // identificador do token, ex.: "0042"
+  details?: string; // descrição ampliada, parágrafos separados por \n
+  contract?: {
+    address: string;
+    standard: string; // ex.: "ERC-721"
+    verified: boolean;
+    royalties: string; // percentual decimal, ex.: "5"; apresentação sem cálculo
+  };
+  reviews?: {
+    average: number; // 0–5
+    count: number; // inteiro >= 0; total, pode superar a amostra em items
+    items: {
+      id: string;
+      author: string;
+      rating: number;
+      comment: string;
+      date: string;
+    }[];
+    // rating: 0–5; date: ISO; avaliações somente leitura
+  };
   editable: boolean; // false → "edição indisponível" no detalhe
   available: number; // exemplares disponíveis (0 → esgotado)
   favoritesCount: number;
@@ -26,6 +46,11 @@ type Nft = {
   createdAt: string; // ISO — usado no sort "recent"
 };
 ```
+
+Campos adicionais são opcionais para compatibilidade com dados persistidos antigos.
+Blocos sem dados são omitidos; avaliações vazias têm feedback explícito.
+`editable: false` bloqueia quantidade e compra, mesmo com estoque. As opções de
+edição na interface são informativas: apenas a edição deste NFT está disponível.
 
 ## Endpoints
 

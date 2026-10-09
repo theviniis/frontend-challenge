@@ -74,19 +74,32 @@ const hydrateDb = (): MockDb => {
     return seed;
   }
   const seedNfts = new Map(seed.nfts.map((nft) => [nft.id, nft]));
+  const legacyDetail =
+    parsed.nfts.length > 0 &&
+    parsed.nfts.every((nft) => nft.tokenId === undefined);
   // Persisted catalogs from before network filters lack the new fixture fields.
   // Keep user state and mutable NFT values while upgrading those records once.
   const nfts = parsed.nfts.map((nft) => {
-    if (nft.network !== undefined) return nft;
     const reference = seedNfts.get(nft.id);
+    if (nft.network !== undefined && !legacyDetail) return nft;
     return {
+      ...(legacyDetail ? reference : {}),
       ...nft,
-      network: reference?.network ?? 'ethereum',
+      ...(legacyDetail
+        ? {
+            tokenId: reference?.tokenId,
+            details: reference?.details,
+            images: reference?.images ?? nft.images,
+          }
+        : {}),
+      network: nft.network ?? reference?.network ?? 'ethereum',
       categories: [
         ...new Set([...nft.categories, ...(reference?.categories ?? [])]),
       ],
     };
   });
+  if (legacyDetail && !nfts.some((nft) => nft.id === 'emerald-ape-042'))
+    nfts.push(seedNfts.get('emerald-ape-042')!);
   const hydrated = {
     ...seed,
     ...parsed,

@@ -7,9 +7,6 @@ import { queryClient } from './lib/query/client';
 import './styles/global.css';
 import { TooltipProvider } from './components/ui/tooltip';
 import { Toaster } from './components/ui/sonner';
-import { SessionProvider } from './lib/session/context';
-import { sessionService } from './lib/session/service';
-import { SessionBootstrap } from './features/auth/components/SessionBootstrap';
 
 async function bootstrap() {
   if (import.meta.env.VITE_MOCKS === 'true') {
@@ -24,10 +21,16 @@ async function bootstrap() {
     const { healthSchema } = await import('./lib/http/schemas');
     healthSchema.parse((await http.get('/api/_health')).data);
     const { demoSession } = await import('./mocks/session-controls');
+    const { sessionService } = await import('./lib/session/service');
     const { router } = await import('./router');
     router.update({ context: { session: sessionService, demoSession } });
   }
 
+  // Load session/socket modules after MSW starts: Engine.IO captures WebSocket
+  // at module evaluation and must see the interceptor installed by the worker.
+  const { SessionProvider } = await import('./lib/session/context');
+  const { SessionBootstrap } =
+    await import('./features/auth/components/SessionBootstrap');
   const { router } = await import('./router');
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

@@ -4,7 +4,8 @@ const expect = baseExpect.configure({ timeout: 15_000 });
 const routes = [
   ['/', 'Início'],
   ['/teste', 'Início'],
-  ['/nfts/sample', 'Detalhes do NFT'],
+  ['/nfts/golden-signal-160', 'Golden Signal #160'],
+  ['/nfts/sample', 'NFT não encontrado'],
   ['/cart', 'Carrinho'],
   ['/login', 'Login'],
   ['/signup', 'Cadastro'],
@@ -18,7 +19,14 @@ const privateRoutes = [
   ['/wallets', 'Carteiras'],
 ];
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('gm_scenario', 'padrao'));
+  await page.addInitScript(() => {
+    localStorage.setItem('gm_scenario', 'padrao');
+    document.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+      style.textContent = '[aria-label="Controle dos mocks"] { display:none }';
+      document.head.append(style);
+    });
+  });
   await page.goto('/');
   await expect(
     page.getByRole('heading', { name: 'Início', exact: true })
@@ -93,8 +101,10 @@ test('catalog URL survives refresh and back/forward; filters reset page', async 
   await expect(state).not.toContainText('Colecionáveis');
 });
 test('quantity survives refresh and history', async ({ page }) => {
-  await page.goto('/nfts/sample?qty=5');
-  const qty = page.getByLabel('Quantidade', { exact: true });
+  await page.goto('/nfts/golden-signal-160?qty=5');
+  const qty = page
+    .getByLabel('Quantidade', { exact: true })
+    .filter({ visible: true });
   await expect(qty).toHaveText('5');
   await page.getByRole('button', { name: 'Aumentar quantidade' }).click();
   await expect(qty).toHaveText('6');
@@ -131,6 +141,7 @@ test('expired and malformed sessions cannot access private routes', async ({
   ).toBeVisible();
 });
 test('all marketplace screens reachable by click', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.goto('/teste');
   await page
     .getByRole('button', { name: 'Simular Login Rápido (Ana)', exact: true })
@@ -147,12 +158,20 @@ test('all marketplace screens reachable by click', async ({ page }) => {
     'Carteiras (Privada)',
     '404 (Rota Inexistente)',
   ]) {
+    await page.goto('/teste');
     await page
       .locator('section')
       .filter({
         has: page.getByRole('heading', {
           name: 'Navegação entre rotas do Marketplace',
         }),
+      })
+      .getByRole('link', { name, exact: true })
+      .evaluate((element) => element.scrollIntoView({ block: 'center' }));
+    await page
+      .locator('section')
+      .filter({
+        has: page.getByRole('heading', { name: /Navega.*Marketplace/ }),
       })
       .getByRole('link', { name, exact: true })
       .click();

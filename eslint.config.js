@@ -10,6 +10,7 @@ export default defineConfig([
   globalIgnores([
     'dist',
     '.tanstack',
+    '.agents',
     'playwright-report',
     'test-results',
     'audits/reports',

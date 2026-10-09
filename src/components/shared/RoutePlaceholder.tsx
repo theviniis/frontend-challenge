@@ -71,7 +71,7 @@ export function RoutePlaceholder({
           <Link
             to="/nfts/$nftId"
             search={{ qty: 1 }}
-            params={{ nftId: 'nft_neon_samurai' }}
+            params={{ nftId: 'golden-signal-160' }}
             className="border-border bg-surface-card text-tiny text-foreground hover:border-primary hover:text-primary [&.active]:border-primary [&.active]:bg-primary/10 [&.active]:text-primary rounded border px-3 py-1.5 font-mono transition-colors"
           >
             Detalhes NFT (#1)

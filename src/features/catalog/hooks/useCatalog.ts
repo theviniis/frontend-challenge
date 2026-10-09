@@ -3,7 +3,8 @@ import { getRouteApi } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getStoredSession, subscribeSession } from '@/lib/session/storage';
 import type { Nft } from '@/types/api';
-import { catalogOptions, useFavorites } from '../queries';
+import { catalogOptions } from '../queries';
+import { useFavorites } from '@/features/favorites/queries';
 import type { CatalogFilterState } from '../search-params';
 import { openAuth } from '@/features/auth/navigation';
 import { useRouter } from '@tanstack/react-router';
@@ -30,12 +31,14 @@ export function useCatalog() {
   }
 
   function onFavorite(nft: Nft) {
+    if (mutation.isPending) return;
     if (!userId) {
       void openAuth(router);
       return;
     }
     mutation.mutate({
       id: nft.id,
+      token: getStoredSession()!.token,
       selected: favorites.data?.ids.includes(nft.id) ?? false,
     });
   }

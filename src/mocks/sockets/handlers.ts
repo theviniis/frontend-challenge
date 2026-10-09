@@ -33,7 +33,7 @@ setSocketEmit((type, event) => {
 // MSW normalizes the Socket.IO path to the origin root when matching handlers.
 export const socketHandlers = [
   ws
-    .link(/^wss?:\/\/[^/]+\/?$/)
+    .link(/^wss?:\/\/[^/]+(?:\/socket\.io\/?(?:\?.*)?|\/?(?:\?.*)?)$/)
     .addEventListener('connection', (connection) => {
       if (new URL(connection.client.url).pathname !== '/socket.io/') {
         connection.server.connect();

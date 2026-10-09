@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
+import { Carousel, type CarouselState } from '@/components/shared/Carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { Button } from '@/components/ui/button';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
@@ -48,7 +48,6 @@ const slides: readonly HeroSlide[] = [
   },
 ];
 export function CatalogHero() {
-  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const [autoplay] = useState(() =>
     Autoplay({
       delay: 6000,
@@ -57,11 +56,24 @@ export function CatalogHero() {
       stopOnFocusIn: false,
     })
   );
-  const [viewportRef, embla] = useEmblaCarousel(
-    { loop: true, duration: reducedMotion ? 0 : 25 },
-    [autoplay]
+  return (
+    <Carousel options={{ loop: true }} plugins={[autoplay]}>
+      {(carousel) => (
+        <CatalogHeroContent carousel={carousel} autoplay={autoplay} />
+      )}
+    </Carousel>
   );
-  const [selected, setSelected] = useState(0);
+}
+
+function CatalogHeroContent({
+  carousel,
+  autoplay,
+}: {
+  carousel: CarouselState;
+  autoplay: ReturnType<typeof Autoplay>;
+}) {
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const { viewportRef, api: embla, selected, scrollTo } = carousel;
   const [announcement, setAnnouncement] = useState('');
   const suspended = useRef({ hover: false, focus: false, dragging: false });
   const manualDrag = useRef(false);
@@ -78,9 +90,7 @@ export function CatalogHero() {
   }, [autoplay, reducedMotion]);
   useEffect(() => {
     if (!embla) return;
-    const onSelect = () => setSelected(embla.selectedScrollSnap());
     const onReInit = () => {
-      onSelect();
       syncAutoplay();
     };
     const onDrag = () => {
@@ -102,7 +112,6 @@ export function CatalogHero() {
       }
     };
     embla
-      .on('select', onSelect)
       .on('reInit', onReInit)
       .on('pointerDown', onDrag)
       .on('pointerUp', onDragEnd)
@@ -111,7 +120,6 @@ export function CatalogHero() {
     document.addEventListener('visibilitychange', syncAutoplay);
     return () => {
       embla
-        .off('select', onSelect)
         .off('reInit', onReInit)
         .off('pointerDown', onDrag)
         .off('pointerUp', onDragEnd)
@@ -123,7 +131,7 @@ export function CatalogHero() {
   const selectSlide = (index: number) => {
     autoplay.stop();
     const normalized = (index + slides.length) % slides.length;
-    embla?.scrollTo(normalized, reducedMotion);
+    scrollTo(normalized);
     setAnnouncement(
       `Destaque ${normalized + 1} de ${slides.length}: ${slides[normalized].title}`
     );

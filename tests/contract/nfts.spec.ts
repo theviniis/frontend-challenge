@@ -6,7 +6,7 @@ import { clearDb, getDb } from '@/mocks/db/store';
 import { DB_STORAGE_KEY, safeStorage } from '@/mocks/db/persist';
 test('catalog pagination and combined filters reflect request', async () => {
   const list = await call('get', '/nfts', s.nftListResponseSchema);
-  expect(list.total).toBe(64);
+  expect(list.total).toBe(65);
   expect(list.items).toHaveLength(12);
   const filtered = await call(
     'get',
@@ -97,10 +97,10 @@ test('persisted legacy catalogs are upgraded without losing user or NFT state', 
   clearDb();
   safeStorage().setItem(DB_STORAGE_KEY, JSON.stringify(legacy));
   const list = await call('get', '/nfts', s.nftListResponseSchema);
-  expect(list.total).toBe(64);
+  expect(list.total).toBe(65);
   expect(
     list.facets.networks.reduce((sum, facet) => sum + facet.count, 0)
-  ).toBe(64);
+  ).toBe(65);
   expect(list.facets.categories.every((facet) => facet.count > 0)).toBe(true);
   expect(getDb().nfts[0]).toMatchObject({ price: '1.234', version: 7 });
   expect(getDb().favorites['anon:legacy']).toEqual([current.nfts[0].id]);

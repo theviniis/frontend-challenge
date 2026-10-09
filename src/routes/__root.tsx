@@ -36,6 +36,9 @@ function RootComponent() {
   const isTest = useRouterState({
     select: (state) => state.location.pathname === '/teste',
   });
+  const isNftDetail = useRouterState({
+    select: (state) => state.location.pathname.startsWith('/nfts/'),
+  });
   useEffect(
     () =>
       subscribeSession(() => {
@@ -93,17 +96,24 @@ function RootComponent() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-[1640px] px-6 py-10 md:px-30 md:py-6">
-        <Header
-          marketHref="#catalogo"
-          learnHref="#diario"
-          divider={!!isCatalog}
-        />
-        <div className="mb-6 flex justify-end md:hidden">
-          <AccountActions />
+      <main
+        className={`mx-auto max-w-[1640px] md:px-30 md:py-6 ${isNftDetail ? 'p-0' : 'px-6 py-10'}`}
+      >
+        <div className={isNftDetail ? 'hidden md:block' : undefined}>
+          <Header
+            marketHref={isNftDetail ? '/#catalogo' : '#catalogo'}
+            learnHref={isNftDetail ? '/#diario' : '#diario'}
+            creatorsHref={isNftDetail ? '/#criadores' : '#criadores'}
+            divider={!!isCatalog}
+          />
+          <div className="mb-6 flex justify-end md:hidden">
+            <AccountActions />
+          </div>
         </div>
         <Outlet />
-        <Footer />
+        <div className={isNftDetail ? 'hidden md:block' : undefined}>
+          <Footer />
+        </div>
       </main>
       <SocketProvider />
       <AuthModal />

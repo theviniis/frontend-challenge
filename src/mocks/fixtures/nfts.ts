@@ -142,8 +142,10 @@ const buildNft = (i: number): Nft => {
     categories: categoriesAt(i),
     network: (['ethereum', 'polygon', 'solana'] as const)[i % 3],
     image,
-    images: [image],
+    images: [image, ...NFT_IMAGES.filter((entry) => entry !== image)],
     description: `${name} — exemplar ${current} de ${total} da coleção ${collection}.`,
+    tokenId: String(num).padStart(4, '0'),
+    details: `${name} é uma obra digital da coleção ${collection}. Cada atributo fica armazenado nos metadados do token.\nA propriedade inclui arte em alta resolução e acesso para colecionadores.`,
     editable: !NOT_EDITABLE.has(i),
     available,
     favoritesCount: (i * 7) % 130,
@@ -158,8 +160,60 @@ const buildNft = (i: number): Nft => {
   };
 };
 
-const buildNfts = (): Nft[] =>
-  Array.from({ length: 64 }, (_, i) => buildNft(i));
+const buildNfts = (): Nft[] => [
+  ...Array.from({ length: 64 }, (_, i) => buildNft(i)),
+  {
+    ...buildNft(0),
+    id: 'emerald-ape-042',
+    name: 'Emerald Ape #042',
+    tokenId: '0042',
+    collection: 'Kurio Apes',
+    image: '/assets/hero/mobile-artwork-main.png',
+    images: ['/assets/hero/mobile-artwork-main.png', ...NFT_IMAGES.slice(0, 3)],
+    edition: { current: 1, total: 50 },
+    price: '1.19',
+    previousPrice: undefined,
+    available: 8,
+    rarity: 'RARO',
+    description:
+      'Um colecionável digital finalizado à mão da coleção Kurio Editions, verificado na Ethereum, com arte desbloqueável e acesso para colecionadores.',
+    details:
+      'Emerald Ape #042 é uma obra digital 1/50 finalizada à mão da coleção Kurio Editions. Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.\nA propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência registrada na rede. Nova Sato recebe 5% de direitos autorais nas vendas secundárias, apoiando novos trabalhos e lançamentos da comunidade.',
+    creator: { id: 'cr_nova_sato', name: 'Nova Sato' },
+    attributes: [
+      { trait: 'Acessório', value: 'Óculos' },
+      { trait: 'Cor', value: 'Esmeralda' },
+      { trait: 'Raridade', value: 'Raro' },
+    ],
+    contract: {
+      address: '0x7f420000000000000000000000000000000019C8',
+      standard: 'ERC-721',
+      verified: true,
+      royalties: '5',
+    },
+    reviews: {
+      average: 4.8,
+      count: 19,
+      items: [
+        {
+          id: 'review-emerald-1',
+          author: 'Ana Costa',
+          rating: 5,
+          comment:
+            'Arte cheia de detalhes e uma edição especial para minha coleção.',
+          date: '2026-08-02T12:00:00.000Z',
+        },
+        {
+          id: 'review-emerald-2',
+          author: 'Bruno Lima',
+          rating: 4,
+          comment: 'Gostei das cores e da identidade desta coleção.',
+          date: '2026-08-03T12:00:00.000Z',
+        },
+      ],
+    },
+  },
+];
 
 export const SEED_NFTS: Nft[] = buildNfts();
 

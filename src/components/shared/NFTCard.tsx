@@ -22,8 +22,8 @@ export function NFTCard({ nft }: { nft: Nft }) {
         />
       </div>
       <div className="mt-2 md:mt-3">
-        <h3 className="md:text-body-lg text-body md:mb-3">{nft.name}</h3>
-        <p className="text-body-18-bold">
+        <h3 className="text-body">{nft.name}</h3>
+        <p className="text-body-lg-bold">
           <Price value={nft.price} previousPrice={nft.previousPrice} />
         </p>
       </div>

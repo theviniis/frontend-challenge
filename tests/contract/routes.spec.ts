@@ -50,7 +50,7 @@ describe('Route search contracts', () => {
     expect(nftDetailFilterSchema.parse({ qty: '5' })).toEqual({ qty: 5 });
     expect(nftDetailFilterSchema.parse({})).toEqual({ qty: 1 });
     for (const qty of ['0', '-1', '1.5', 'abc'])
-      expect(nftDetailFilterSchema.safeParse({ qty }).success).toBe(false);
+      expect(nftDetailFilterSchema.parse({ qty }).qty).toBe(1);
   });
   it('validates login search through zod', () => {
     expect(

@@ -146,6 +146,31 @@ export const nftSchema = z.object({
   image: z.string(),
   images: z.array(z.string()).min(1),
   description: z.string(),
+  tokenId: z.string().optional(),
+  details: z.string().optional(),
+  contract: z
+    .object({
+      address: z.string(),
+      standard: z.string(),
+      verified: z.boolean(),
+      royalties: z.string(),
+    })
+    .optional(),
+  reviews: z
+    .object({
+      average: z.number().min(0).max(5),
+      count: z.number().int().min(0),
+      items: z.array(
+        z.object({
+          id: z.string(),
+          author: z.string(),
+          rating: z.number().min(0).max(5),
+          comment: z.string(),
+          date: isoDateSchema,
+        })
+      ),
+    })
+    .optional(),
   editable: z.boolean(),
   available: z.number().int().min(0),
   favoritesCount: z.number().int().min(0),

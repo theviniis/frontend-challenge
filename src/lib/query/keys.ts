@@ -11,13 +11,18 @@ export const keyFactory = {
         ) && key[1] === userId,
   nfts: {
     all: ['nfts'] as const,
+    lists: ['nfts', 'list'] as const,
+    events: ['nfts', 'event'] as const,
     list: (params: Partial<NftListQuery>, userId?: string | null) =>
       ['nfts', 'list', params, user(userId)] as const,
     detail: (id: string) => ['nfts', 'detail', id] as const,
+    event: (id: string) => ['nfts', 'event', id] as const,
   },
   favorites: {
     all: (userId?: string | null) => ['favorites', user(userId)] as const,
   },
+  carts: ['cart'] as const,
+  quotes: ['quote'] as const,
   cart: (userId?: string | null) => ['cart', user(userId)] as const,
   quote: (userId?: string | null, coupon?: string | null) =>
     ['quote', user(userId), coupon ?? null] as const,
