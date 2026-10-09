@@ -45,7 +45,7 @@ type Profile = {
 | `name`      | 2–60 caracteres                                                            |
 | `username`  | 3–30, `[a-z0-9._]`, único (case-insensitive)                               |
 | `bio`       | ≤ 280 caracteres                                                           |
-| `avatarUrl` | data URL com MIME `image/png` ou `image/jpeg`, ≤ 512 KB (validado no mock) |
+| `avatarUrl` | `null` remove o avatar; data URL com MIME `image/png` ou `image/jpeg`, ≤ 512 KB (validado no mock) |
 
 Erros:
 
@@ -54,6 +54,9 @@ Erros:
 |    422 | `VALIDATION_ERROR` | regras acima, com `fields` por campo                             |
 |    409 | `CONFLICT`         | `username` já em uso (`fields.username`)                         |
 |    401 | `SESSION_EXPIRED`  | sessão caiu no meio da edição → redirecionar preservando retorno |
+
+`avatarUrl: null` remove o atributo persistido. A resposta e GET seguintes omitem
+`avatarUrl` após remoção; não retornam `null`.
 
 Alterações confirmadas devem **persistir após refresh** (persistência no `gm_db_v1`).
 

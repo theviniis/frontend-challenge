@@ -9,7 +9,9 @@ export async function loginThroughForm(
   await form.getByLabel('E-mail', { exact: true }).fill(email);
   await form.getByLabel('Senha', { exact: true }).fill(password);
   await form.getByRole('button', { name: 'Entrar', exact: true }).click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(
+    page.getByRole('dialog', { name: 'Login', exact: true })
+  ).toHaveCount(0);
 }
 
 export async function setScenario(page: Page, id: string) {

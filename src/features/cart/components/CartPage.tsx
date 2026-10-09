@@ -7,6 +7,7 @@ import { useCart } from '../hooks/useCart';
 import { CartItemsTable } from './CartItemsTable';
 import { CartSummary } from './CartSummary';
 import { CartSkeleton } from './CartSkeleton';
+import { Button } from '@/components/ui/button';
 
 export function CartPage() {
   const { session } = useSession();
@@ -33,11 +34,13 @@ function CartContents() {
           <button onClick={() => void cart.refetch()}>Tentar novamente</button>
         </div>
       ) : !cart.data.items.length ? (
-        <div className="flex flex-col items-start">
+        <div className="flex flex-col items-start gap-4 pt-5">
           <p>Seu carrinho está vazio.</p>
-          <Link to="/" search={{ sort: 'relevance', page: 1 }}>
-            Explorar catálogo
-          </Link>
+          <Button asChild variant="default">
+            <Link to="/" search={{ sort: 'relevance', page: 1 }}>
+              Explorar catálogo
+            </Link>
+          </Button>
         </div>
       ) : (
         <div className="grid min-w-0 grid-cols-1 items-start gap-x-21.5 lg:grid-cols-3">

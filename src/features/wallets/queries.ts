@@ -26,3 +26,13 @@ export async function updateWallet(
     ).data
   );
 }
+export async function createWallet(
+  input: import('@/types/api').CreateWalletRequest
+) {
+  const { createWalletRequestSchema, walletSchema } =
+    await import('@/lib/http/schemas');
+  return walletSchema.parse(
+    (await http.post(endpoints.wallets, createWalletRequestSchema.parse(input)))
+      .data
+  );
+}

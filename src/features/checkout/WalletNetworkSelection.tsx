@@ -1,6 +1,5 @@
 import { useId } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { RadioGroup as Radio } from 'radix-ui';
 import {
   FormField,
   FormItem,
@@ -9,6 +8,25 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import type { CollectorFormValues } from './form-schema';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Field,
+  FieldContent,
+  FieldLabel,
+  FieldTitle,
+} from '@/components/ui/field';
+
+const fields = [
+  [
+    'walletconnect',
+    <span className="text-accent text-tiny-bold border-border-soft rounded-default bg-surface-dark border px-[10.5px] py-1.75">
+      METAMASK • WALLETCONNECT • COINBASE
+    </span>,
+  ],
+  ['metamask', 'MetaMask'],
+  ['coinbase', 'Coinbase Wallet'],
+] as const;
+
 export function WalletNetworkSelection() {
   const id = useId();
   const form = useFormContext<CollectorFormValues>();
@@ -17,10 +35,12 @@ export function WalletNetworkSelection() {
       control={form.control}
       name="provider"
       render={({ field }) => (
-        <FormItem>
-          <FormLabel>Carteira e rede</FormLabel>
+        <FormItem className="pt-3">
+          <FormLabel className="text-body-17-bold block text-center">
+            Carteira e rede
+          </FormLabel>
           <FormControl>
-            <Radio.Root
+            <RadioGroup
               orientation="vertical"
               name={field.name}
               required
@@ -30,28 +50,29 @@ export function WalletNetworkSelection() {
               className="grid"
               disabled={form.formState.isSubmitting}
             >
-              {(
-                [
-                  ['walletconnect', 'METAMASK · WALLETCONNECT · COINBASE'],
-                  ['metamask', 'MetaMask'],
-                  ['coinbase', 'Coinbase Wallet'],
-                ] as const
-              ).map(([value, label]) => (
-                <div key={value} className="flex items-center">
-                  <Radio.Item
-                    id={`${id}-${value}`}
-                    value={value}
-                    aria-label={label}
-                    onBlur={field.onBlur}
-                  >
-                    <span aria-hidden="true">
-                      {field.value === value ? '◉' : '○'}
-                    </span>
-                  </Radio.Item>
-                  <label htmlFor={`${id}-${value}`}>{label}</label>
-                </div>
+              {fields.map(([value, label]) => (
+                <FieldLabel key={value} htmlFor={`${id}-${value}`}>
+                  <Field orientation="horizontal">
+                    <RadioGroupItem
+                      className="self-center"
+                      id={`${id}-${value}`}
+                      value={value}
+                      aria-labelledby={`${id}-${value}-label`}
+                      onBlur={field.onBlur}
+                      ref={field.value === value ? field.ref : undefined}
+                    />
+                    <FieldContent>
+                      <FieldTitle
+                        id={`${id}-${value}-label`}
+                        className="text-body"
+                      >
+                        {label}
+                      </FieldTitle>
+                    </FieldContent>
+                  </Field>
+                </FieldLabel>
               ))}
-            </Radio.Root>
+            </RadioGroup>
           </FormControl>
           <FormMessage />
         </FormItem>

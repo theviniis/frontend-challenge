@@ -312,3 +312,33 @@ sequenciais: se o perfil for salvo e a carteira falhar, a interface mantém as
 alterações aceitas, mostra erro e exige nova confirmação antes de enviar o pedido. Erros
 remotos por campo prevalecem sobre os locais. O e-mail atualizado é refletido na
 sessão e usado no próximo login. Não há retry automático das alterações.
+
+
+## 13. Perfil e carteiras (tarefa 13)
+
+- `/profile` e `/wallets` reutilizam os guards existentes e uma navegação de conta
+  compartilhada. Desktop mantém navegação lateral e perfil em duas colunas;
+  mobile recompõe os campos em uma coluna. Apenas classes estruturais foram
+  adicionadas, preservando os estilos dos componentes existentes.
+- ENS e apelido no perfil pertencem à carteira principal. Sem principal, há CTA
+  para gerenciar carteiras. Não se seleciona automaticamente uma secundária.
+  ENS é opcional; a imagem não amplia os campos obrigatórios do contrato.
+- Salvar perfil valida todos os grupos antes de executar somente as alterações
+  necessárias, na ordem perfil → carteira principal → senha. Não há transação
+  conjunta: sucesso parcial é informado e permanece salvo; nova tentativa
+  envia apenas grupos ainda pendentes. Campos não exibidos são preservados.
+- PNG/JPEG de até 512 × 1024 bytes têm preview antes de salvar. `avatarUrl: null`
+  remove o atributo no mock persistente. Leituras ultrapassadas de arquivo são
+  ignoradas. Senhas não são persistidas pela UI; a confirmação é local, campos
+  são limpos após sucesso e o token permanece válido.
+- Formulários mantêm os valores durante refetch, inclusive quando ele falha.
+  Erros remotos por campo são associados e recebem foco após terminar o envio.
+  Resultados de outra sessão são ignorados. Alterações de carteira invalidam
+  carteiras e perfil, incluindo a contagem; perfil sincroniza dados da sessão.
+- Carteiras oferecem cadastro, edição e promoção; não há exclusão nesta tarefa.
+  Endereço é somente leitura na edição desta tela, sem restringir o contrato
+  ampliado do checkout. Cadastro da primeira carteira a torna principal.
+- O frame local `9:1670` contém também campos usados no checkout. Esta tela
+  apresenta os campos de gerenciamento definidos na tarefa, sem duplicar
+  dados pessoais em cada carteira. Atividade, ofertas, downloads e suporte
+  permanecem explicitamente indisponíveis.

@@ -15,7 +15,6 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { FormTextField } from '@/components/shared/FormTextField';
 import {
@@ -34,6 +33,8 @@ import { updateWallet } from '@/features/wallets/queries';
 import { getStoredSession, storeSession } from '@/lib/session/storage';
 import { keyFactory } from '@/lib/query/keys';
 import type { Profile, Wallet, AppError } from '@/types/api';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface CollectorFormProps {
   profile: Profile;
@@ -209,24 +210,20 @@ export function CollectorForm({
     names
       .map((name) => textFields.find((field) => field[0] === name)!)
       .map(([name, label, required, autoComplete]) => (
-        <FormTextField
-          key={name}
-          control={form.control}
-          name={name}
-          label={label}
-          labelHidden={false}
-          required={required}
-          autoComplete={autoComplete}
-          type={name === 'email' ? 'email' : 'text'}
-          placeholder={
-            name === 'address' ? 'Endereço 0x da carteira' : undefined
-          }
-          description={
-            name === 'email'
-              ? 'Este e-mail também será usado para entrar na conta.'
-              : undefined
-          }
-        />
+        <td key={name} className="align-top">
+          <FormTextField
+            control={form.control}
+            name={name}
+            label={label}
+            labelHidden={false}
+            required={required}
+            autoComplete={autoComplete}
+            type={name === 'email' ? 'email' : 'text'}
+            placeholder={
+              name === 'address' ? 'Endereço 0x da carteira' : undefined
+            }
+          />
+        </td>
       ));
   return (
     <Form {...form}>
@@ -235,141 +232,190 @@ export function CollectorForm({
         onSubmit={submit}
         noValidate
         aria-busy={pending}
+        className="[&_label]:text-body [&_span[aria-hidden='true']]:text-coral [&_span[aria-hidden='true']]:text-title [&_label]:leading-7"
       >
         <fieldset disabled={pending} className="contents">
-          <legend>Perfil do colecionador</legend>
           <div className="grid min-w-0 lg:grid-cols-3">
-            <div className="grid min-w-0 content-start md:grid-cols-2 lg:col-span-2">
-              {renderText(['name', 'username'])}
-              <FormField
-                control={form.control}
-                name="network"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Rede<span aria-hidden="true"> *</span>
-                    </FormLabel>
-                    <Select
-                      required
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger ref={field.ref} onBlur={field.onBlur}>
-                          <SelectValue placeholder="Selecione uma rede" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="ethereum">Ethereum</SelectItem>
-                        <SelectItem value="sepolia">Sepolia</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Rede da carteira usada nesta compra.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {renderText(['profileName', 'address', 'secondaryIdentity'])}
-              <FormField
-                control={form.control}
-                name="provider"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Tipo de carteira<span aria-hidden="true"> *</span>
-                    </FormLabel>
-                    <Select
-                      required
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger ref={field.ref} onBlur={field.onBlur}>
-                          <SelectValue placeholder="Selecione uma carteira" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="metamask">MetaMask</SelectItem>
-                        <SelectItem value="walletconnect">
-                          WalletConnect
-                        </SelectItem>
-                        <SelectItem value="coinbase">
-                          Coinbase Wallet
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {renderText(['referralCode', 'email'])}
-              <FormField
-                control={form.control}
-                name="ensName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Nome ENS<span aria-hidden="true"> *</span>
-                    </FormLabel>
-                    <Select
-                      required
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger ref={field.ref} onBlur={field.onBlur}>
-                          <SelectValue placeholder="Selecione o ENS" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.from(
-                          new Set(
-                            [
-                              defaults.ensName,
-                              'greenmint.eth',
-                              'colecionador.eth',
-                            ].filter(Boolean)
-                          )
-                        ).map((name) => (
-                          <SelectItem key={name} value={name}>
-                            {name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="md:col-span-2">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={otherWallet}
-                    onChange={(event) => setOtherWallet(event.target.checked)}
-                  />
-                  Usar outra carteira?
-                </label>
-                {otherWallet && walletPicker}
-              </div>
-              <FormField
-                control={form.control}
-                name="note"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Observação do colecionador (opcional)</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} rows={5} maxLength={280} />
-                    </FormControl>
-                    <FormDescription>
-                      Até 280 caracteres. Salva na carteira selecionada.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="min-w-0 lg:col-span-2">
+              <legend className="text-body-17-bold">
+                Perfil do colecionador
+              </legend>
+              <table
+                role="presentation"
+                className="w-full table-fixed border-separate border-spacing-x-6 border-spacing-y-3"
+              >
+                <tbody>
+                  <tr>{renderText(['name', 'username'])}</tr>
+                  <tr>
+                    <td className="align-top">
+                      <FormField
+                        control={form.control}
+                        name="network"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Rede<span aria-hidden="true"> *</span>
+                            </FormLabel>
+                            <Select
+                              required
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <FormControl>
+                                <SelectTrigger
+                                  ref={field.ref}
+                                  onBlur={field.onBlur}
+                                >
+                                  <SelectValue placeholder="Selecione uma rede" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="ethereum">
+                                  Ethereum
+                                </SelectItem>
+                                <SelectItem value="sepolia">Sepolia</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </td>
+                    {renderText(['profileName'])}
+                  </tr>
+                  <tr>{renderText(['address', 'secondaryIdentity'])}</tr>
+                  <tr>
+                    <td className="align-top">
+                      <FormField
+                        control={form.control}
+                        name="provider"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Tipo de carteira<span aria-hidden="true"> *</span>
+                            </FormLabel>
+                            <Select
+                              required
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <FormControl>
+                                <SelectTrigger
+                                  ref={field.ref}
+                                  onBlur={field.onBlur}
+                                >
+                                  <SelectValue placeholder="Selecione uma carteira" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="metamask">
+                                  MetaMask
+                                </SelectItem>
+                                <SelectItem value="walletconnect">
+                                  WalletConnect
+                                </SelectItem>
+                                <SelectItem value="coinbase">
+                                  Coinbase Wallet
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </td>
+                    {renderText(['referralCode'])}
+                  </tr>
+                  <tr>
+                    {renderText(['email'])}
+                    <td className="align-top">
+                      <FormField
+                        control={form.control}
+                        name="ensName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Nome ENS<span aria-hidden="true"> *</span>
+                            </FormLabel>
+                            <Select
+                              required
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <FormControl>
+                                <SelectTrigger
+                                  ref={field.ref}
+                                  onBlur={field.onBlur}
+                                >
+                                  <SelectValue placeholder="Selecione o ENS" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {Array.from(
+                                  new Set(
+                                    [
+                                      defaults.ensName,
+                                      'greenmint.eth',
+                                      'colecionador.eth',
+                                    ].filter(Boolean)
+                                  )
+                                ).map((name) => (
+                                  <SelectItem key={name} value={name}>
+                                    {name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td colSpan={2} className="align-top">
+                      <FieldGroup>
+                        <Field orientation="horizontal">
+                          <Checkbox
+                            id="terms-checkbox-basic"
+                            name="terms-checkbox-basic"
+                            checked={otherWallet}
+                            onCheckedChange={(checked) => {
+                              console.debug(checked);
+                              setOtherWallet(!!checked);
+                            }}
+                          />
+                          <FieldLabel htmlFor="terms-checkbox-basic">
+                            Usar outra carteira?
+                          </FieldLabel>
+                        </Field>
+                        {otherWallet && walletPicker}
+                      </FieldGroup>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td colSpan={1} className="align-top">
+                      <FormField
+                        control={form.control}
+                        name="note"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Observação do colecionador (opcional)
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea {...field} rows={5} maxLength={280} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div className="min-w-0">
               {children}
@@ -377,6 +423,7 @@ export function CollectorForm({
                 type="submit"
                 disabled={pending || blocked}
                 aria-busy={pending}
+                className="mt-6 w-full"
               >
                 Confirmar compra
               </Button>

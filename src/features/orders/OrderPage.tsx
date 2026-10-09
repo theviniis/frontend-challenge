@@ -1,14 +1,46 @@
 import { useEffect } from 'react';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { orderOptions } from './queries';
 import { readPending, clearPending } from './pending';
 import { clearCheckoutDraft } from '@/lib/session/checkout-draft';
 import { keyFactory } from '@/lib/query/keys';
 import { ErrorState } from '@/components/shared/ErrorState';
+import { OrderItemsList } from '@/components/shared/OrderItemsList';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PaymentTotals } from './PaymentTotals';
-import { displayEth } from '@/lib/money';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import ThankYou from '@/assets/thank-you.svg?react';
+import type { Order } from '@/types/api';
+import { Price } from '@/components/shared/Price';
+import { Button } from '@/components/ui/button';
+
+const orderDateFormatter = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+function formatOrderDate(value: string): string {
+  const parts = orderDateFormatter.formatToParts(new Date(value));
+  const day = parts.find((part) => part.type === 'day')!.value;
+  const month = parts
+    .find((part) => part.type === 'month')!
+    .value.replace('.', '');
+  const year = parts.find((part) => part.type === 'year')!.value;
+
+  return `${day} ${month.charAt(0).toUpperCase()}${month.slice(1)}, ${year}`;
+}
+
+const getOrderId = (order: Order) => {
+  const map = new Map([
+    ['pending', 'Aguardando confirmação do pedido.'],
+    ['declined', `Pedido recusado: ${order.declineReason}`],
+  ]);
+
+  return map.get(order.status) || order.id;
+};
+
 export function OrderPage({
   userId,
   orderId,
@@ -16,6 +48,7 @@ export function OrderPage({
   userId: string;
   orderId: string;
 }) {
+  const navigate = useNavigate();
   const query = useQuery(orderOptions(userId, orderId));
   const client = useQueryClient();
   const order = query.data;
@@ -47,82 +80,104 @@ export function OrderPage({
       />
     );
   if (!order) return null;
-  return (
+  const content = (
     <section className="grid min-w-0">
-      <h1>
-        {order.status === 'confirmed'
-          ? 'Pagamento confirmado'
-          : order.status === 'declined'
+      {order.status === 'confirmed' ? (
+        <DialogTitle asChild>
+          <div className="flex flex-col items-center gap-4">
+            <ThankYou />
+            <h1 className="text-body-lg-bold text-secondary">
+              Seus NFTs agora estão na sua carteira
+            </h1>
+          </div>
+        </DialogTitle>
+      ) : (
+        <h1 className="text-body-lg-bold text-secondary">
+          {order.status === 'declined'
             ? 'Pagamento recusado'
             : 'Pedido pendente'}
-      </h1>
-      <p>ID do Pedido: {order.id}</p>
-      {order.status === 'pending' && (
-        <p role="status">Aguardando confirmação do pedido.</p>
+        </h1>
       )}
-      {order.status === 'declined' && <p role="alert">{order.declineReason}</p>}
+
+      <div className="text-secondary text-body my-6 grid grid-cols-4 gap-x-4 divide-x border-t border-b py-3.5">
+        <div className="flex flex-col px-4">
+          <h3 className="text-body-bold">ID da transação</h3>
+          <span>{getOrderId(order)}</span>
+        </div>
+        <div className="flex flex-col px-4">
+          <h3 className="text-body-regular">Data</h3>
+          <time dateTime={order.createdAt}>
+            {formatOrderDate(order.createdAt)}
+          </time>
+        </div>
+        <div className="flex flex-col px-4">
+          <h3 className="text-body-regular">Total</h3>
+          <span>{order.total}</span>
+        </div>
+        <div className="flex flex-col px-4">
+          <h3 className="text-body-regular">Carteira</h3>
+          <span>{order.wallet.label}</span>
+        </div>
+      </div>
+
       {order.status === 'confirmed' && (
         <section aria-label="Recibo">
-          <h2>Recibo</h2>
-          {order.collector && (
-            <dl aria-label="Colecionador do pedido">
-              <dt>Nome de exibição</dt>
-              <dd>{order.collector.name}</dd>
-              <dt>E-mail</dt>
-              <dd>{order.collector.email}</dd>
-              <dt>Nome de usuário</dt>
-              <dd>{order.collector.username}</dd>
-              <dt>Nome do perfil</dt>
-              <dd>{order.collector.profileName}</dd>
-              {order.collector.referralCode && (
-                <>
-                  <dt>Código de indicação</dt>
-                  <dd>{order.collector.referralCode}</dd>
-                </>
-              )}
-            </dl>
-          )}
-          <ul>
-            {order.items.map((item) => (
-              <li key={item.nftId}>
-                {item.name} — edição {item.edition.current}/{item.edition.total}{' '}
-                — {item.qty} unidade(s) — {displayEth(item.unitPrice)} por
-                unidade — {displayEth(item.lineTotal)}
-              </li>
-            ))}
-          </ul>
-          <PaymentTotals value={order} />
-          <p>Cupom: {order.coupon?.code ?? 'Sem cupom'}</p>
-          <p>Carteira: {order.wallet.label}</p>
-          <p>
-            Endereço: <span className="break-all">{order.wallet.address}</span>
-          </p>
-          {order.wallet.provider && (
-            <p>Tipo de carteira: {order.wallet.provider}</p>
-          )}
-          {order.wallet.ensName && <p>Nome ENS: {order.wallet.ensName}</p>}
-          {order.wallet.secondaryIdentity && (
-            <p>
-              ENS ou carteira secundária:{' '}
-              <span className="break-all">
-                {order.wallet.secondaryIdentity}
-              </span>
+          <h2 className="text-body font-bold">Detalhes da transação</h2>
+          <div className="text-body-lg-bold mb-3 grid grid-cols-3 border-b-[0.3px] pb-3">
+            <span>NFTs</span>
+            <span>Edições</span>
+            <span>Subtotal</span>
+          </div>
+          <OrderItemsList items={order.items} />
+          <div className="mb-3 flex justify-end border-b-[0.3px] pb-3">
+            <div className="mt-3 flex w-80.25 flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <p className="text-body">Taxa de rede</p>
+                <span className="text-body-18-regular">
+                  <Price value={order.networkFee} />
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-body-lg-bold">Total</p>
+                <span className="text-body-lg-bold text-accent">
+                  <Price value={order.total} />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-5">
+            <p className="text-tiny text-secondary text-center">
+              Transação confirmada na Ethereum. A propriedade foi transferida
+              para sua carteira conectada e registrada na rede.
             </p>
-          )}
-          {order.wallet.note && <p>Observação: {order.wallet.note}</p>}
-          <p>Rede: {order.network}</p>
-          <p>
-            Transação: <span className="break-all">{order.txHash}</span>
-          </p>
-          {order.explorerUrl && (
-            <p>
-              Explorador externo simulado (link inerte):{' '}
-              <span className="break-all">{order.explorerUrl}</span>
-            </p>
-          )}
+            <Button asChild size="lg">
+              <a
+                href={order.explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver no Etherscan
+              </a>
+            </Button>
+          </div>
         </section>
       )}
-      <Link to="/cart">Voltar ao carrinho</Link>
     </section>
+  );
+  if (order.status !== 'confirmed') return content;
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) void navigate({ to: '/cart' });
+      }}
+    >
+      <DialogContent
+        aria-describedby={undefined}
+        className="bg-surface-card max-h-dvh w-142 overflow-y-auto sm:max-w-142"
+      >
+        {content}
+      </DialogContent>
+    </Dialog>
   );
 }

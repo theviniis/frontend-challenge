@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { loginThroughForm, setScenario } from './auth-helpers';
+import { displayEth } from '../../src/lib/money';
 test.setTimeout(60_000);
 async function api(
   page: Page,
@@ -26,13 +27,13 @@ test.beforeEach(async ({ page }) => {
       document.head.append(style);
     });
   });
-  await page.goto('/cart');
-  await expect(
-    page.getByRole('heading', { name: 'Carrinho de NFTs', includeHidden: true })
-  ).toBeAttached();
-  await api(page, 'post', '/api/_mock/reset');
   await page.goto('/login?redirect=/cart');
+  await expect(
+    page.getByRole('form', { name: 'Formulário de login' })
+  ).toBeVisible();
+  await api(page, 'post', '/api/_mock/reset');
   await loginThroughForm(page);
+  await expect(page).toHaveURL(/\/cart$/);
   await api(page, 'post', '/api/cart/items', {
     nftId: 'emerald-ape-042',
     qty: 2,
@@ -60,6 +61,34 @@ async function secondary(page: Page) {
     .click();
 }
 
+test('shared NFT list renders cart review and immutable order items', async ({
+  page,
+}) => {
+  await checkout(page);
+  const review = page.getByRole('region', { name: 'Revisão do pedido' });
+  await expect(
+    review.getByRole('listitem').filter({ hasText: 'Emerald Ape #042' })
+  ).toContainText('(x 2)');
+
+  const order = (await api(page, 'get', '/api/orders/ord_seed_confirmed')) as {
+    items: { name: string; qty: number; lineTotal: string }[];
+  };
+  await page.goto('/orders/ord_seed_confirmed');
+  const receipt = page.getByRole('region', { name: 'Recibo', exact: true });
+  await expect(receipt.getByRole('listitem')).toHaveCount(order.items.length);
+  for (const item of order.items) {
+    const row = receipt.getByRole('listitem').filter({ hasText: item.name });
+    await expect(
+      row.getByRole('img', { name: `NFT ${item.name}`, exact: true })
+    ).toBeVisible();
+    await expect(row).toContainText(`(x ${item.qty})`);
+    await expect(row).toContainText(displayEth(item.lineTotal));
+  }
+  const snapshot = await receipt.innerText();
+  await page.reload();
+  await expect(receipt).toHaveText(snapshot, { useInnerText: true });
+});
+
 test('confirmed receipt and snapshot, cart subtracts only purchased quantities', async ({
   page,
 }) => {
@@ -79,6 +108,11 @@ test('confirmed receipt and snapshot, cart subtracts only purchased quantities',
     page.getByRole('heading', { name: 'Pagamento confirmado' })
   ).toBeVisible();
   const receipt = page.getByLabel('Recibo', { exact: true });
+  await expect(
+    page.getByRole('dialog', { name: 'Pagamento confirmado' })
+  ).toBeVisible();
+  await expect(page.locator('header')).toHaveCount(0);
+  await expect(page.locator('footer')).toHaveCount(0);
   await expect(receipt).toContainText('2 unidade(s)');
   const snapshot = await receipt.innerText();
   const cart = (await api(page, 'get', '/api/cart')) as {
@@ -100,6 +134,10 @@ test('confirmed receipt and snapshot, cart subtracts only purchased quantities',
       () => document.documentElement.scrollWidth <= window.innerWidth
     )
   ).toBe(true);
+  await page.getByRole('button', { name: 'Fechar', exact: true }).click();
+  await expect(page).toHaveURL(/\/cart$/);
+  await expect(page.locator('header')).toHaveCount(1);
+  await expect(page.locator('footer')).toHaveCount(1);
 });
 test('declined keeps cart and offers exit', async ({ page }) => {
   const before = await api(page, 'get', '/api/cart');
@@ -191,8 +229,14 @@ test('terminal order ignores stale socket updates and another user cannot view r
   await expect(
     page.getByRole('heading', { name: 'Pagamento confirmado' })
   ).toBeVisible();
+  await page.getByRole('button', { name: 'Fechar', exact: true }).click();
+  await expect(page).toHaveURL(/\/cart$/);
   await page
     .getByRole('button', { name: 'Sair', exact: true })
+    .filter({ visible: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Entrar', exact: true })
     .filter({ visible: true })
     .click();
   await loginThroughForm(page, 'bruno@greenmint.test', 'Bruno1234');
@@ -270,6 +314,15 @@ test('required defaults, separate review and radio selection below it', async ({
     (await review.boundingBox())!.y
   );
   await expect(radios.getByRole('radio')).toHaveCount(3);
+  await expect(
+    radios.getByRole('radio', {
+      name: 'METAMASK • WALLETCONNECT • COINBASE',
+      exact: true,
+    })
+  ).toBeVisible();
+  await expect(
+    radios.getByRole('radio', { name: 'MetaMask', exact: true })
+  ).toBeChecked();
   await secondary(page);
   await page
     .getByRole('radio', { name: 'Coinbase Wallet', exact: true })
@@ -300,12 +353,20 @@ test('required defaults, separate review and radio selection below it', async ({
 test('reject and dismiss authorization never create an order', async ({
   page,
 }) => {
+  let orderPosts = 0;
+  page.on('request', (request) => {
+    if (
+      request.method() === 'POST' &&
+      new URL(request.url()).pathname === '/api/orders'
+    )
+      orderPosts++;
+  });
   await checkout(page);
   await page.getByRole('button', { name: 'Confirmar compra' }).click();
   await page.getByRole('button', { name: 'Rejeitar', exact: true }).click();
   await expect(
-    page.getByText('Conexão: rejected', { exact: true })
-  ).toBeVisible();
+    page.getByRole('dialog', { name: 'Autorizar conexão simulada' })
+  ).toHaveCount(0);
   expect(
     await page.evaluate(() => localStorage.getItem('gm_pending_order'))
   ).toBeNull();
@@ -315,11 +376,12 @@ test('reject and dismiss authorization never create an order', async ({
     .waitFor();
   await page.keyboard.press('Escape');
   await expect(
-    page.getByText('Conexão: rejected', { exact: true })
-  ).toBeVisible();
+    page.getByRole('dialog', { name: 'Autorizar conexão simulada' })
+  ).toHaveCount(0);
   expect(
     await page.evaluate(() => localStorage.getItem('gm_pending_order'))
   ).toBeNull();
+  expect(orderPosts).toBe(0);
 });
 
 test('validation associates required referral and ENS errors and blocks purchase', async ({
@@ -423,8 +485,8 @@ test('preco-muda requires a new confirmation after stale quote', async ({
     page.getByText('Cotação alterada. Revise os valores e confirme novamente.')
   ).toBeVisible();
   await expect(
-    page.getByText('Conexão: disconnected', { exact: true })
-  ).toBeVisible();
+    page.getByRole('dialog', { name: 'Autorizar conexão simulada' })
+  ).toHaveCount(0);
   expect(
     await page.evaluate(() => localStorage.getItem('gm_pending_order'))
   ).toBeNull();
@@ -445,6 +507,14 @@ test('unfinished draft survives refresh and expiration with fresh authorization'
   await page
     .getByRole('textbox', { name: 'E-mail', exact: true })
     .fill('incompleto@');
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const draft = JSON.parse(localStorage.getItem('gm_checkout_draft')!);
+        return draft.collector.email;
+      })
+    )
+    .toBe('incompleto@');
   await page.reload();
   await expect(
     page.getByRole('textbox', { name: 'E-mail', exact: true })
@@ -460,8 +530,8 @@ test('unfinished draft survives refresh and expiration with fresh authorization'
     page.getByRole('textbox', { name: 'Nome de exibição', exact: true })
   ).toHaveValue('Rascunho da Ana');
   await expect(
-    page.getByText('Conexão: disconnected', { exact: true })
-  ).toBeVisible();
+    page.getByRole('dialog', { name: 'Autorizar conexão simulada' })
+  ).toHaveCount(0);
   await page
     .getByRole('textbox', { name: 'E-mail', exact: true })
     .fill('ana@greenmint.test');
@@ -545,7 +615,10 @@ test('stock failure blocks confirmation and preserves correction exit', async ({
   ).toBeDisabled();
   await expect(page.getByLabel('Recibo', { exact: true })).toHaveCount(0);
   await page
-    .getByRole('link', { name: 'Voltar ao carrinho', exact: true })
+    .getByRole('link', {
+      name: 'Tem um código promocional? Aplique aqui',
+      exact: true,
+    })
     .click();
   await expect(page).toHaveURL(/\/cart$/);
 });

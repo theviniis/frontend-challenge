@@ -1,19 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireSession } from '@/lib/session/guards';
-import { RoutePlaceholder } from '@/components/shared/RoutePlaceholder';
+import { WalletsPage } from '@/features/wallets/WalletsPage';
 
 export const Route = createFileRoute('/wallets')({
-  beforeLoad: ({ location, context }) => requireSession({ location, context }),
-  component: WalletsPage,
+  beforeLoad: async ({ location, context }) => ({
+    accountSession: await requireSession({ location, context }),
+  }),
+  component: Page,
 });
-
-function WalletsPage() {
+function Page() {
+  const { accountSession } = Route.useRouteContext();
   return (
-    <RoutePlaceholder
-      title="Carteiras"
-      frames="9:1670 (desktop)"
-      access="privada"
-      description="Gerenciamento de carteiras cripto associadas à conta."
-    />
+    <WalletsPage key={accountSession.user.id} userId={accountSession.user.id} />
   );
 }

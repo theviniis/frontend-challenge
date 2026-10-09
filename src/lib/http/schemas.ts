@@ -483,7 +483,7 @@ export const profilePatchSchema = z.object({
     .string('Bio inválida')
     .max(280, 'Bio deve ter no máximo 280 caracteres')
     .optional(),
-  avatarUrl: avatarDataUrlSchema.optional(),
+  avatarUrl: avatarDataUrlSchema.nullable().optional(),
 });
 
 export const passwordRequestSchema = z

@@ -1,19 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireSession } from '@/lib/session/guards';
-import { RoutePlaceholder } from '@/components/shared/RoutePlaceholder';
+import { ProfilePage } from '@/features/profile/ProfilePage';
 
 export const Route = createFileRoute('/profile')({
-  beforeLoad: ({ location, context }) => requireSession({ location, context }),
-  component: ProfilePage,
+  beforeLoad: async ({ location, context }) => ({
+    accountSession: await requireSession({ location, context }),
+  }),
+  component: Page,
 });
-
-function ProfilePage() {
+function Page() {
+  const { accountSession } = Route.useRouteContext();
   return (
-    <RoutePlaceholder
-      title="Perfil"
-      frames="9:1238 (desktop)"
-      access="privada"
-      description="Dados cadastrais, avatar e configurações do colecionador."
-    />
+    <ProfilePage key={accountSession.user.id} userId={accountSession.user.id} />
   );
 }

@@ -49,6 +49,7 @@ test('profile editing uniqueness and password change', async () => {
       )
     ).status
   ).toBe(204);
+  await call('get', '/auth/session', s.sessionSchema, undefined, headers);
   await call('post', '/auth/login', s.sessionSchema, {
     email: 'ana@greenmint.test',
     password: 'NovaSenha123',
@@ -103,4 +104,28 @@ test('checkout profile fields persist and email becomes the login identity', asy
   expect(
     (await call('get', '/profile', s.profileSchema, undefined, headers)).email
   ).toBe(value.email);
+});
+
+test('avatar accepts a data URL and null removes it without leaking null into reads', async () => {
+  const headers = await login();
+  const avatarUrl = 'data:image/png;base64,iVBORw0KGgo=';
+  expect(
+    (await call('patch', '/profile', s.profileSchema, { avatarUrl }, headers))
+      .avatarUrl
+  ).toBe(avatarUrl);
+  expect(
+    (
+      await call(
+        'patch',
+        '/profile',
+        s.profileSchema,
+        { avatarUrl: null },
+        headers
+      )
+    ).avatarUrl
+  ).toBeUndefined();
+  expect(
+    (await call('get', '/profile', s.profileSchema, undefined, headers))
+      .avatarUrl
+  ).toBeUndefined();
 });

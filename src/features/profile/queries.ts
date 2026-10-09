@@ -15,3 +15,12 @@ export async function updateProfile(input: import('@/types/api').ProfilePatch) {
     (await http.patch(endpoints.profile, profilePatchSchema.parse(input))).data
   );
 }
+export async function changePassword(
+  input: import('@/types/api').PasswordRequest
+) {
+  const { passwordRequestSchema } = await import('@/lib/http/schemas');
+  await http.post(
+    endpoints.profilePassword,
+    passwordRequestSchema.parse(input)
+  );
+}

@@ -13,7 +13,7 @@ const routes = [
   ['/unknown', '404'],
 ];
 const privateRoutes = [
-  ['/checkout', 'Pagamento'],
+  ['/checkout', 'Início / Mercado / Pagamento'],
   ['/orders/sample', 'Não foi possível consultar o pedido'],
   ['/profile', 'Perfil'],
   ['/wallets', 'Carteiras'],
@@ -71,10 +71,22 @@ for (const [path, title] of privateRoutes)
     await expect(
       page.getByRole('heading', { name: title, exact: true })
     ).toBeVisible();
+    if (path.startsWith('/orders/')) {
+      await page.goto('/cart');
+      await expect(
+        page.getByRole('heading', { name: /Carrinho/ })
+      ).toBeVisible();
+    }
     await page
       .getByRole('button', { name: 'Sair', exact: true })
       .filter({ visible: true })
       .click();
+    if (path.startsWith('/orders/')) {
+      await page
+        .getByRole('button', { name: 'Entrar', exact: true })
+        .filter({ visible: true })
+        .click();
+    }
     await expect(
       page.getByRole('heading', { name: 'Login', exact: true })
     ).toBeVisible();

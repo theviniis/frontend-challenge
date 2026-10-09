@@ -29,9 +29,9 @@ demais documentos e skills do projeto. Só deve ser ignorada a pedido explícito
 usuário, no escopo solicitado.**
 
 - Todo layout novo ou alterado deve implementar apenas estilos estruturais, como
-  `position`, `display`, flex, grid, alinhamento e organização dos elementos.
-- Não adicionar estilos visuais: padding, margin, gap e outros espaçamentos,
-  cores, fundos, tipografia, bordas decorativas, raios, sombras ou animações
+  `position`, `display`, `flex`, `grid`, alinhamento e organização dos elementos.
+- Não adicionar estilos visuais: `padding`, `margin`, `gap` e outros espaçamentos,
+  `cores`, `fundos`, `tipografia`, `bordas decorativas`, `raios`, `sombras` ou animações
   decorativas. Uma referência visual ou do Figma, por si só, não autoriza esses
   estilos.
 - **Sempre procurar componentes existentes na codebase antes de implementar

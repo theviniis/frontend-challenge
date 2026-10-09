@@ -1,15 +1,19 @@
 import { Link } from '@tanstack/react-router';
 import type { CartItem as Item } from '@/types/api';
 
-export function CartItem({ item }: { item: Item }) {
+export function CartItem({
+  item,
+}: {
+  item: Pick<Item, 'nftId' | 'tokenId' | 'name' | 'image'>;
+}) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-1">
       <img
         src={item.image}
         alt={`NFT ${item.name}`}
         width={70}
         height={70}
-        className="rounded-default"
+        className="rounded-md"
       />
       <div className="flex flex-col items-start gap-1.5">
         <Link
@@ -20,7 +24,7 @@ export function CartItem({ item }: { item: Item }) {
         >
           {item.name}
         </Link>
-        <p className="text-body-sm text-secondary">
+        <p className="text-tiny text-secondary">
           ID do token: {item.tokenId ? `#${item.tokenId}` : item.nftId}
         </p>
       </div>

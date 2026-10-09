@@ -227,7 +227,7 @@ export function CheckoutPage({
     );
   return (
     <section className="grid min-w-0">
-      <h1>Pagamento</h1>
+      <h1 className="text-body mb-8 font-bold">Início / Mercado / Pagamento</h1>
       {!wallets.data?.items.length ? (
         <EmptyState
           title="Nenhuma carteira cadastrada"
@@ -290,9 +290,6 @@ export function CheckoutPage({
                 />
               )}
               <WalletNetworkSelection />
-              <p role="status" aria-live="polite">
-                Conexão: {connection}
-              </p>
               {feedback && <p role="alert">{feedback}</p>}
             </CollectorForm>
           )}
@@ -329,7 +326,6 @@ export function CheckoutPage({
           </Dialog>
         </>
       )}
-      <Link to="/cart">Voltar ao carrinho</Link>
     </section>
   );
 }

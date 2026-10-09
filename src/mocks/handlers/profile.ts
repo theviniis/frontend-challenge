@@ -39,7 +39,12 @@ export const profileHandlers = [
       fail(409, 'CONFLICT', 'Username em uso', {
         username: ['Username em uso'],
       });
-    mutate(() => Object.assign(current, data));
+    mutate(() => {
+      const { avatarUrl, ...fields } = data;
+      Object.assign(current, fields);
+      if (avatarUrl === null) delete current.avatarUrl;
+      else if (avatarUrl !== undefined) current.avatarUrl = avatarUrl;
+    });
     return reply(s.profileSchema, profile(current.id));
   }),
   route('post', '/profile/password', 'profile', async (r) => {
