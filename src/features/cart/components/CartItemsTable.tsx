@@ -64,7 +64,7 @@ export function CartItemsTable({
             {row.getAllCells().map((cell) => (
               <TableCell
                 key={cell.id}
-                className="bg-surface-card group-hover:bg-muted/50 border-t-12 border-transparent bg-clip-padding px-2 py-0"
+                className="bg-surface-card group-hover:bg-muted/50 border-t-12 border-transparent bg-clip-padding p-0"
               >
                 <table.FlexRender cell={cell} />
               </TableCell>
