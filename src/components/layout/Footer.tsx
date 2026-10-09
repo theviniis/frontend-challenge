@@ -155,7 +155,7 @@ export function Footer() {
         <LinkSection title="Coleções" links={col3Links} />
         <div className="p-8 pb-7.5">
           <h2 className="text-body-18-bold mb-5">Redes sociais</h2>
-          <div className="mb-8 flex items-center gap-2.5">
+          <div className="text-primary mb-8 flex flex-wrap items-center gap-2.5">
             <a
               href="#"
               className="border-primary grid aspect-square h-7.5 place-content-center rounded-sm border"
