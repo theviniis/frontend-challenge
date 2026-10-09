@@ -2,6 +2,33 @@ import { test, expect } from 'vitest';
 import * as s from '@/lib/http/schemas';
 import { http } from '@/lib/http/client';
 import { call, error, login, scenario } from './helpers';
+
+test('default checkout referral persists and rejects invalid codes', async () => {
+  const headers = await login();
+  const profile = await call(
+    'patch',
+    '/profile',
+    s.profileSchema,
+    { referralCode: '  NFT Marketplace  ' },
+    headers
+  );
+  expect(profile.referralCode).toBe('NFT Marketplace');
+  expect(
+    (await call('get', '/profile', s.profileSchema, undefined, headers))
+      .referralCode
+  ).toBe('NFT Marketplace');
+  for (const referralCode of ['INVALID!', 'A'.repeat(41)]) {
+    const result = await error(
+      'patch',
+      '/profile',
+      'VALIDATION_ERROR',
+      422,
+      { referralCode },
+      headers
+    );
+    expect(result.error.fields?.referralCode).toBeDefined();
+  }
+});
 test('profile editing uniqueness and password change', async () => {
   const headers = await login();
   await call('get', '/profile', s.profileSchema, undefined, headers);

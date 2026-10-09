@@ -476,8 +476,9 @@ export const profilePatchSchema = z.object({
   profileName: z.string().min(2, nameMessage).max(60, nameMessage).optional(),
   referralCode: z
     .string()
+    .trim()
     .max(40, 'Código de indicação deve ter até 40 caracteres')
-    .regex(/^[a-zA-Z0-9_-]*$/, 'Código de indicação inválido')
+    .regex(/^[a-zA-Z0-9_ -]*$/, 'Código de indicação inválido')
     .optional(),
   name: z
     .string(nameMessage)

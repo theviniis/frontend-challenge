@@ -94,7 +94,7 @@ Os campos editáveis atualizam a conta, conforme decisão da tarefa 12:
 | Nome de usuário     | sim         | `Profile.username`, 3–30 caracteres, único                                                              |
 | Nome do perfil      | sim         | `Profile.profileName`, 2–60 caracteres                                                                  |
 | E-mail              | sim         | `Profile.email`, válido e único; passa a ser o e-mail de login                                          |
-| Código de indicação | sim         | `Profile.referralCode`, até 40 caracteres alfanuméricos, `_` ou `-`; informativo, não substitui o cupom |
+| Código de indicação | sim         | `Profile.referralCode`, até 40 caracteres alfanuméricos, espaços, `_` ou `-`; espaços nas extremidades são removidos; informativo, não substitui o cupom |
 
 Os novos campos de perfil são opcionais nas respostas para compatibilidade com
 contas existentes. Nome do perfil usa o nome de exibição como valor inicial nas

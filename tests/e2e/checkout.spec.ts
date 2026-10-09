@@ -45,13 +45,6 @@ async function checkout(page: Page) {
   await expect(
     page.getByRole('button', { name: 'Confirmar compra', exact: true })
   ).toBeEnabled();
-  // Keep the purchase fixture valid independently of the display brand default.
-  const referral = page.getByRole('textbox', {
-    name: 'Código de indicação',
-    exact: true,
-  });
-  if ((await referral.inputValue()).includes(' '))
-    await referral.fill('SOCKET14');
 }
 async function submit(page: Page) {
   await confirmPurchase(page);
@@ -75,6 +68,34 @@ async function secondary(page: Page) {
     .getByRole('option', { name: 'Carteira secundária', exact: true })
     .click();
 }
+
+test('purchase confirms with the unchanged default referral code', async ({
+  page,
+}) => {
+  await checkout(page);
+  await expect(
+    page.getByRole('textbox', { name: 'Código de indicação', exact: true })
+  ).toHaveValue('NFT Marketplace');
+  await submit(page);
+  await expect(page).toHaveURL(/\/orders\/ord_/);
+  await expect(
+    page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })
+  ).toBeVisible({ timeout: 15_000 });
+  const profile = (await api(page, 'get', '/api/profile')) as {
+    referralCode: string;
+  };
+  expect(profile.referralCode).toBe('NFT Marketplace');
+  const order = (await api(
+    page,
+    'get',
+    '/api/orders/' + page.url().split('/orders/')[1]
+  )) as {
+    status: string;
+    collector: { referralCode: string };
+  };
+  expect(order.status).toBe('confirmed');
+  expect(order.collector.referralCode).toBe('NFT Marketplace');
+});
 
 test('foreign order emitted through mock control does not change UI or current cache', async ({
   page,
