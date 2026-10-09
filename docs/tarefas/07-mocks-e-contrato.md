@@ -54,8 +54,8 @@ Criar, seguindo a árvore de `docs/ESTRUTURA.md` §2:
 4. **DB** — `src/mocks/db/{store,persist,reset}.ts`: estado em memória hidratado de
    `localStorage gm_db_v1`, sincronizado a cada mutação, reset determinístico ao seed.
 5. **Fixtures** — `src/mocks/fixtures/`: 60+ NFTs (≥5 categorias, 0.02–12.30 ETH, 4
-   imagens do Figma), 2 usuários (`ana@greenmint.test`/`Ana12345`,
-   `bruno@greenmint.test`/`Bruno1234`), 4 cupons (`LAUNCH10`, `GREEN5`, `EXPIRED`, `FAKE`),
+   imagens do Figma), 2 usuários (`ana@nft-marketplace.test`/`Ana12345`,
+   `bruno@nft-marketplace.test`/`Bruno1234`), 4 cupons (`LAUNCH10`, `GREEN5`, `EXPIRED`, `FAKE`),
    carteiras da Ana, pedidos seed (1 confirmed + 1 pending).
 6. **Cenários** — `src/mocks/scenarios/`: todos os 18 da tabela de `docs/MOCKS.md` §4,
    com latência fixa por cenário (nada de aleatório não-semeado), seleção por
@@ -128,7 +128,7 @@ Observações adicionais do usuário: $ARGUMENTS
 ### 07.5 — Fixtures
 
 - 60+ NFTs (≥5 categorias, 0.02–12.30 ETH, 4 imagens), 2 usuários
-  (`ana@greenmint.test`/`Ana12345`, `bruno@greenmint.test`/`Bruno1234`),
+  (`ana@nft-marketplace.test`/`Ana12345`, `bruno@nft-marketplace.test`/`Bruno1234`),
   4 cupons (`LAUNCH10`, `GREEN5`, `EXPIRED`, `FAKE`), carteiras da Ana,
   pedidos seed (1 confirmed + 1 pending)
 

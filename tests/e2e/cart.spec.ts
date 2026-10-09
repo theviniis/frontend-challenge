@@ -222,7 +222,7 @@ test('visitor cart merges on login', async ({ page }, info) => {
     const url = '/src/lib/session/service.ts';
     const { sessionService } = await import(url);
     await sessionService.login({
-      email: 'ana@greenmint.test',
+      email: 'ana@nft-marketplace.test',
       password: 'Ana12345',
     });
   });

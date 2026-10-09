@@ -102,4 +102,4 @@ contas legadas. PATCH aceita `email`, `profileName` e `referralCode` além dos c
 anteriores. E-mail é normalizado para minúsculas; duplicidade responde 409 CONFLICT
 com `fields.email`. A alteração mantém a sessão e aparece em GET /auth/session.
 
-No checkout, indicação é obrigatória (1–40 caracteres). O valor inicial de teste é `GREENMINT` quando a conta ainda não tem indicação. A ação única "Confirmar compra" valida e atualiza os dados, sem botão separado de salvamento.
+No checkout, indicação é obrigatória (1–40 caracteres). O valor inicial de teste é `NFT Marketplace` quando a conta ainda não tem indicação. A ação única "Confirmar compra" valida e atualiza os dados, sem botão separado de salvamento.

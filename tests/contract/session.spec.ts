@@ -7,14 +7,14 @@ test('signup normalizes email and conflicts, validates fields', async () => {
     'post',
     '/auth/signup',
     s.sessionSchema,
-    { name: 'Carlos', email: 'CARLOS@greenmint.test', password: 'Carlos1234' },
+    { name: 'Carlos', email: 'CARLOS@nft-marketplace.test', password: 'Carlos1234' },
     {},
     201
   );
-  expect(result.user.email).toBe('carlos@greenmint.test');
+  expect(result.user.email).toBe('carlos@nft-marketplace.test');
   await error('post', '/auth/signup', 'CONFLICT', 409, {
     name: 'Carlos',
-    email: 'carlos@greenmint.test',
+    email: 'carlos@nft-marketplace.test',
     password: 'Carlos1234',
   });
   await error('post', '/auth/signup', 'VALIDATION_ERROR', 422, {});
@@ -28,7 +28,7 @@ test('login session logout and invalid credentials', async () => {
   ).toBe(204);
   await error('get', '/auth/session', 'UNAUTHORIZED', 401, undefined, headers);
   await error('post', '/auth/login', 'UNAUTHORIZED', 401, {
-    email: 'ana@greenmint.test',
+    email: 'ana@nft-marketplace.test',
     password: 'wrong',
   });
 });
@@ -49,7 +49,7 @@ test('signup supports remote field validation scenario', async () => {
   await scenario('validacao-api');
   const failure = await error('post', '/auth/signup', 'VALIDATION_ERROR', 422, {
     name: 'Carlos',
-    email: 'carlos@greenmint.test',
+    email: 'carlos@nft-marketplace.test',
     password: 'Carlos1234',
   });
   expect(failure.error.fields?.email).toEqual(['E-mail rejeitado pela API']);

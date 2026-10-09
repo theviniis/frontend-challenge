@@ -92,7 +92,7 @@ test('favorites login, pagination, reset and logout', async ({
   test.skip(info.project.name !== 'mobile');
   const nav = page.getByRole('navigation', { name: 'Navegação mobile' });
   await nav.getByRole('button', { name: 'Favoritos', exact: true }).click();
-  await loginThroughForm(page, 'bruno@greenmint.test', 'Bruno1234');
+  await loginThroughForm(page, 'bruno@nft-marketplace.test', 'Bruno1234');
   await expect(page).toHaveURL(/favoritesOnly=true/);
   await expect(
     page.getByText('Nenhum favorito encontrado', { exact: true })

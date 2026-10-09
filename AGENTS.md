@@ -1,4 +1,4 @@
-# AGENTS.md — GreenMint NFT Marketplace
+# AGENTS.md — NFT Marketplace
 
 Desafio frontend de um marketplace de NFTs (React + TypeScript). Este arquivo é a
 referência rápida para sessões de agente; detalhes estão nos docs indicados ao final.
@@ -106,8 +106,9 @@ usuário, no escopo solicitado.**
 
 ## Onde ler antes de mexer em algo
 
-**Em caso de dúvidas, consultar primeiro o `README.md`**, que contém o enunciado,
-os critérios e as entregas do desafio, e depois os documentos específicos abaixo.
+**Em caso de dúvidas, consultar primeiro o `README.md`**, que apresenta a solução
+e sua execução. Para o enunciado, os critérios e as entregas do desafio, consultar
+`docs/DESAFIO.md`; depois, os documentos específicos abaixo.
 Antes de perguntar ao usuário, procurar a resposta nessas referências. Se a dúvida
 persistir, indicar o que foi consultado e qual informação continua faltando; não
 presumir que o usuário conhece detalhes que o enunciado não esclarece.
@@ -119,4 +120,4 @@ presumir que o usuário conhece detalhes que o enunciado não esclarece.
 | Contratos REST (endpoints, erros, modelos)   | `docs/api/README.md` (+ resource files) |
 | Sessão, cache, tempo real, dinheiro, erros   | `ARCHITECTURE.md`                       |
 | Cenários MSW, Socket.IO no mock, Playwright  | `docs/MOCKS.md`                         |
-| Enunciado do desafio (critérios, entregas)   | `README.md`                             |
+| Enunciado do desafio (critérios, entregas)   | `docs/DESAFIO.md`                       |

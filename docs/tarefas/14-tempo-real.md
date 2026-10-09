@@ -46,8 +46,27 @@ Integrar os eventos `nft.updated` e `order.updated` à interface pelas regras de
 
 ## Critérios de aceite (gate)
 
-- [ ] Evento de outro usuário (emitido via `_mock/emit`) **não** altera a UI
-- [ ] `pnpm typecheck && pnpm lint && pnpm test:contract` verdes
+- [x] Evento de outro usuário (emitido via `_mock/emit`) **não** altera a UI
+- [x] `pnpm typecheck && pnpm lint && pnpm test:contract` verdes
+
+## Implementação e validação
+
+- Provider singleton no root com cleanup dos listeners e verificação da sessão
+  antes de aplicar eventos ou reconciliar recursos ativos por REST.
+- Cache de NFT/pedido preserva versões crescentes e snapshots terminais; descartes
+  têm log em desenvolvimento. Eventos privados exigem a query key do usuário atual.
+- Avisos acessíveis no provider e dentro do diálogo de autorização quando a cotação
+  muda; autorização bloqueada até revisão explícita dos novos valores.
+- Contrato em `tests/contract/socket.spec.ts`; cenários E2E de isolamento, listeners,
+  reconexão sem POST adicional, cotação obsoleta e preço durante autorização em
+  `tests/e2e/checkout.spec.ts`, além dos cenários de versão em carrinho/detalhe.
+- Os cenários de compra usam foco + Enter. A execução por clique no mobile revelou
+  sobreposição de elementos do formulário sobre o botão de compra; revisar esse
+  layout na tarefa 15. A validação por teclado não cobre esse problema de ponteiro.
+- Verificação: typecheck/lint e 54 testes de contrato verdes; 18 cenários de tempo
+  real em desktop/mobile validados entre a rodada principal e as repetições dos
+  testes de relógio/revisão. A suíte ampla de checkout também revelou expectativas
+  antigas de título e alerta/saída na recusa, fora dos cenários desta tarefa.
 
 ## Referências
 

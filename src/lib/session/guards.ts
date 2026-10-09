@@ -68,10 +68,10 @@ export function sanitizeRedirect(redirectUrl?: string): string {
   }
 
   try {
-    const url = new URL(trimmed, 'https://greenmint.local');
+    const url = new URL(trimmed, 'https://nft-marketplace.local');
     const pathname = decodeURIComponent(url.pathname);
     if (
-      url.origin !== 'https://greenmint.local' ||
+      url.origin !== 'https://nft-marketplace.local' ||
       pathname.startsWith('//') ||
       pathname.includes('\\') ||
       /^\/(login|signup)([/?#]|$)/.test(pathname)

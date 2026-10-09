@@ -1,4 +1,4 @@
-# Estrutura do Projeto — GreenMint NFT Marketplace
+# Estrutura do Projeto — NFT Marketplace
 
 > Referência de organização do código. Tela/frames citados vêm do arquivo Figma
 > `Frontend Challenge` (`Ff0SksUi7UFtPWUO8kyNtw`).

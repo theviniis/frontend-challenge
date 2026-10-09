@@ -63,7 +63,7 @@ function RootComponent() {
       >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-primary font-bold">GreenMint Router</span>
+            <span className="text-primary font-bold">NFT Marketplace Router</span>
             <span className="text-text-secondary">|</span>
             <span>
               Sessão:{' '}
@@ -110,9 +110,11 @@ function RootComponent() {
               creatorsHref={isNftDetail ? '/#criadores' : '#criadores'}
               divider={!!isCatalog}
             />
-            <div className="mb-6 flex justify-end md:hidden">
-              <AccountActions />
-            </div>
+            {(!isCatalog || session) && (
+              <div className="mb-6 flex justify-end md:hidden">
+                <AccountActions />
+              </div>
+            )}
           </div>
         )}
         <Outlet />

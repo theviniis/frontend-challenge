@@ -1,272 +1,215 @@
-# Desafio Frontend — Marketplace de NFTs
+# NFT Marketplace
 
-Implemente o **NFT Marketplace** em React e TypeScript, seguindo o [layout no Figma](https://www.figma.com/design/Ff0SksUi7UFtPWUO8kyNtw/Frontend-Challenge?node-id=0-1).
+Marketplace de NFTs desenvolvido como desafio frontend com React e TypeScript. A aplicação reúne catálogo, detalhes de NFTs, favoritos, carrinho, checkout, pedidos e conta do colecionador.
 
-O desafio avalia fidelidade visual, qualidade das interações, integração com APIs, gerenciamento de estado assíncrono, tempo real, acessibilidade e performance.
+APIs, autenticação, carteiras e pagamentos são simulados. A demonstração funciona com mocks locais, sem backend externo ou transações reais em blockchain.
 
-## 1. Escopo
+## Como rodar
 
-Entregue os fluxos de descoberta, compra e conta do colecionador, com versões desktop e mobile. APIs, autenticação, carteiras e pagamentos devem funcionar com dados simulados. Integrações reais com blockchain, extensões de carteira e gateways de pagamento estão fora do escopo.
+Pré-requisitos: **Node.js 22.12 ou superior** e **pnpm 10.33.2**, versão indicada em `package.json`. O Vite instalado aceita Node `^20.19.0 || >=22.12.0`.
 
-O Figma define a identidade visual e a composição das telas. Este enunciado define os comportamentos e os cenários de avaliação. Estados não desenhados devem seguir o mesmo padrão visual.
+Após instalar o Node.js, instale a versão de pnpm utilizada pelo projeto:
 
-## 2. Stack obrigatória
+```powershell
+npm install --global pnpm@10.33.2
+```
 
-| Responsabilidade                     | Tecnologia      |
-| ------------------------------------ | --------------- |
-| Interface                            | React           |
-| Linguagem                            | TypeScript      |
-| Roteamento                           | TanStack Router |
-| Estado remoto                        | TanStack Query  |
-| Cliente HTTP                         | Axios           |
-| Integração de dados                  | REST APIs       |
-| Tempo real                           | Socket.IO       |
-| Estilização                          | Tailwind CSS    |
-| Componentes                          | shadcn/ui       |
-| Mocking                              | MSW             |
-| Testes E2E e regressão visual        | Playwright      |
-| Auditoria de performance e qualidade | Lighthouse      |
+Na raiz do repositório, instale as dependências, copie a configuração de exemplo na primeira execução e inicie o ambiente de desenvolvimento:
 
-As tecnologias devem participar efetivamente da solução. A ferramenta de build, a organização do projeto e as bibliotecas complementares ficam a critério do candidato.
+```powershell
+pnpm install --frozen-lockfile
+Copy-Item .env.example .env.local
+pnpm dev
+```
 
-## 3. Telas e fluxos
+Em macOS/Linux, use `cp .env.example .env.local` para copiar o arquivo. Abra a URL exibida pelo Vite, normalmente `http://localhost:5173`.
 
-| Tela                   | Funcionalidades obrigatórias                                                 |
-| ---------------------- | ---------------------------------------------------------------------------- |
-| Início                 | Destaques, catálogo, busca, filtros, ordenação e navegação para o NFT        |
-| Detalhes do NFT        | Galeria, informações, edição, quantidade, favoritos e compra                 |
-| Carrinho de NFTs       | Edição de quantidades, remoção, cupom e resumo de valores                    |
-| Pagamento              | Dados do colecionador, seleção de carteira e rede, revisão e envio do pedido |
-| Confirmação de pedido  | Resultado, identificação da transação, itens, taxas e total                  |
-| Login                  | Autenticação, validação e retorno ao fluxo anterior                          |
-| Cadastro               | Criação de conta, validação e tratamento de conflito                         |
-| Perfil do colecionador | Edição dos dados, avatar e alteração de senha                                |
-| Carteiras              | Cadastro e edição de carteiras principal e secundária                        |
+Mantenha `VITE_MOCKS=true` e `VITE_API_BASE_URL` vazio para executar a demonstração local. Não é necessário configurar acesso ao Figma para rodar a aplicação.
 
-Implemente os frames desktop e mobile disponíveis. Perfil, carteiras e confirmação também devem funcionar em mobile, mesmo sem um frame específico.
+Para gerar e visualizar o build:
 
-Páginas editoriais, suporte, atividade, ofertas e downloads não fazem parte da entrega. Links externos e ações auxiliares devem ter comportamento coerente; ações fora do escopo não devem aparentar sucesso funcional.
+```sh
+pnpm build
+pnpm preview
+```
 
-### Catálogo e detalhe
+O valor de `VITE_MOCKS` é incorporado durante o build: mantenha-o como `true` em `.env.local` também para a versão de demonstração. Abra a URL indicada pelo preview, normalmente `http://localhost:4173`.
 
-- Busca, filtros, ordenação e paginação devem compor o estado da URL e sobreviver a refresh e navegação pelo histórico.
-- Filtros devem ser combináveis; mudança de filtro deve reiniciar a paginação.
-- As consultas devem refletir os parâmetros enviados à API, com tratamento de resultados vazios, falhas e respostas fora de ordem.
-- O detalhe deve suportar acesso direto, NFT inexistente, edição indisponível e limite de quantidade.
-- Favoritos devem persistir para o usuário autenticado.
+### Variáveis de ambiente
 
-### Carrinho
+| Variável             | Uso                                                                                                                                |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_MOCKS`         | Ativa MSW com `true`. O exemplo já habilita os mocks; sem configuração, Vite os habilita em desenvolvimento e desabilita no build. |
+| `VITE_API_BASE_URL`  | URL base do cliente Axios. Deixe vazia para os mocks locais.                                                                       |
+| `VITE_MOCK_SCENARIO` | Cenário inicial; vazio utiliza `padrao` quando não há seleção pela URL ou persistência.                                            |
+| `VITE_MOCK_UI`       | `1` exibe o seletor de cenários no build de demonstração. Em desenvolvimento ele já aparece.                                       |
+| `FIGMA_TOKEN`        | Token usado somente pelo script de extração do Figma.                                                                              |
+| `FIGMA_FILE_KEY`     | Identificador do arquivo Figma; o exemplo contém a referência do desafio.                                                          |
+| `FIGMA_VERSION`      | Versão opcional do arquivo para a extração.                                                                                        |
 
-- Adicionar, alterar e remover itens, respeitando a disponibilidade por NFT e edição.
-- Manter o carrinho após refresh e preservar os itens do visitante ao autenticar.
-- Aplicar e remover cupom, com tratamento de código inválido ou expirado.
-- Exibir subtotal, desconto, taxa de rede e total coerentes com a resposta da API.
-- Refletir alterações de preço e disponibilidade recebidas enquanto o carrinho estiver aberto.
+### Credenciais fictícias
 
-Valores em ETH devem trafegar como strings decimais e manter precisão nos cálculos e na apresentação. Quantidades são inteiras. A cotação da API é a referência para finalizar o pedido.
+| Usuário | E-mail                       | Senha       |
+| ------- | ---------------------------- | ----------- |
+| Ana     | `ana@nft-marketplace.test`   | `Ana12345`  |
+| Bruno   | `bruno@nft-marketplace.test` | `Bruno1234` |
 
-### Pagamento e confirmação
+## Deploy na Vercel
 
-- Validar os campos do layout e permitir revisão antes do envio.
-- Utilizar as carteiras cadastradas, com seleção de rede e simulação de conexão, recusa e desconexão.
-- Revalidar preço, disponibilidade, cupom e taxas antes de confirmar a compra. Mudanças devem exigir nova confirmação do usuário.
-- Impedir pedidos duplicados em cliques repetidos ou reenvios após timeout.
-- Representar pedido pendente, confirmado e recusado, com recuperação após refresh ou reconexão.
-- Exibir a confirmação somente para pedido efetivamente confirmado na simulação.
-- Preservar os itens em falhas; após confirmação, remover do carrinho apenas os itens e quantidades comprados.
+Antes de publicar, confira os tipos, o lint e o build local:
 
-O recibo deve reproduzir o snapshot do pedido. Alterações posteriores no catálogo não podem modificar seus valores. Referências de transação e links de exploração são simulados.
+```sh
+pnpm typecheck
+pnpm lint
+pnpm build
+pnpm preview
+```
 
-### Conta e sessão
+Crie um arquivo `vercel.json` na raiz do projeto com a configuração abaixo. Ela permite acesso direto e refresh de rotas da aplicação, como `/profile` e `/checkout`:
 
-Cadastro, login, logout e sessão são obrigatórios, integrados à API simulada. Checkout, perfil, carteiras, favoritos e pedidos exigem autenticação.
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
 
-A sessão deve ser recuperável após refresh. Trate expiração durante a navegação e durante o checkout, preservando o contexto para retomada. Logout e troca de usuário devem limpar dados privados em cache e subscriptions da sessão anterior.
+Envie o código, incluindo `vercel.json` e `pnpm-lock.yaml`, para seu repositório Git. Na Vercel, importe o repositório como um novo projeto e confira as configurações:
 
-Valide os formulários de cadastro, perfil, senha e carteiras, incluindo erros retornados pela API. Alterações confirmadas devem permanecer após refresh. Use credenciais fictícias e não armazene senhas em claro.
+| Configuração     | Valor                                                |
+| ---------------- | ---------------------------------------------------- |
+| Framework Preset | `Vite`                                               |
+| Root Directory   | Raiz do projeto, onde está `package.json`.           |
+| Install Command  | `pnpm install --frozen-lockfile`                     |
+| Build Command    | `pnpm build`                                         |
+| Output Directory | `dist`                                               |
+| Node.js Version  | Versão 22.x compatível com o requisito mínimo 22.12. |
 
-## 4. Integração e estado
+Configure as variáveis de ambiente na Vercel para os ambientes em que deseja disponibilizar a demonstração, como Production e Preview:
 
-Use TanStack Router nas rotas, parâmetros de busca e proteção dos fluxos privados. Use TanStack Query nas consultas, mutations e sincronização do cache. As chamadas REST devem passar pelo Axios.
+```dotenv
+VITE_MOCKS=true
+VITE_MOCK_SCENARIO=padrao
+VITE_MOCK_UI=0
+```
 
-A solução deve garantir:
+Deixe `VITE_API_BASE_URL` sem configuração para utilizar os mocks locais. Caso queira exibir o seletor de cenários na versão publicada, use `VITE_MOCK_UI=1`. O token do Figma não é necessário para o deploy.
 
-- contratos tipados entre transporte, estado e interface;
-- estados de carregamento, vazio, erro, sucesso e atualização em segundo plano;
-- invalidação coerente após mutations e eventos;
-- cancelamento ou descarte de respostas obsoletas;
-- isolamento dos dados por usuário e pelos parâmetros da consulta;
-- recuperação de falhas sem duplicar operações;
-- tratamento de rotas inexistentes e acesso direto a qualquer tela prevista.
+Clique em **Deploy** e aguarde a conclusão do build. Abra a URL gerada e confira o carregamento do catálogo, login, checkout e acesso direto a uma rota interna com refresh. As APIs e os pagamentos continuam simulados no ambiente publicado.
 
-Aplique atualização otimista em pelo menos uma interação, com rollback em caso de falha. A política de cache, retries e sincronização deve ser documentada.
+As variáveis `VITE_*` são incorporadas ao build; depois de alterá-las na Vercel, faça um novo deploy para aplicar os valores.
 
-## 5. Contratos REST
+Referências: [Vite na Vercel](https://vercel.com/docs/frameworks/frontend/vite) e [publicação de aplicações Vite](https://vite.dev/guide/static-deploy.html).
 
-Defina e documente os contratos utilizados. Os recursos mínimos são:
+## Arquitetura
 
-| Recurso        | Operações                                                                  |
-| -------------- | -------------------------------------------------------------------------- |
-| Sessão e conta | Cadastro, login, consulta da sessão, logout e expiração                    |
-| NFTs           | Listagem com busca/filtros/ordenação/paginação e detalhe por identificador |
-| Favoritos      | Consulta, inclusão e remoção                                               |
-| Carrinho       | Consulta, inclusão, alteração e remoção de itens                           |
-| Cotação        | Validação de cupom, disponibilidade, descontos, taxas e total              |
-| Pedidos        | Criação idempotente e consulta do estado e recibo                          |
-| Perfil         | Consulta, atualização de dados/avatar e alteração de senha                 |
-| Carteiras      | Consulta, cadastro e atualização                                           |
+A organização é **feature-first**: cada domínio concentra componentes, hooks e consultas em `src/features/`. As rotas ficam em `src/routes/`, os componentes compartilhados em `src/components/` e a infraestrutura em `src/lib/`.
 
-As respostas devem representar erros de validação, sessão inválida, falta de permissão, recurso inexistente, conflito de disponibilidade e falha transitória.
+```text
+Rotas → Features → Clientes HTTP / Socket → Rede interceptada pelo MSW
+                  ↕
+             Cache do TanStack Query
+```
 
-As mutations de pedido devem aceitar uma chave de idempotência. Na simulação, a mesma tentativa deve recuperar o mesmo pedido; reutilizar a chave com conteúdo diferente deve gerar conflito.
+- **Interface:** React, TypeScript strict, Tailwind CSS v4 e componentes shadcn/ui. O CSS do projeto está centralizado em `src/styles/global.css`.
+- **Navegação:** TanStack Router com rotas baseadas em arquivos e divisão automática de código. Rotas privadas usam `beforeLoad`, com retorno ao fluxo via parâmetro `redirect`.
+- **Estado remoto:** TanStack Query, com factory de query keys, isolamento dos dados privados por usuário, invalidação após mutations e atualização otimista de favoritos com rollback.
+- **REST e contratos:** chamadas passam pelo Axios em `src/lib/http`. Schemas zod validam os contratos e fornecem os tipos inferidos do cliente.
+- **Tempo real:** `socket.io-client` centralizado em `src/lib/socket`. Eventos de NFTs e pedidos são tratados por versão; a reconexão reconcilia os recursos com REST.
+- **Mocks:** MSW intercepta REST e, com `@mswjs/socket.io-binding`, o transporte Socket.IO. Fixtures, persistência e cenários ficam em `src/mocks/`.
+- **Sessão e compra:** sessão com token opaco persistido em `gm_session`, expiração de duas horas e sem refresh silencioso. Pedidos usam uma chave de idempotência persistida em `gm_pending_order`; a confirmação depende do estado `confirmed` da simulação.
+- **Dinheiro:** valores ETH trafegam como strings decimais. Os cálculos ficam em `src/lib/money.ts`, com decimal.js, evitando perda de precisão com ponto flutuante.
 
-## 6. Mocking com MSW
+As políticas detalhadas de sessão, cache, retries e reconciliação estão em [ARCHITECTURE.md](ARCHITECTURE.md).
 
-Implemente os mocks na camada de rede, reutilizando contratos e cenários entre desenvolvimento, demonstração e testes. Componentes, hooks e cliente Axios não devem conter respostas fictícias ou caminhos alternativos de negócio.
+## Cenários e reset dos mocks
 
-Os mocks devem manter estado consistente entre catálogo, favoritos, carrinho, perfil, carteiras e pedidos. Persistência local é permitida para sustentar refresh; o reset deve restaurar integralmente um cenário conhecido.
+Selecione um cenário com `?scenario=<id>` na URL ou pelo controle flutuante de desenvolvimento. A seleção também pode vir de `VITE_MOCK_SCENARIO`. A prioridade é URL, seleção em tempo de execução, cenário persistido, variável de ambiente e, por último, `padrao`.
 
-### Simulating Network Conditions and Failures
+Os dados simulados persistem localmente para permitir refresh. Use `?reset=1` para restaurar os dados iniciais, o botão de reset no seletor ou `POST /api/_mock/reset` nas ferramentas de teste. Para voltar ao cenário padrão e restaurar os dados, abra `/?scenario=padrao&reset=1`.
 
-Simule condições de rede e falhas com MSW, incluindo lentidão, latência variável, timeouts, indisponibilidade de conexão e respostas HTTP de erro. Os cenários devem ser configuráveis e reproduzíveis, permitindo avaliar o carregamento, o feedback de erro e a recuperação da interface.
+Exemplos, usando a URL local do servidor:
 
-Disponibilize fixtures com variedade suficiente para exercitar filtros e paginação, pelo menos dois usuários e cenários determinísticos de:
+| Cenário            | Como reproduzir                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Carregamento lento | Abra `/?scenario=lento&reset=1` para observar os estados de carregamento.                                                            |
+| Falha de rede      | Abra `/?scenario=offline&reset=1`. Para recuperar a demonstração, volte a `/?scenario=padrao&reset=1`.                               |
+| Erro HTTP          | Abra `/?scenario=erro-5xx&reset=1` para simular falha no catálogo e detalhe.                                                         |
+| Pagamento recusado | Abra `/?scenario=pagamento-recusado&reset=1`, entre com Ana, revise o carrinho e conclua o checkout para observar a recusa simulada. |
 
-- sucesso e resultado vazio;
-- latência variável e respostas fora de ordem;
-- falhas de conexão e respostas HTTP 4xx/5xx;
-- sessão expirada e acesso não autorizado;
-- conflito de cadastro ou de validação de formulário;
-- cupom inválido ou expirado;
-- preço alterado ou edição esgotada durante a compra;
-- timeout após criação do pedido, com recuperação por idempotência;
-- pagamento confirmado e pagamento recusado.
+O catálogo completo, os gatilhos dos demais cenários e as limitações do transporte estão em [docs/MOCKS.md](docs/MOCKS.md).
 
-Use MSW também na simulação dos eventos, com uma integração compatível com o protocolo Socket.IO, como [@mswjs/socket.io-binding](https://github.com/mswjs/socket.io-binding). Documente o transporte utilizado e suas limitações no ambiente de mocks.
+## Comandos disponíveis
 
-Os cenários devem exercitar `socket.io-client`. Substituir o socket por chamadas diretas a setters, callbacks ou ao cache não atende ao requisito.
+| Comando                              | Finalidade                                                                                           |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                           | Servidor Vite de desenvolvimento.                                                                    |
+| `pnpm build`                         | Verificação TypeScript e build de produção.                                                          |
+| `pnpm preview`                       | Servidor local para visualizar o build.                                                              |
+| `pnpm typecheck`                     | Verificação TypeScript com `tsc -b`.                                                                 |
+| `pnpm lint` / `pnpm lint:fix`        | ESLint, sem ou com correções automáticas.                                                            |
+| `pnpm format` / `pnpm format:check`  | Formatação ou conferência com Prettier.                                                              |
+| `pnpm test:contract`                 | Testes de contrato com Vitest.                                                                       |
+| `pnpm test:e2e` / `pnpm test:e2e:ui` | Testes Playwright, por terminal ou interface interativa.                                             |
+| `pnpm lighthouse`                    | Auditoria de `http://localhost:5173/`, com saída em `report.html`; exige o servidor ativo nessa URL. |
+| `pnpm fig:extract`                   | Extração de assets locais e referências do Figma para `public/` e `docs/figma/`.                     |
 
-A camada de mocks deve ser ativada por configuração e estar disponível no build de demonstração. Mudanças nos dados simulados devem ser refletidas tanto nas respostas REST quanto nos eventos correspondentes.
+Antes da primeira execução E2E, instale o navegador:
 
-## 7. Tempo real com Socket.IO
+```sh
+pnpm exec playwright install chromium
+pnpm test:e2e
+```
 
-Implemente, no mínimo, os seguintes eventos:
+O Playwright inicia seu próprio servidor com mocks, na porta `54123`, e possui projetos Chromium desktop (1440 × 900) e mobile (390 × 844). O relatório HTML pode ser aberto com `pnpm exec playwright show-report`; traces são mantidos em caso de falha.
 
-| Evento          | Comportamento esperado                                            |
-| --------------- | ----------------------------------------------------------------- |
-| `nft.updated`   | Atualizar preço e disponibilidade no catálogo, detalhe e carrinho |
-| `order.updated` | Atualizar o estado do pedido e apresentar confirmação ou recusa   |
+A extração do Figma utiliza o arquivo local `Frontend Challenge.fig` e exige `FIGMA_TOKEN` para a etapa de consulta à API. Os assets necessários à aplicação já estão no repositório.
 
-Os eventos devem carregar identidade estável, recurso afetado e versão. O cliente deve tolerar duplicatas e eventos antigos, sem regredir um estado mais recente nem reaplicar efeitos.
+A existência desses comandos não representa comprovação de cobertura integral dos testes ou de cumprimento das metas de Lighthouse definidas no desafio.
 
-Após reconexão, reconcilie os recursos ativos com a API REST. Eventos de uma sessão anterior não podem atualizar dados de outro usuário. Listeners e subscriptions devem ser liberados ao encerrar seu ciclo de vida.
+## Páginas auxiliares
 
-Implemente o cenário:
+Além dos fluxos do marketplace, existem duas páginas públicas de apoio ao desenvolvimento, acessíveis diretamente pela URL:
 
-1. Um NFT está no carrinho.
-2. Seu preço ou disponibilidade muda durante a navegação.
-3. A interface informa a alteração e atualiza o resumo.
-4. O checkout impede a confirmação com uma cotação desatualizada.
+| Rota      | Finalidade                                                                                                                                                               |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/tokens` | Demonstração dos design tokens e componentes visuais utilizados pela interface.                                                                                          |
+| `/teste`  | Página de experimentação dos parâmetros do catálogo na URL. Exibe os filtros atuais em JSON e permite testar busca, filtros, ordenação, paginação e limpeza dos filtros. |
 
-Também deve funcionar uma interrupção de conexão enquanto o pedido está pendente. Após reconectar ou recarregar a página, o usuário deve recuperar seu estado sem criar outra compra. Pedidos confirmados ou recusados são terminais.
+Com o servidor de desenvolvimento na porta padrão, abra [Design Tokens](http://localhost:5173/tokens) ou [Teste de parâmetros](http://localhost:5173/teste). No deploy, utilize os mesmos caminhos na URL publicada.
 
-## 8. Interface, responsividade e acessibilidade
+## Documentação
 
-Preserve tipografia, cores, espaçamentos, hierarquia, imagens, proporções e composição do Figma. Adapte os componentes shadcn/ui à identidade visual do projeto.
+| Documento                                                            | Conteúdo                                                       |
+| -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [Arquitetura](ARCHITECTURE.md)                                       | Sessão, cache, dinheiro, erros e sincronização REST/Socket.IO. |
+| [Estrutura](docs/ESTRUTURA.md)                                       | Organização de pastas, rotas e responsabilidades.              |
+| [Estilos](docs/ESTILOS.md)                                           | Referências visuais e padrões de componentes.                  |
+| [Contratos REST](docs/api/README.md)                                 | Endpoints, modelos e erros da API simulada.                    |
+| [Mocks](docs/MOCKS.md)                                               | Cenários, persistência, reset, tempo real e testes.            |
+| [Referências do Figma](docs/figma/README.md)                         | Assets e documentação da extração.                             |
+| [Enunciado original](docs/DESAFIO.md)                                | Requisitos, critérios e entregas do desafio.                   |
+| [Instruções para agentes](AGENTS.md)                                 | Regras e referências para o trabalho assistido por IA.         |
+| [Plano de execução](PLANO.md) e [tarefas](docs/tarefas/00-INDICE.md) | Planejamento e critérios de verificação por etapa.             |
 
-Todas as telas devem funcionar em desktop, tablet e mobile, com atenção a filtros, navegação, formulários, carrinho e checkout. Avalie, no mínimo, larguras de 390, 768 e 1440 pixels.
+## Uso de IA e automações de apoio
 
-Use **skeletons com shimmer effect** nos componentes dependentes de dados durante o carregamento, incluindo catálogo, detalhe e resumo do carrinho. Preserve as dimensões do conteúdo para evitar deslocamentos de layout e respeite a preferência por movimento reduzido.
+A IA foi utilizada principalmente para auxiliar nas decisões arquiteturais, na organização das responsabilidades e no planejamento da implementação.
 
-São obrigatórios:
+O fluxo assistido por IA utiliza as instruções de `AGENTS.md`, as skills em `.agents/skills/` e os documentos de planejamento para orientar o trabalho dos agentes. Esses recursos apoiam a execução de tarefas e verificações; não há uma rotina agendada ou pipeline de IA configurado no repositório.
 
-- navegação por teclado e foco visível;
-- controle de foco em diálogos e drawers;
-- semântica adequada, labels e mensagens de erro associadas aos campos;
-- alternativas textuais para imagens relevantes;
-- contraste legível e estados não dependentes apenas de cor;
-- feedback acessível para mutations e alterações em tempo real;
-- ausência de overflow horizontal indevido e perda de conteúdo com zoom.
+Devido à falta de precisão da IA na reprodução visual, o layout foi revisado e implementado manualmente, com base na referência do Figma.
 
-Use os assets do arquivo quando disponíveis e mantenha imagens e fontes necessárias acessíveis à execução local. Documente qualquer substituição de asset ou ajuste de acessibilidade em relação ao layout.
+## Situação da entrega
 
-## 9. Testes com Playwright
+Devido ao prazo de entrega, o desafio não foi concluído integralmente. Alguns layouts ficaram sem revisão final:
 
-Entregue testes E2E executáveis com os mocks, cobrindo:
+- Menu mobile exibido na home.
+- Carrinho mobile.
+- Página **Perfil > Carteiras**.
 
-1. Busca, filtros combinados, ordenação, paginação e restauração pelo histórico.
-2. Acesso direto ao detalhe e tratamento de recurso inexistente.
-3. Cadastro, login, expiração de sessão, logout e troca de usuário.
-4. Favoritos, incluindo falha de mutation e recuperação do estado.
-5. Carrinho, quantidades, remoção, cupom e persistência após refresh/login.
-6. Compra completa, do catálogo ao recibo confirmado.
-7. Falha de pagamento, clique repetido e timeout com recuperação do mesmo pedido.
-8. Edição de perfil, avatar, senha e carteiras, com erros de validação.
-9. Alteração de preço/disponibilidade via Socket.IO durante o checkout.
-10. Eventos duplicados ou antigos, desconexão e retomada de pedido pendente.
-11. Navegação por teclado, foco de diálogos e validação de formulários.
-12. Skeletons durante carregamento lento, feedback de falha e recuperação após nova tentativa.
-
-Execute os fluxos principais em Chromium, nos viewports desktop e mobile. Inclua regressão visual de início, detalhe, carrinho e pagamento, com baselines versionadas e dados estáveis.
-
-Cada teste deve partir de um estado isolado. Controle relógio, latência e disparo dos eventos nos cenários sensíveis a tempo. Entregue relatório HTML e traces das falhas.
-
-As verificações devem observar a interface e os resultados das operações. Os testes de tempo real precisam passar pelo cliente Socket.IO e os de REST pelos handlers MSW.
-
-## 10. Performance e Lighthouse
-
-Audite início e detalhe do NFT com Lighthouse em perfis mobile e desktop, usando build otimizado e o cenário padrão dos mocks.
-
-| Categoria      | Meta |
-| -------------- | ---: |
-| Performance    | ≥ 90 |
-| Accessibility  | ≥ 95 |
-| Best Practices | ≥ 95 |
-| SEO            | ≥ 90 |
-
-Execute três medições por página e perfil e reporte a mediana de cada categoria. Versione a configuração da auditoria e entregue relatórios HTML/JSON, versões das ferramentas, ambiente e condições de execução.
-
-Registre LCP, CLS e TBT. Justifique resultados abaixo das metas e identifique as causas. A auditoria deve carregar as imagens, fontes e funcionalidades da entrega, sem simplificações exclusivas para melhorar a pontuação.
-
-## 11. Critérios de avaliação
-
-| Critério                           |  Pontos | Evidência esperada                                          |
-| ---------------------------------- | ------: | ----------------------------------------------------------- |
-| Fidelidade visual e responsividade |      20 | Aderência ao Figma e consistência entre tamanhos de tela    |
-| Fluxos e experiência de uso        |      20 | Compra e conta completas, validações e recuperação de erros |
-| Integração e estado                |      15 | Router, Query, Axios, contratos e cache coerentes           |
-| Tempo real                         |      10 | Eventos, reconexão, ordenação e sincronização com REST      |
-| Mocking                            |      10 | MSW, cenários determinísticos, persistência e reset         |
-| Testes                             |      10 | Cobertura dos fluxos e falhas com Playwright                |
-| Acessibilidade                     |       5 | Operação por teclado, semântica, foco e feedback            |
-| Performance                        |       5 | Resultados e análise das auditorias Lighthouse              |
-| Arquitetura e documentação         |       5 | Tipagem, responsabilidades e execução reproduzível          |
-| **Total**                          | **100** |                                                             |
-
-São eliminatórios: ausência de uso efetivo da stack obrigatória, fluxos principais apenas visuais, compra confirmada sem resposta da simulação, exposição de dados entre usuários, eventos simulados diretamente na UI ou ausência de testes E2E executáveis.
-
-## 12. Entrega
-
-Entregue código-fonte, lockfile, assets, mocks, fixtures, testes e configurações de auditoria.
-
-O **deploy é obrigatório**. Envie o link do repositório e uma URL pública da aplicação. Recomenda-se [Vercel](https://vercel.com/docs/frameworks/frontend/vite); [Netlify](https://docs.netlify.com/build/frameworks/framework-setup-guides/vite/) e [Cloudflare Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/) também são aceitos.
-
-A versão publicada deve corresponder ao código entregue e permanecer acessível durante a avaliação, com os mocks e os fluxos de tempo real funcionando. Acesso direto e refresh das rotas devem funcionar no ambiente publicado.
-
-O `README.md` da solução deve conter setup, variáveis de ambiente, credenciais fictícias, seleção e reset dos cenários, comandos de execução e instruções para reproduzir os fluxos de falha.
-
-Documente os contratos REST e eventos, a política de sessão, o estado do carrinho, a estratégia de cache e a reconciliação entre REST e Socket.IO. Registre limitações, decisões de UX e eventuais desvios do Figma em `ARCHITECTURE.md`.
-
-Disponibilize comandos para desenvolvimento com mocks, build, preview, verificação de tipos, lint, testes Playwright e auditoria Lighthouse.
-
-A entrega deve executar a partir de um checkout limpo, sem depender de serviços privados ou do backend de produção.
-
-## Execução dos mocks
-
-`pnpm dev` ativa MSW quando `VITE_MOCKS=true` (configure a partir de `.env.example`).
-Use `?scenario=lento`, `?scenario=offline`, `?scenario=sessao-expirada` ou o controle
-flutuante de desenvolvimento; `?reset=1` restaura o seed. No build de demonstração,
-use `VITE_MOCKS=true`; o switcher só aparece com `VITE_MOCK_UI=1` fora de dev.
-Credenciais: `ana@greenmint.test` / `Ana12345` e `bruno@greenmint.test` / `Bruno1234`.
-`pnpm test:contract` valida os oito recursos via Axios + MSW; cenários e limitações
-estão em [docs/MOCKS.md](docs/MOCKS.md).
+Essas pendências dizem respeito à revisão dos layouts mencionados. Os requisitos originais permanecem disponíveis no enunciado para comparação com a entrega.

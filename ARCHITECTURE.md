@@ -1,4 +1,4 @@
-# Arquitetura — GreenMint NFT Marketplace
+# Arquitetura — NFT Marketplace
 
 Documento normativo da solução: políticas de sessão, cache, tempo real, dinheiro e erros.
 Contratos REST: [`docs/api/`](./docs/api/README.md) · Estrutura: [`docs/ESTRUTURA.md`](./docs/ESTRUTURA.md) ·

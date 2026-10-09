@@ -3,7 +3,7 @@ import type { DemoSessionControls } from '@/lib/session/demo';
 export const demoSession: DemoSessionControls = {
   async login() {
     await sessionService.login({
-      email: 'ana@greenmint.test',
+      email: 'ana@nft-marketplace.test',
       password: 'Ana12345',
     });
   },

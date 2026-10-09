@@ -6,7 +6,7 @@
 type UserPublic = {
   id: string;          // "usr_ana"
   name: string;        // "Ana Colecionadora"
-  email: string;       // "ana@greenmint.test"
+  email: string;       // "ana@nft-marketplace.test"
   username?: string;   // "ana.eth"
   bio?: string;
   avatarUrl?: string;  // caminho /assets/... ou data URL
@@ -26,7 +26,7 @@ type Session = {
 
 ```jsonc
 // request
-{ "name": "Carlos Colecionador", "email": "carlos@greenmint.test", "password": "Carlos1234" }
+{ "name": "Carlos Colecionador", "email": "carlos@nft-marketplace.test", "password": "Carlos1234" }
 // 201 Created
 { "token": "mock.…", "user": { … }, "expiresAt": "2026-10-07T20:00:00.000Z" }
 ```
@@ -48,7 +48,7 @@ Erros:
 
 ```jsonc
 // request
-{ "email": "ana@greenmint.test", "password": "Ana12345", "anonymousId": "uuid-opcional" }
+{ "email": "ana@nft-marketplace.test", "password": "Ana12345", "anonymousId": "uuid-opcional" }
 // 200 OK → Session
 ```
 
@@ -84,8 +84,8 @@ Idempotente: logout sem sessão também responde `204`.
 
 ## Comportamentos do mock
 
-- Usuários seed: `ana@greenmint.test` / `Ana12345` (perfil completo, carteiras, pedidos) e
-  `bruno@greenmint.test` / `Bruno1234` (perfil enxuto) — ver fixtures.
+- Usuários seed: `ana@nft-marketplace.test` / `Ana12345` (perfil completo, carteiras, pedidos) e
+  `bruno@nft-marketplace.test` / `Bruno1234` (perfil enxuto) — ver fixtures.
 - Senhas nunca persistidas em claro: o mock guarda hash fictício (ex.: `hash:<sha256>`).
 - `POST /api/_mock/reset` restaura usuários, sessões e demais entidades ao seed.
 - Cenário `sessao-expirada` faz qualquer token expirar imediatamente após o login

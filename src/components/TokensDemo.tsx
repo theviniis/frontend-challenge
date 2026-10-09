@@ -63,7 +63,7 @@ export const TokensDemo = () => {
             Design Tokens & Theme Foundation
           </span>
           <span className="text-tiny text-text-secondary">
-            GreenMint NFT Marketplace
+            NFT Marketplace
           </span>
         </div>
         <h1 className="text-display">Design Tokens Showcase</h1>
@@ -94,7 +94,7 @@ export const TokensDemo = () => {
               Display / 43 Bold
               <CopyTypographyClass value="text-display" />
             </span>
-            <span className="text-display">The GreenMint NFT 43px</span>
+            <span className="text-display">The NFT Marketplace NFT 43px</span>
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
             <span className="text-tiny text-text-secondary w-44">

@@ -39,7 +39,7 @@ export const error = (
   );
 export async function login(who = 'ana') {
   const session = await call('post', '/auth/login', s.sessionSchema, {
-    email: `${who}@greenmint.test`,
+    email: `${who}@nft-marketplace.test`,
     password: who === 'ana' ? 'Ana12345' : 'Bruno1234',
   });
   return { Authorization: `Bearer ${session.token}` };

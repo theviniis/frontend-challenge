@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 
 export async function loginThroughForm(
   page: Page,
-  email = 'ana@greenmint.test',
+  email = 'ana@nft-marketplace.test',
   password = 'Ana12345'
 ) {
   const form = page.getByRole('form', { name: 'Formulário de login' });

@@ -29,7 +29,7 @@ export function LoginForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
   const { login } = useSession();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
-    defaultValues: { email: 'ana@greenmint.test', password: 'Ana12345' },
+    defaultValues: { email: 'ana@nft-marketplace.test', password: 'Ana12345' },
   });
   const { submit, isPending, message } = useAuthSubmit(form, login, onSuccess);
   return (
@@ -87,7 +87,7 @@ export function SignupForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
       name: 'Ana',
-      email: 'ana@greenmint.test',
+      email: 'ana@nft-marketplace.test',
       password: 'Ana12345',
       confirmPassword: 'Ana12345',
     },

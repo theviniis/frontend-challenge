@@ -43,7 +43,7 @@ test('checkout drafts retain editable fields only and reject invalid or foreign 
 test('signup confirmation remains a client field and reports mismatch at its input', () => {
   const result = signupFormSchema.safeParse({
     name: 'Carlos',
-    email: 'carlos@greenmint.test',
+    email: 'carlos@nft-marketplace.test',
     password: 'Carlos1234',
     confirmPassword: 'Different123',
   });

@@ -51,7 +51,7 @@ test('profile editing uniqueness and password change', async () => {
   ).toBe(204);
   await call('get', '/auth/session', s.sessionSchema, undefined, headers);
   await call('post', '/auth/login', s.sessionSchema, {
-    email: 'ana@greenmint.test',
+    email: 'ana@nft-marketplace.test',
     password: 'NovaSenha123',
   });
   await scenario('validacao-api');
@@ -73,7 +73,7 @@ test('checkout profile fields persist and email becomes the login identity', asy
     s.profileSchema,
     {
       name: 'Ana Editada',
-      email: 'ANA.NOVA@greenmint.test',
+      email: 'ANA.NOVA@nft-marketplace.test',
       username: 'ana.nova',
       profileName: 'Coleção da Ana',
       referralCode: 'KURIO_2026',
@@ -81,7 +81,7 @@ test('checkout profile fields persist and email becomes the login identity', asy
     headers
   );
   expect(value).toMatchObject({
-    email: 'ana.nova@greenmint.test',
+    email: 'ana.nova@nft-marketplace.test',
     profileName: 'Coleção da Ana',
     referralCode: 'KURIO_2026',
   });
@@ -98,7 +98,7 @@ test('checkout profile fields persist and email becomes the login identity', asy
     '/profile',
     'CONFLICT',
     409,
-    { email: 'bruno@greenmint.test' },
+    { email: 'bruno@nft-marketplace.test' },
     headers
   );
   expect(

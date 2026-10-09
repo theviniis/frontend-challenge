@@ -80,12 +80,12 @@ export function CollectorForm({
       draft?.collector?.profileName ?? profile.profileName ?? profile.name,
     email: draft?.collector?.email ?? profile.email,
     referralCode:
-      (draft?.collector?.referralCode ?? profile.referralCode) || 'GREENMINT',
+      (draft?.collector?.referralCode ?? profile.referralCode) || 'NFT Marketplace',
     address: wallet.address,
     network: wallet.network,
     provider: wallet.provider ?? 'metamask',
     secondaryIdentity: wallet.secondaryIdentity ?? '',
-    ensName: wallet.ensName || 'greenmint.eth',
+    ensName: wallet.ensName || 'nft-marketplace.eth',
     note: wallet.note ?? '',
     ...(draft?.walletId === wallet.id ? draft.collector : {}),
   };
@@ -355,7 +355,7 @@ export function CollectorForm({
                                   new Set(
                                     [
                                       defaults.ensName,
-                                      'greenmint.eth',
+                                      'nft-marketplace.eth',
                                       'colecionador.eth',
                                     ].filter(Boolean)
                                   )

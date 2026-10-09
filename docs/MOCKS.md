@@ -59,7 +59,7 @@ Ordem de precedência: `?scenario=<id>` → `POST /api/_mock/scenario` (switcher
 | `erro-4xx`             | erro de recurso                    | `404` em todo `GET /nfts/:id` (testa detalhe inexistente)                                                                           |
 | `sessao-expirada`      | sessão expirada                    | tokens expiram imediatamente após login → `401 SESSION_EXPIRED` em rotas privadas e no checkout                                     |
 | `nao-autorizado`       | acesso não autorizado              | `403 FORBIDDEN` em `GET /orders/:id` de outro usuário                                                                               |
-| `cadastro-conflito`    | conflito de cadastro               | signup com `ana@greenmint.test` → `409 CONFLICT`                                                                                    |
+| `cadastro-conflito`    | conflito de cadastro               | signup com `ana@nft-marketplace.test` → `409 CONFLICT`                                                                                    |
 | `validacao-api`        | erro de validação remoto           | `422` com `fields` em todos os POSTs de formulário (perfil/senha/carteiras)                                                         |
 | `cupom-ruim`           | cupom inválido/expirado            | códigos válidos também → `422 COUPON_INVALID`; `FAKE` → `422 COUPON_INVALID`; `EXPIRED` → `410 COUPON_EXPIRED` (também no `padrao`) |
 | `preco-muda`           | preço/edição muda durante a compra | 6 s após abrir `/checkout` com `golden-signal-160` no carrinho: `nft.updated` (price e available) + `QUOTE_STALE` no envio          |
@@ -76,7 +76,7 @@ socket pontual), mas o teste sempre declara um id único.
 | Fixture   |                     Quantidade | Detalhe                                                                                                  |
 | --------- | -----------------------------: | -------------------------------------------------------------------------------------------------------- |
 | NFTs      |                            60+ | ≥5 categorias, preços 0.02–12.30 ETH, edições variadas, 4 imagens do Figma                               |
-| Usuários  |                              2 | `ana@greenmint.test`/`Ana12345` (com carteiras, favoritos, pedidos) e `bruno@greenmint.test`/`Bruno1234` |
+| Usuários  |                              2 | `ana@nft-marketplace.test`/`Ana12345` (com carteiras, favoritos, pedidos) e `bruno@nft-marketplace.test`/`Bruno1234` |
 | Cupons    |                              4 | `LAUNCH10`, `GREEN5`, `EXPIRED`, `FAKE`                                                                  |
 | Carteiras |                     2 (da Ana) | principal `0x…`, secundária (ENS)                                                                        |
 | Pedidos   | 1 confirmed + 1 pending (seed) | para recuperação pós-refresh                                                                             |

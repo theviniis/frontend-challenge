@@ -58,7 +58,7 @@ tela de confirmação só para pedido efetivamente confirmado.
 - Formulário editável com react-hook-form, zod e componentes shadcn/ui existentes.
   Código de indicação e Nome ENS são obrigatórios; Nome ENS usa Select.
   Perfil e carteira fornecem os valores iniciais. Contas sem indicação ou ENS
-  recebem `GREENMINT` e `greenmint.eth` para teste.
+  recebem `NFT Marketplace` e `nft-marketplace.eth` para teste.
 - `OrderReview` é separado: miniaturas, identificação do token, quantidades,
   subtotal por item, cupom, subtotal, desconto, taxa estimada e total. O grupo
   de rádios de carteira fica abaixo da revisão e é sincronizado com o tipo

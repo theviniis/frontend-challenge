@@ -95,7 +95,7 @@ test('local errors, password visibility and keyboard focus are accessible', asyn
   await expect(page.locator(`[id="${errorId}"]`)).toContainText(
     'E-mail inválido'
   );
-  await email.fill('ana@greenmint.test');
+  await email.fill('ana@nft-marketplace.test');
   await form.getByLabel('Senha', { exact: true }).fill('wrong');
   await form.getByRole('button', { name: 'Mostrar senha' }).click();
   await expect(form.getByLabel('Senha', { exact: true })).toHaveAttribute(
@@ -131,7 +131,7 @@ test('signup validates confirmation, maps API conflict and creates a session', a
   await page.goto('/signup?redirect=/profile');
   const form = page.getByRole('form', { name: 'Formulário de cadastro' });
   await form.getByLabel('Nome', { exact: true }).fill('Carlos Colecionador');
-  await form.getByLabel('E-mail', { exact: true }).fill('ana@greenmint.test');
+  await form.getByLabel('E-mail', { exact: true }).fill('ana@nft-marketplace.test');
   await form.getByLabel('Senha', { exact: true }).fill('Carlos1234');
   await form
     .getByLabel('Confirmar senha', { exact: true })
@@ -147,14 +147,14 @@ test('signup validates confirmation, maps API conflict and creates a session', a
   await expect(form.getByLabel('E-mail', { exact: true })).toBeFocused();
   await form
     .getByLabel('E-mail', { exact: true })
-    .fill('CARLOS@greenmint.test');
+    .fill('CARLOS@nft-marketplace.test');
   await form.getByRole('button', { name: 'Criar conta', exact: true }).click();
   await expect(page).toHaveURL(/\/profile$/);
   expect(
     await page.evaluate(
       () => JSON.parse(localStorage.getItem('gm_session')!).user.email
     )
-  ).toBe('carlos@greenmint.test');
+  ).toBe('carlos@nft-marketplace.test');
 });
 
 test('API field errors override local validation feedback', async ({
@@ -166,7 +166,7 @@ test('API field errors override local validation feedback', async ({
   await form.getByLabel('Nome', { exact: true }).fill('Carlos');
   await form
     .getByLabel('E-mail', { exact: true })
-    .fill('carlos@greenmint.test');
+    .fill('carlos@nft-marketplace.test');
   await form.getByLabel('Senha', { exact: true }).fill('Carlos1234');
   await form.getByLabel('Confirmar senha', { exact: true }).fill('Carlos1234');
   await form.getByRole('button', { name: 'Criar conta', exact: true }).click();
@@ -184,7 +184,7 @@ test('network failure allows explicit retry and pending submit is sent once', as
   await expect(page.getByRole('dialog', { name: 'Login' })).toBeVisible();
   await setScenario(page, 'offline');
   const form = page.getByRole('form');
-  await form.getByLabel('E-mail', { exact: true }).fill('ana@greenmint.test');
+  await form.getByLabel('E-mail', { exact: true }).fill('ana@nft-marketplace.test');
   await form.getByLabel('Senha', { exact: true }).fill('Ana12345');
   await form.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(form.getByRole('alert')).toContainText(
@@ -246,7 +246,7 @@ test('invalid login credentials cannot expire an existing authenticated session'
   );
   await page.goto('/login');
   const form = page.getByRole('form');
-  await form.getByLabel('E-mail', { exact: true }).fill('ana@greenmint.test');
+  await form.getByLabel('E-mail', { exact: true }).fill('ana@nft-marketplace.test');
   await form.getByLabel('Senha', { exact: true }).fill('wrong');
   await form.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(form.getByRole('alert')).toContainText(
@@ -360,7 +360,7 @@ test('logout failure clears private cache, draft and socket; another user stays 
     connected: false,
   });
   await setScenario(page, 'padrao');
-  await loginThroughForm(page, 'bruno@greenmint.test', 'Bruno1234');
+  await loginThroughForm(page, 'bruno@nft-marketplace.test', 'Bruno1234');
   await page.evaluate(async (previous) => {
     const path = '/src/lib/http/client.ts';
     const { http } = await import(path);
@@ -425,7 +425,7 @@ test('expiration timer redirects with context and foreign drafts are discarded',
   await page.clock.fastForward(2 * 60 * 60 * 1000 + 1);
   await expect(page.getByRole('dialog', { name: 'Login' })).toBeVisible();
   expect(new URL(page.url()).searchParams.get('redirect')).toBe('/wallets');
-  await loginThroughForm(page, 'bruno@greenmint.test', 'Bruno1234');
+  await loginThroughForm(page, 'bruno@nft-marketplace.test', 'Bruno1234');
   expect(
     await page.evaluate(() => localStorage.getItem('gm_checkout_draft'))
   ).toBeNull();

@@ -23,7 +23,8 @@ test.beforeEach(async ({ page }) => {
       localStorage.setItem('gm_scenario', 'padrao');
     document.addEventListener('DOMContentLoaded', () => {
       const style = document.createElement('style');
-      style.textContent = '[aria-label="Controle dos mocks"] { display:none }';
+      style.textContent =
+        '[aria-label="Controle dos mocks"] { display:none } html { scroll-behavior: auto !important }';
       document.head.append(style);
     });
   });
@@ -44,12 +45,26 @@ async function checkout(page: Page) {
   await expect(
     page.getByRole('button', { name: 'Confirmar compra', exact: true })
   ).toBeEnabled();
+  // Keep the purchase fixture valid independently of the display brand default.
+  const referral = page.getByRole('textbox', {
+    name: 'Código de indicação',
+    exact: true,
+  });
+  if ((await referral.inputValue()).includes(' '))
+    await referral.fill('SOCKET14');
 }
 async function submit(page: Page) {
-  await page
-    .getByRole('button', { name: 'Confirmar compra', exact: true })
-    .click();
+  await confirmPurchase(page);
   await page.getByRole('button', { name: 'Autorizar', exact: true }).click();
+}
+async function confirmPurchase(page: Page) {
+  const button = page.getByRole('button', {
+    name: 'Confirmar compra',
+    exact: true,
+  });
+  await expect(button).toBeEnabled();
+  await button.focus();
+  await button.press('Enter');
 }
 async function secondary(page: Page) {
   await page.getByRole('checkbox', { name: 'Usar outra carteira?' }).check();
@@ -60,6 +75,131 @@ async function secondary(page: Page) {
     .getByRole('option', { name: 'Carteira secundária', exact: true })
     .click();
 }
+
+test('foreign order emitted through mock control does not change UI or current cache', async ({
+  page,
+}) => {
+  await page
+    .getByRole('button', { name: 'Sair', exact: true })
+    .filter({ visible: true })
+    .click();
+  await page.goto('/login?redirect=/cart');
+  await loginThroughForm(page, 'bruno@nft-marketplace.test', 'Bruno1234');
+  await page.evaluate(async () => {
+    const { socket } = await import(String('/src/lib/socket/client.ts'));
+    if (!socket.connected)
+      await new Promise<void>((resolve) => socket.once('connect', resolve));
+    for (const event of ['connect', 'nft.updated', 'order.updated'] as const)
+      if (socket.listeners(event).length !== 1)
+        throw new Error(`Listener duplicado ou ausente: ${event}`);
+  });
+  await api(page, 'post', '/api/_mock/emit', {
+    type: 'order.updated',
+    resourceId: 'ord_seed_pending',
+    version: 10,
+    payload: { status: 'confirmed' },
+  });
+  // A public NFT event is a delivery barrier for the preceding private event.
+  await api(page, 'post', '/api/_mock/emit', {
+    type: 'nft.updated',
+    resourceId: 'emerald-ape-042',
+    version: 10,
+    payload: { price: '2', previousPrice: '1.19', available: 8 },
+  });
+  await expect(
+    page
+      .getByRole('status')
+      .filter({ hasText: 'Preço e disponibilidade do NFT atualizados.' })
+  ).toBeVisible();
+  expect(
+    await page.evaluate(async () => {
+      const { queryClient } = await import(String('/src/lib/query/client.ts'));
+      const { keyFactory } = await import(String('/src/lib/query/keys.ts'));
+      return queryClient.getQueryData(
+        keyFactory.order('usr_bruno', 'ord_seed_pending')
+      );
+    })
+  ).toBeUndefined();
+  await expect(
+    page.getByRole('heading', { name: 'Pagamento confirmado' })
+  ).toHaveCount(0);
+});
+
+test('reconnect reconciles a pending purchase using REST without another POST', async ({
+  page,
+}) => {
+  await page.clock.install();
+  await checkout(page);
+  await submit(page);
+  await expect(
+    page.getByRole('heading', { name: 'Pedido pendente' })
+  ).toBeVisible();
+  const id = page.url().split('/orders/')[1];
+  await page.evaluate(async () => {
+    const { socket } = await import(String('/src/lib/socket/client.ts'));
+    socket.disconnect();
+  });
+  await api(page, 'post', '/api/_mock/emit', {
+    type: 'order.updated',
+    resourceId: id,
+    version: 10,
+    payload: { status: 'confirmed' },
+  });
+  await expect(
+    page.getByRole('heading', { name: 'Pedido pendente' })
+  ).toBeVisible();
+  let posts = 0;
+  page.on('request', (request) => {
+    if (
+      request.method() === 'POST' &&
+      new URL(request.url()).pathname === '/api/orders'
+    )
+      posts++;
+  });
+  await page.evaluate(async () => {
+    const { socket } = await import(String('/src/lib/socket/client.ts'));
+    socket.connect();
+  });
+  await expect(
+    page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })
+  ).toBeVisible();
+  expect(posts).toBe(0);
+});
+
+test('checkout announces a live price change and requires fresh authorization', async ({
+  page,
+}) => {
+  await checkout(page);
+  await confirmPurchase(page);
+  await expect(
+    page.getByRole('dialog', { name: 'Autorizar conexão simulada' })
+  ).toBeVisible();
+  await api(page, 'post', '/api/_mock/emit', {
+    type: 'nft.updated',
+    resourceId: 'emerald-ape-042',
+    version: 10,
+    payload: { price: '2.19', previousPrice: '1.19', available: 8 },
+  });
+  await expect(
+    page
+      .getByRole('status')
+      .filter({ hasText: 'Revise os valores antes de confirmar.' })
+  ).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'Revisão do pedido', includeHidden: true })
+  ).toContainText('4.38 ETH');
+  await expect(
+    page.getByRole('button', { name: 'Autorizar', exact: true })
+  ).toBeDisabled();
+  expect(
+    await page.evaluate(() => localStorage.getItem('gm_pending_order'))
+  ).toBeNull();
+  await page.getByRole('button', { name: 'Rejeitar', exact: true }).click();
+  await confirmPurchase(page);
+  await expect(
+    page.getByRole('button', { name: 'Autorizar', exact: true })
+  ).toBeEnabled();
+});
 
 test('shared NFT list renders cart review and immutable order items', async ({
   page,
@@ -206,7 +346,7 @@ test('refresh pending with id and polling without socket', async ({ page }) => {
     socket.disconnect();
   });
   await expect(
-    page.getByRole('heading', { name: 'Pagamento confirmado' })
+    page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })
   ).toBeVisible({ timeout: 15_000 });
   expect(page.url()).toBe(url);
 });
@@ -216,7 +356,7 @@ test('terminal order ignores stale socket updates and another user cannot view r
   await checkout(page);
   await submit(page);
   await expect(
-    page.getByRole('heading', { name: 'Pagamento confirmado' })
+    page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })
   ).toBeVisible();
   const url = page.url();
   const id = url.split('/orders/')[1];
@@ -227,7 +367,7 @@ test('terminal order ignores stale socket updates and another user cannot view r
     payload: { status: 'pending' },
   });
   await expect(
-    page.getByRole('heading', { name: 'Pagamento confirmado' })
+    page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })
   ).toBeVisible();
   await page.getByRole('button', { name: 'Fechar', exact: true }).click();
   await expect(page).toHaveURL(/\/cart$/);
@@ -239,7 +379,7 @@ test('terminal order ignores stale socket updates and another user cannot view r
     .getByRole('button', { name: 'Entrar', exact: true })
     .filter({ visible: true })
     .click();
-  await loginThroughForm(page, 'bruno@greenmint.test', 'Bruno1234');
+  await loginThroughForm(page, 'bruno@nft-marketplace.test', 'Bruno1234');
   await page.goto(url);
   await expect(
     page.getByRole('heading', { name: 'Não foi possível consultar o pedido' })
@@ -286,7 +426,7 @@ test('required defaults, separate review and radio selection below it', async ({
   await checkout(page);
   await expect(
     page.getByRole('textbox', { name: 'Código de indicação', exact: true })
-  ).toHaveValue('GREENMINT');
+  ).toHaveValue('NFT Marketplace');
   await expect(
     page.getByRole('combobox', { name: 'Nome ENS', exact: true })
   ).toContainText('.eth');
@@ -430,7 +570,7 @@ test('account updates at confirmation and receipt keeps immutable snapshot', asy
     .fill('Ana Editada');
   await page
     .getByRole('textbox', { name: 'E-mail', exact: true })
-    .fill('ana.nova@greenmint.test');
+    .fill('ana.nova@nft-marketplace.test');
   await page
     .getByRole('textbox', { name: 'Código de indicação', exact: true })
     .fill('KURIO_2026');
@@ -439,7 +579,7 @@ test('account updates at confirmation and receipt keeps immutable snapshot', asy
     .click();
   await page.getByRole('combobox', { name: 'Nome ENS', exact: true }).click();
   await page
-    .getByRole('option', { name: 'greenmint.eth', exact: true })
+    .getByRole('option', { name: 'nft-marketplace.eth', exact: true })
     .click();
   await submit(page);
   await expect(
@@ -447,7 +587,7 @@ test('account updates at confirmation and receipt keeps immutable snapshot', asy
   ).toBeVisible();
   expect(await api(page, 'get', '/api/profile')).toMatchObject({
     name: 'Ana Editada',
-    email: 'ana.nova@greenmint.test',
+    email: 'ana.nova@nft-marketplace.test',
     referralCode: 'KURIO_2026',
   });
   const wallets = (await api(page, 'get', '/api/wallets')) as {
@@ -455,7 +595,7 @@ test('account updates at confirmation and receipt keeps immutable snapshot', asy
   };
   expect(wallets.items.find((w) => w.id === 'wal_ana_ens')).toMatchObject({
     provider: 'coinbase',
-    ensName: 'greenmint.eth',
+    ensName: 'nft-marketplace.eth',
   });
   const receipt = page.getByLabel('Recibo', { exact: true });
   await expect(receipt).toContainText('Ana Editada');
@@ -493,7 +633,7 @@ test('preco-muda requires a new confirmation after stale quote', async ({
   await submit(page);
   await page.clock.fastForward(10000);
   await expect(
-    page.getByRole('heading', { name: 'Pagamento confirmado' })
+    page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })
   ).toBeVisible();
 });
 
@@ -534,7 +674,7 @@ test('unfinished draft survives refresh and expiration with fresh authorization'
   ).toHaveCount(0);
   await page
     .getByRole('textbox', { name: 'E-mail', exact: true })
-    .fill('ana@greenmint.test');
+    .fill('ana@nft-marketplace.test');
   await page.getByRole('button', { name: 'Confirmar compra' }).click();
   await expect(
     page.getByRole('dialog', { name: 'Autorizar conexão simulada' })
@@ -550,7 +690,7 @@ test('empty wallets offers account setup exit', async ({ page }) => {
     .filter({ visible: true })
     .click();
   await page.goto('/login?redirect=/cart');
-  await loginThroughForm(page, 'bruno@greenmint.test', 'Bruno1234');
+  await loginThroughForm(page, 'bruno@nft-marketplace.test', 'Bruno1234');
   await api(page, 'post', '/api/cart/items', {
     nftId: 'emerald-ape-042',
     qty: 1,

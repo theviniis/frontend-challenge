@@ -14,12 +14,20 @@ export function applyOrderEvent(userId: string | undefined, raw: unknown) {
     !current ||
     current.version >= event.version ||
     current.status !== 'pending'
-  )
+  ) {
+    if (import.meta.env.DEV)
+      console.debug(
+        '[socket] order.updated descartado',
+        event.resourceId,
+        event.version
+      );
     return;
+  }
   cacheOrder(userId, {
     ...current,
     ...event.payload,
     version: event.version,
     updatedAt: event.ts,
   });
+  return event;
 }

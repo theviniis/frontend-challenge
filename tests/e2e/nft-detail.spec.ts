@@ -420,7 +420,7 @@ test('favorite response cannot roll back a replacement session', async ({
     const { http } = await import(httpUrl);
     await sessionService.logout();
     await sessionService.login({
-      email: 'ana@greenmint.test',
+      email: 'ana@nft-marketplace.test',
       password: 'Ana12345',
     });
     const workerUrl = '/src/mocks/browser.ts';

@@ -14,7 +14,7 @@ resto se apoia aqui.
 
 - App Vite + React 19 + TypeScript **strict** com **pnpm** (`pnpm-lock.yaml` versionado)
 - Alias `@` → `src/` no `tsconfig` e no Vite
-- `index.html` + `main.tsx` mínimo renderizando "GreenMint"
+- `index.html` + `main.tsx` mínimo renderizando "NFT Marketplace"
 
 ### 02.2 — Tooling de qualidade
 

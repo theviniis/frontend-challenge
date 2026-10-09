@@ -34,7 +34,7 @@ export function authLocation(
   mode: AuthMode,
   destination?: string
 ) {
-  const url = new URL(sanitizeRedirect(background), 'https://greenmint.local');
+  const url = new URL(sanitizeRedirect(background), 'https://nft-marketplace.local');
   url.searchParams.set('auth', mode);
   const redirect = sanitizeRedirect(destination ?? background);
   url.searchParams.set('redirect', redirect);
@@ -68,7 +68,7 @@ export function openAuth(
 }
 
 export function authBackground(href: string) {
-  const url = new URL(href, 'https://greenmint.local');
+  const url = new URL(href, 'https://nft-marketplace.local');
   url.searchParams.delete('auth');
   url.searchParams.delete('redirect');
   return url.pathname + url.search + url.hash;

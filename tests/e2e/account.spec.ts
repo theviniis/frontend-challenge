@@ -86,7 +86,7 @@ test('profile and principal wallet persist; conflicts and partial password failu
     .fill('ana');
   await form
     .getByRole('textbox', { name: 'E-mail', exact: true })
-    .fill('bruno@greenmint.test');
+    .fill('bruno@nft-marketplace.test');
   await form.getByRole('button', { name: 'Salvar', exact: true }).click();
   await expect(
     form.getByRole('textbox', { name: 'E-mail', exact: true })
@@ -240,7 +240,7 @@ test('empty account creates wallets, rejects duplicate and preserves after refre
     .getByRole('button', { name: 'Sair', exact: true })
     .click();
   await page.goto('/login?redirect=/wallets');
-  await loginThroughForm(page, 'bruno@greenmint.test', 'Bruno1234');
+  await loginThroughForm(page, 'bruno@nft-marketplace.test', 'Bruno1234');
   await page
     .getByRole('button', { name: 'Cadastrar carteira', exact: true })
     .click();

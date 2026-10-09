@@ -41,7 +41,15 @@ export function applyNftEvent(client: QueryClient, raw: unknown) {
         list?.items.find((nft) => nft.id === event.resourceId)?.version ?? 0
     )
   );
-  if (event.version <= knownVersion) return;
+  if (event.version <= knownVersion) {
+    if (import.meta.env.DEV)
+      console.debug(
+        '[socket] nft.updated descartado',
+        event.resourceId,
+        event.version
+      );
+    return;
+  }
   client.setQueryData(keyFactory.nfts.event(event.resourceId), event);
   const merge = (nft: Nft): Nft => ({
     ...nft,

@@ -306,6 +306,12 @@ export function CheckoutPage({
                 Conectar {effectiveWallet?.label} na rede {effectiveNetwork}.
                 Nenhuma transação real será realizada.
               </DialogDescription>
+              <p role="status" aria-live="polite" aria-atomic="true">
+                {reviewVersion !== null &&
+                reviewVersion !== quote.data?.quoteVersion
+                  ? 'Cotação alterada. Revise os valores antes de confirmar.'
+                  : ''}
+              </p>
               <Button
                 disabled={
                   reviewVersion !== quote.data?.quoteVersion ||

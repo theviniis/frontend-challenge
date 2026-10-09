@@ -71,7 +71,7 @@ test('login moves visitor cart and caps summed stock', async () => {
     201
   );
   const session = await call('post', '/auth/login', s.sessionSchema, {
-    email: 'ana@greenmint.test',
+    email: 'ana@nft-marketplace.test',
     password: 'Ana12345',
     anonymousId: anon['X-Anonymous-Id'],
   });

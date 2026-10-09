@@ -12,8 +12,8 @@ export const pseudoHash = (input: string): string => {
 }
 
 export const SEED_CREDENTIALS = {
-  ana: { email: 'ana@greenmint.test', password: 'Ana12345' },
-  bruno: { email: 'bruno@greenmint.test', password: 'Bruno1234' },
+  ana: { email: 'ana@nft-marketplace.test', password: 'Ana12345' },
+  bruno: { email: 'bruno@nft-marketplace.test', password: 'Bruno1234' },
 } as const
 
 export const SEED_USERS: MockUser[] = [
