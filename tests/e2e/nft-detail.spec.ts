@@ -7,6 +7,42 @@ const detail = '/nfts/emerald-ape-042';
 const buyButton = (page: Page) =>
   page.getByRole('button', { name: /^(COMPRAR|Comprar NFT)$/ });
 
+test('mobile detail keeps its surface background at the end of scrolling', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'mobile', 'Mobile purchase bar only');
+  for (const width of [390, 414]) {
+    await page.setViewportSize({ width, height: 945 });
+    for (const id of ['crimson-echo-451', 'emerald-ape-042']) {
+      await page.goto(`/nfts/${id}`);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await page.evaluate(() =>
+        window.scrollTo(0, document.documentElement.scrollHeight)
+      );
+      const colors = await page.evaluate(() => {
+        const purchase = document.querySelector('[aria-label="Comprar NFT"]')!;
+        const expected = getComputedStyle(
+          document.querySelector('[aria-label="Informações do NFT"]')!
+        ).backgroundColor;
+        let element = document.elementFromPoint(
+          innerWidth / 2,
+          purchase.getBoundingClientRect().top - 16
+        );
+        while (
+          element &&
+          getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)'
+        )
+          element = element.parentElement;
+        return {
+          actual: element && getComputedStyle(element).backgroundColor,
+          expected,
+        };
+      });
+      expect(colors.actual).toBe(colors.expected);
+    }
+  }
+});
+
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     if (!localStorage.getItem('gm_scenario'))

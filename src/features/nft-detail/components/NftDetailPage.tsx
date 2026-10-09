@@ -48,7 +48,7 @@ function NftDetailContent() {
   }
   const nft = query.data;
   return (
-    <div className="pb-48 md:pb-0">
+    <div className="bg-surface-card min-h-dvh pb-48 md:min-h-0 md:bg-transparent md:pb-0">
       <nav
         aria-label="Caminho de navegação"
         className="text-body mb-3 hidden font-bold md:block"
