@@ -17,7 +17,35 @@ test('typography classes can be copied with accessible feedback', async ({
   });
   await expect(
     page.getByRole('button', { name: /^Copiar classe / })
-  ).toHaveCount(22);
+  ).toHaveCount(23);
+  const body17RegularSample = page.getByText(
+    'Regular body text — 17px / 24px',
+    { exact: true }
+  );
+  await expect(body17RegularSample).toHaveCSS('font-size', '17px');
+  await expect(body17RegularSample).toHaveCSS('line-height', '24px');
+  await expect(body17RegularSample).toHaveCSS('font-weight', '400');
+  const stepper = page.getByRole('region', { name: 'QuantityStepper size sm' });
+  await expect(stepper.getByLabel('Quantidade', { exact: true })).toHaveCSS(
+    'font-size',
+    '17px'
+  );
+  await expect(stepper.getByLabel('Quantidade', { exact: true })).toHaveCSS(
+    'font-weight',
+    '400'
+  );
+  for (const name of ['Diminuir quantidade', 'Aumentar quantidade']) {
+    const button = stepper.getByRole('button', { name });
+    await expect(button).toHaveCSS('width', '20px');
+    await expect(button).toHaveCSS('height', '30px');
+    const icon = button.locator('svg');
+    await expect(icon).toHaveCSS('width', '16px');
+    await expect(icon).toHaveCSS('height', '16px');
+  }
+  await stepper.getByRole('button', { name: 'Aumentar quantidade' }).click();
+  await expect(stepper.getByLabel('Quantidade', { exact: true })).toHaveText(
+    '3'
+  );
   const tinyBoldSample = page.getByText('Bold tiny text — 9px / 11.9px', {
     exact: true,
   });

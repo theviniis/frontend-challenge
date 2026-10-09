@@ -17,6 +17,8 @@ export function coupon(code?: string | null) {
   if (!found) return fail(422, 'COUPON_INVALID', 'Cupom inválido');
   if (found.expiresAt && Date.parse(found.expiresAt) <= Date.now())
     fail(410, 'COUPON_EXPIRED', 'Cupom expirado');
+  if (getDb().flags.forceCouponRejection)
+    return fail(422, 'COUPON_INVALID', 'Cupom inválido');
   return found;
 }
 export function quote(key: OwnerKey, code?: string | null) {

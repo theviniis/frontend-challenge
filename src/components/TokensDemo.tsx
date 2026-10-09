@@ -4,6 +4,7 @@ import { ThemeControls } from './ThemeControls';
 import { Button } from './ui/button';
 import { IconBadge } from './ui/icon-badge';
 import CartIcon from '@/assets/cart.svg?react';
+import { QuantityStepper } from './shared/QuantityStepper';
 
 function CopyTypographyClass({ value }: { value: string }) {
   const [status, setStatus] = useState('');
@@ -33,6 +34,21 @@ function CopyTypographyClass({ value }: { value: string }) {
         {status}
       </span>
     </span>
+  );
+}
+
+function QuantityStepperDemo() {
+  const [quantity, setQuantity] = useState(2);
+  return (
+    <section aria-label="QuantityStepper size sm">
+      <h2 className="text-body-lg-bold">QuantityStepper · size="sm"</h2>
+      <QuantityStepper
+        size="sm"
+        value={quantity}
+        max={5}
+        onChange={setQuantity}
+      />
+    </section>
   );
 }
 
@@ -67,6 +83,7 @@ export const TokensDemo = () => {
         </IconBadge>
       </section>
       {/* 1. Typography */}
+      <QuantityStepperDemo />
       <section className="space-y-6">
         <h2 className="text-h2 text-text-accent border-border-soft border-b pb-2">
           1. Tipografia (Roboto Mono — 100% dos textos)
@@ -134,6 +151,15 @@ export const TokensDemo = () => {
             </span>
             <span className="text-body-17-bold">
               Bold body text — 17px / 16px
+            </span>
+          </div>
+          <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">
+            <span className="text-tiny text-text-secondary w-44">
+              Body / 17 Regular · lh 24 · tracking 0%
+              <CopyTypographyClass value="text-body-17-regular" />
+            </span>
+            <span className="text-body-17-regular">
+              Regular body text — 17px / 24px
             </span>
           </div>
           <div className="border-border/50 flex flex-col justify-between gap-2 border-b pb-3 md:flex-row md:items-baseline">

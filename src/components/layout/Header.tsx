@@ -3,6 +3,7 @@ import { HeaderNav } from '../shared/HeaderNav';
 import { ActiveLink } from '../ui/active-link';
 import { cn } from 'cn';
 import { HeaderActions } from '../shared/HeaderActions';
+import { useCartCount } from '@/features/cart/hooks/useCartCount';
 
 type HeaderSectionHref = `#${string}` | `/#${string}`;
 
@@ -28,6 +29,8 @@ export function Header({
   creatorsHref = '#criadores',
   divider = false,
 }: HeaderProps) {
+  const cartCount = useCartCount();
+
   return (
     <header
       className={cn(
@@ -53,7 +56,7 @@ export function Header({
           Aprenda{/* TODO: Verificar para onde vai esse link */}
         </ActiveLink>
       </HeaderNav>
-      <HeaderActions />
+      <HeaderActions cartCount={cartCount} />
     </header>
   );
 }

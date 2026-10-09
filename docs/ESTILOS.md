@@ -60,6 +60,7 @@
   --text-body-18-bold: 18px; --text-body-18-bold--line-height: 16px; --text-body-18-bold--font-weight: 700; --text-body-18-bold--letter-spacing: 0em;
   --text-body-18-regular: 18px; --text-body-18-regular--line-height: 16px; --text-body-18-regular--font-weight: 400; --text-body-18-regular--letter-spacing: 0em;
   --text-body-17-bold: 17px; --text-body-17-bold--line-height: 16px; --text-body-17-bold--font-weight: 700; --text-body-17-bold--letter-spacing: 0em;
+  --text-body-17-regular: 17px; --text-body-17-regular--line-height: 24px; --text-body-17-regular--font-weight: 400; --text-body-17-regular--letter-spacing: 0em;
   --text-body-lg:    16px;  --text-body-lg--line-height: 24px;
   --text-body-lg-bold: 16px; --text-body-lg-bold--line-height: 24px; --text-body-lg-bold--font-weight: 700;
   --text-body-lg-medium: 16px; --text-body-lg-medium--line-height: 24px; --text-body-lg-medium--font-weight: 500;

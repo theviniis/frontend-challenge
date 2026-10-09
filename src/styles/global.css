@@ -49,6 +49,11 @@
   --text-body-17-bold--font-weight: 700;
   --text-body-17-bold--letter-spacing: 0em;
 
+  --text-body-17-regular: 17px;
+  --text-body-17-regular--line-height: 24px;
+  --text-body-17-regular--font-weight: 400;
+  --text-body-17-regular--letter-spacing: 0em;
+
   --text-body-lg: 16px;
   --text-body-lg--line-height: 24px;
 
@@ -154,7 +159,11 @@
   --shadow-cta: 0 0 20px rgb(210 138 76 / 25%);
 
   /* Brand gradient */
-  --background-image-brand-gradient: linear-gradient(137.05deg, rgba(210, 138, 76, 0.45) -24.6%, #D28A4C 100%);
+  --background-image-brand-gradient: linear-gradient(
+    137.05deg,
+    rgba(210, 138, 76, 0.45) -24.6%,
+    #d28a4c 100%
+  );
 }
 
 /* Responsive typography: keep the same utility class at every viewport size. */
@@ -244,6 +253,10 @@
   :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+  }
+
+  :where(button) {
+    cursor: pointer;
   }
 }
 

@@ -11,6 +11,7 @@ export const cn = createCn({
             'h1',
             'h2',
             'title',
+            'body-17-regular',
             'body-lg',
             'body-lg-bold',
             'body-lg-medium',

@@ -4,13 +4,29 @@ import { queryClient } from '@/lib/query/client';
 import { keyFactory } from '@/lib/query/keys';
 import { connectSocket, disconnectSocket, socket } from './client';
 import { applyNftEvent } from './nft-cache';
+import { toast } from 'sonner';
+import { displayEth, cmpEth } from '@/lib/money';
+import type { Cart } from '@/types/api';
 
 export function SocketProvider() {
   const { session } = useSession();
   const token = session?.token;
   const userId = session?.user.id;
   useEffect(() => {
-    const onNftUpdated = (event: unknown) => applyNftEvent(queryClient, event);
+    const onNftUpdated = (raw: unknown) => {
+      const event = applyNftEvent(queryClient, raw);
+      if (!event) return;
+      const item = queryClient
+        .getQueryData<Cart>(keyFactory.cart(userId))
+        ?.items.find((entry) => entry.nftId === event.resourceId);
+      if (
+        item &&
+        cmpEth(event.payload.price, event.payload.previousPrice) !== 0
+      )
+        toast.info(
+          `${item.name}: preço alterado de ${displayEth(event.payload.previousPrice)} para ${displayEth(event.payload.price)}`
+        );
+    };
     const reconcile = () => {
       void queryClient.invalidateQueries({ queryKey: keyFactory.cart(userId) });
       void queryClient.invalidateQueries({

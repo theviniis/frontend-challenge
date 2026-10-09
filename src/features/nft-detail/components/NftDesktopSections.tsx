@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Nft } from '@/types/api';
-import { NFTCard } from '@/components/shared/NFTCard';
-import { NFTCardSkeleton } from '@/components/shared/NFTCardSkeleton';
-import { Carousel, type CarouselState } from '@/components/shared/Carousel';
-import { ErrorState } from '@/components/shared/ErrorState';
+import { NftRecommendationsSection } from '@/components/shared/NftRecommendationsSection';
 import { collectionOptions } from '../queries';
 
 export default function NftDesktopSections({
@@ -119,114 +116,15 @@ export default function NftDesktopSections({
           )}
         </div>
       </section>
-      <section aria-label="Mais desta coleção">
-        <h2 className="border-border text-text-accent text-body-17-bold mb-8 border-b pb-3">
-          Mais desta coleção
-        </h2>
-        {recommendations.isPending ? (
-          <div className="grid grid-cols-5 gap-6">
-            {Array.from({ length: 5 }, (_, i) => (
-              <NFTCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : recommendations.isError ? (
-          <ErrorState
-            title="Não foi possível carregar a coleção"
-            onRetry={() => void recommendations.refetch()}
-          />
-        ) : related.length ? (
-          <Carousel options={{ align: 'start', containScroll: false }}>
-            {(carousel) => (
-              <CollectionCarousel items={related} carousel={carousel} />
-            )}
-          </Carousel>
-        ) : (
-          <p className="text-text-secondary">
-            Nenhum outro NFT desta coleção disponível.
-          </p>
-        )}
-      </section>
-    </div>
-  );
-}
-
-function CollectionCarousel({
-  items,
-  carousel,
-}: {
-  items: Nft[];
-  carousel: CarouselState;
-}) {
-  const { viewportRef, selected, snapCount, scrollTo } = carousel;
-  const pageCount = Math.ceil(items.length / 5);
-  return (
-    <div
-      role="region"
-      aria-label="NFTs da mesma coleção"
-      aria-roledescription="carrossel"
-      tabIndex={0}
-      onKeyDown={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
-          event.preventDefault();
-          const next =
-            event.key === 'Home'
-              ? 0
-              : event.key === 'End'
-                ? pageCount - 1
-                : selected + (event.key === 'ArrowRight' ? 1 : -1);
-          scrollTo(Math.max(0, Math.min(pageCount - 1, next)));
-        }
-      }}
-    >
-      <div
-        ref={viewportRef}
-        className="touch-pan-y overflow-hidden"
-        onFocusCapture={(event) => {
-          const page = (event.target as HTMLElement).closest<HTMLElement>(
-            '[data-carousel-page]'
-          );
-          if (page) scrollTo(Number(page.dataset.carouselPage));
-        }}
-      >
-        <div className="flex gap-6">
-          {Array.from({ length: pageCount }, (_, i) => (
-            <div
-              key={i}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`Página ${i + 1} de ${pageCount}`}
-              data-carousel-page={i}
-              aria-hidden={i !== selected}
-              inert={i !== selected}
-              className="grid min-w-0 flex-[0_0_100%] grid-cols-5 gap-6"
-
-              onDragStart={(event) => event.preventDefault()}
-            >
-              {items.slice(i * 5, i * 5 + 5).map((item) => (
-                <NFTCard key={item.id} nft={item} />
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-      {pageCount > 1 && (
-        <div className="mt-6 flex justify-center gap-2">
-          {Array.from({ length: snapCount || pageCount }, (_, i) => (
-            <button
-              type="button"
-              key={i}
-              aria-label={`Ver página ${i + 1} da coleção`}
-              aria-pressed={selected === i}
-              onClick={() => scrollTo(i)}
-              className={`border-primary size-2 rounded-full border ${selected === i ? 'bg-primary' : ''}`}
-            />
-          ))}
-        </div>
-      )}
-      <p className="sr-only" aria-live="polite" aria-atomic="true">
-        Página {selected + 1} de {pageCount} da coleção.
-      </p>
+      <NftRecommendationsSection
+        title="Mais desta coleção"
+        items={related}
+        isPending={recommendations.isPending}
+        isError={recommendations.isError}
+        onRetry={() => void recommendations.refetch()}
+        errorMessage="Não foi possível carregar a coleção"
+        emptyMessage="Nenhum outro NFT desta coleção disponível."
+      />
     </div>
   );
 }

@@ -40,8 +40,37 @@ reativo a `nft.updated`.
 
 ## Critérios de aceite (gate)
 
-- [ ] Cenários `cupom-ruim` e `preco-muda` comportam-se na UI
-- [ ] `pnpm typecheck && pnpm lint` verdes
+- [x] Cenários `cupom-ruim` e `preco-muda` comportam-se na UI
+- [x] `pnpm typecheck && pnpm lint` verdes
+
+## Verificação em 09/10/2026
+
+Os dois critérios do gate foram atendidos. Isso ainda não representa a
+conclusão integral das subtasks.
+
+- `pnpm typecheck` e `pnpm lint`: aprovados.
+- `pnpm test:contract`: 48 testes aprovados.
+- Playwright: 14 testes aprovados em desktop e mobile para cupom inválido/
+  expirado, `preco-muda`, merge no login, retry, expiração automática de
+  cupom, versões de estoque e recomendações.
+
+Pendências para concluir a tarefa:
+
+- 11.4/11.6: `CartSkeleton` mostra apenas texto; falta skeleton shimmer para
+  itens e resumo, respeitando `prefers-reduced-motion`.
+- 11.4: `QuoteSummary` mostra o rótulo da taxa estimada, mas não exibe o
+  valor de `quote.networkFee`.
+- 11.1: a tabela usa rolagem horizontal no mobile; falta validar/adaptar a
+  composição dos itens e controles para o frame mobile e zoom de 200%.
+- Testes completos do carrinho: revisar expectativas antigas de cabeçalhos
+  (`Quantidade`, `Total do item`, `Ações`) e de `Disponíveis: 8`, que não
+  correspondem à UI atual. A preservação de quantidade deve continuar coberta.
+- Verificação adicional: 2 testes de contador aprovados; 6 falhas
+  em desktop/mobile nas expectativas de CRUD, estoque e tamanho do ícone
+  do `QuantityStepper` na demonstração de tokens. A suíte completa ainda
+  não está verde.
+- Fidelidade aos frames do Figma e diagnósticos do Tailwind IntelliSense não
+  foram validados nesta revisão.
 
 ## Referências
 

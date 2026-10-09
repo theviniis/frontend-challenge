@@ -6,7 +6,7 @@ const routes = [
   ['/teste', 'Início'],
   ['/nfts/golden-signal-160', 'Golden Signal #160'],
   ['/nfts/sample', 'NFT não encontrado'],
-  ['/cart', 'Carrinho'],
+  ['/cart', 'Carrinho de NFTs'],
   ['/login', 'Login'],
   ['/signup', 'Cadastro'],
   ['/not-found', '404'],

@@ -68,4 +68,5 @@ export function applyNftEvent(client: QueryClient, raw: unknown) {
   );
   void client.invalidateQueries({ queryKey: keyFactory.carts });
   void client.invalidateQueries({ queryKey: keyFactory.quotes });
+  return event;
 }

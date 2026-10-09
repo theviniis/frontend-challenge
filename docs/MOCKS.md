@@ -48,25 +48,25 @@ Ordem de precedência: `?scenario=<id>` → `POST /api/_mock/scenario` (switcher
 
 ## 4. Cenários determinísticos
 
-| id                     | O que simula                       | Gatilho/ comportamento                                                                                                     |
-| ---------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `padrao`               | sucesso                            | latência 150–400 ms (fixa por recurso)                                                                                     |
-| `vazio`                | resultado vazio                    | `GET /nfts` → `items: []` com `total: 0`                                                                                   |
-| `lento`                | carregamento longo                 | latência 3000 ms → skeletons visíveis                                                                                      |
-| `latencia-varia`       | latência variável + fora de ordem  | 200–2500 ms semeada por requisição; listagem de páginas responde fora de ordem (cliente deve descartar obsoletas)          |
-| `offline`              | indisponibilidade de conexão       | MSW responde com erro de rede (`error`) em todos os endpoints                                                              |
-| `erro-5xx`             | falha HTTP                         | `500 INTERNAL` no catálogo/detalhe; demais 200                                                                             |
-| `erro-4xx`             | erro de recurso                    | `404` em todo `GET /nfts/:id` (testa detalhe inexistente)                                                                  |
-| `sessao-expirada`      | sessão expirada                    | tokens expiram imediatamente após login → `401 SESSION_EXPIRED` em rotas privadas e no checkout                            |
-| `nao-autorizado`       | acesso não autorizado              | `403 FORBIDDEN` em `GET /orders/:id` de outro usuário                                                                      |
-| `cadastro-conflito`    | conflito de cadastro               | signup com `ana@greenmint.test` → `409 CONFLICT`                                                                           |
-| `validacao-api`        | erro de validação remoto           | `422` com `fields` em todos os POSTs de formulário (perfil/senha/carteiras)                                                |
-| `cupom-ruim`           | cupom inválido/expirado            | `FAKE` → `422 COUPON_INVALID`; `EXPIRED` → `410 COUPON_EXPIRED` (também no `padrao`)                                       |
-| `preco-muda`           | preço/edição muda durante a compra | 6 s após abrir `/checkout` com `golden-signal-160` no carrinho: `nft.updated` (price e available) + `QUOTE_STALE` no envio |
-| `estoque-esgotado`     | edição esgotada                    | `409 INSUFFICIENT_STOCK` ao confirmar (disponibilidade do item cai para 0)                                                 |
-| `timeout-pedido`       | timeout após criação               | `POST /orders` só responde após 15 s → cliente sofre timeout; reenvio com a MESMA chave recupera o mesmo pedido            |
-| `pagamento-confirmado` | aprovação                          | `status: confirmed` + `txHash`/`explorerUrl` simulados após 2–4 s                                                          |
-| `pagamento-recusado`   | recusa                             | `status: declined` + `declineReason` após 2–4 s                                                                            |
+| id                     | O que simula                       | Gatilho/ comportamento                                                                                                              |
+| ---------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `padrao`               | sucesso                            | latência 150–400 ms (fixa por recurso)                                                                                              |
+| `vazio`                | resultado vazio                    | `GET /nfts` → `items: []` com `total: 0`                                                                                            |
+| `lento`                | carregamento longo                 | latência 3000 ms → skeletons visíveis                                                                                               |
+| `latencia-varia`       | latência variável + fora de ordem  | 200–2500 ms semeada por requisição; listagem de páginas responde fora de ordem (cliente deve descartar obsoletas)                   |
+| `offline`              | indisponibilidade de conexão       | MSW responde com erro de rede (`error`) em todos os endpoints                                                                       |
+| `erro-5xx`             | falha HTTP                         | `500 INTERNAL` no catálogo/detalhe; demais 200                                                                                      |
+| `erro-4xx`             | erro de recurso                    | `404` em todo `GET /nfts/:id` (testa detalhe inexistente)                                                                           |
+| `sessao-expirada`      | sessão expirada                    | tokens expiram imediatamente após login → `401 SESSION_EXPIRED` em rotas privadas e no checkout                                     |
+| `nao-autorizado`       | acesso não autorizado              | `403 FORBIDDEN` em `GET /orders/:id` de outro usuário                                                                               |
+| `cadastro-conflito`    | conflito de cadastro               | signup com `ana@greenmint.test` → `409 CONFLICT`                                                                                    |
+| `validacao-api`        | erro de validação remoto           | `422` com `fields` em todos os POSTs de formulário (perfil/senha/carteiras)                                                         |
+| `cupom-ruim`           | cupom inválido/expirado            | códigos válidos também → `422 COUPON_INVALID`; `FAKE` → `422 COUPON_INVALID`; `EXPIRED` → `410 COUPON_EXPIRED` (também no `padrao`) |
+| `preco-muda`           | preço/edição muda durante a compra | 6 s após abrir `/checkout` com `golden-signal-160` no carrinho: `nft.updated` (price e available) + `QUOTE_STALE` no envio          |
+| `estoque-esgotado`     | edição esgotada                    | `409 INSUFFICIENT_STOCK` ao confirmar (disponibilidade do item cai para 0)                                                          |
+| `timeout-pedido`       | timeout após criação               | `POST /orders` só responde após 15 s → cliente sofre timeout; reenvio com a MESMA chave recupera o mesmo pedido                     |
+| `pagamento-confirmado` | aprovação                          | `status: confirmed` + `txHash`/`explorerUrl` simulados após 2–4 s                                                                   |
+| `pagamento-recusado`   | recusa                             | `status: declined` + `declineReason` após 2–4 s                                                                                     |
 
 O catálogo inclui ainda `socket-queda` (18º cenário): desconexão após 1500 ms e reconexão pelo cliente real. Cenários podem ser combinados por recurso na implementação (ex.: `padrao` + evento de
 socket pontual), mas o teste sempre declara um id único.

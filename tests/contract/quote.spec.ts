@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import * as s from '@/lib/http/schemas';
-import { call, error, login, anon } from './helpers';
+import { call, error, login, anon, scenario } from './helpers';
 test('quote precise totals and coupons', async () => {
   const headers = await login();
   const quote = await call(
@@ -40,4 +40,24 @@ test('quote precise totals and coupons', async () => {
     headers
   );
   await error('post', '/cart/quote', 'VALIDATION_ERROR', 422, {}, anon);
+});
+
+test('cupom-ruim rejects valid codes and preserves expiration errors', async () => {
+  await scenario('cupom-ruim');
+  await error(
+    'post',
+    '/coupons/validate',
+    'COUPON_INVALID',
+    422,
+    { code: 'LAUNCH10' },
+    anon
+  );
+  await error(
+    'post',
+    '/coupons/validate',
+    'COUPON_EXPIRED',
+    410,
+    { code: 'EXPIRED' },
+    anon
+  );
 });
