@@ -56,6 +56,12 @@ edição na interface são informativas: apenas a edição deste NFT está dispo
 
 ### `GET /api/nfts` — listagem (pública)
 
+`favoritesOnly=true` restringe a listagem aos favoritos do usuário autenticado
+antes da ordenação e paginação, combinando com todos os outros filtros.
+Aceita booleano ou strings `true`/`false`; ausente ou `false` mantém a listagem
+pública. Valor inválido retorna 422; `true` sem sessão válida retorna 401.
+As facetas continuam globais.
+
 | Query                   | Tipo                | Default     | Notas                                                                                           |
 | ----------------------- | ------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
 | `q`                     | string              | —           | casa `name`, `collection`, `creator.name`, case-insensitive; sem resultados → `items: []` (200) |

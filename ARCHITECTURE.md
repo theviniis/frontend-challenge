@@ -92,6 +92,9 @@ para que invalidação/igualdade funcionem.
 | `nft.updated` (socket)       | atualizar `setQueryData` de `nfts.detail` + merge nas listas visíveis (§5)                      |
 | `order.updated` (socket)     | `setQueryData` do pedido (se versão maior)                                                      |
 
+Listagens com `favoritesOnly=true` também são invalidadas no `onSettled` de
+favoritar/desfavoritar, somente para o usuário dono da mutation.
+
 ### 3.4 Atualização otimista (obrigatória — favoritos)
 
 ```

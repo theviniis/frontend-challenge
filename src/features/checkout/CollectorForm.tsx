@@ -242,7 +242,7 @@ export function CollectorForm({
               </legend>
               <table
                 role="presentation"
-                className="w-full table-fixed border-separate border-spacing-x-6 border-spacing-y-3"
+                className="w-full table-fixed border-separate border-spacing-x-0 border-spacing-y-3 [&_td+td]:pl-6"
               >
                 <tbody>
                   <tr>{renderText(['name', 'username'])}</tr>

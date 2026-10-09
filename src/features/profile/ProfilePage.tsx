@@ -62,7 +62,7 @@ export function ProfilePage({ userId }: { userId: string }) {
   const wallets = useQuery(walletsOptions(userId));
   return (
     <AccountLayout>
-      <h1>Perfil do colecionador</h1>
+      <h1 className="text-body-lg-bold mb-8">Perfil do colecionador</h1>
       {(profile.isError || wallets.isError) && profile.data && wallets.data && (
         <ErrorState
           variant="compact"
@@ -240,15 +240,15 @@ function ProfileForm({
   };
   return (
     <Form {...form}>
-      <p>Carteiras cadastradas: {profile.walletCount}</p>
       <form
         aria-label="Editar perfil"
         noValidate
         onSubmit={(event) => void form.handleSubmit(submit)(event)}
         aria-busy={form.formState.isSubmitting}
+        className="[&_label]:text-body [&_label>span[aria-hidden]]:text-title [&_label>span[aria-hidden]]:text-coral [&_label]:flex [&_label]:items-center"
       >
         <fieldset disabled={form.formState.isSubmitting} className="min-w-0">
-          <div className="grid min-w-0 md:grid-cols-2">
+          <div className="mb-8 grid min-w-0 gap-x-7 gap-y-6 md:grid-cols-2">
             <FormTextField
               control={form.control}
               name="name"
@@ -294,9 +294,7 @@ function ProfileForm({
               <Link to="/wallets">Cadastre uma carteira principal</Link>
             )}
             <div className="min-w-0">
-              <label htmlFor="profile-avatar">
-                Avatar (PNG/JPEG até 512 KB)
-              </label>
+              <label htmlFor="profile-avatar">Avatar</label>
               {preview && (
                 <img
                   src={preview}
@@ -355,36 +353,39 @@ function ProfileForm({
                   reader.readAsDataURL(file);
                 }}
               />
-              <Button
-                type="button"
-                aria-describedby={
-                  fileError || form.formState.errors.avatarUrl
-                    ? 'avatar-error'
-                    : undefined
-                }
-                onClick={() => fileInput.current?.click()}
-              >
-                Alterar avatar
-              </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  ++reading.current;
-                  setReadingFile(false);
-                  setFileError('');
-                  form.setValue('avatarUrl', null, { shouldDirty: true });
-                }}
-              >
-                Remover avatar
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  aria-describedby={
+                    fileError || form.formState.errors.avatarUrl
+                      ? 'avatar-error'
+                      : undefined
+                  }
+                  onClick={() => fileInput.current?.click()}
+                >
+                  Alterar
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    ++reading.current;
+                    setReadingFile(false);
+                    setFileError('');
+                    form.setValue('avatarUrl', null, { shouldDirty: true });
+                  }}
+                >
+                  Remover
+                </Button>
+              </div>
               <p id="avatar-error" role="alert">
                 {fileError || form.formState.errors.avatarUrl?.message}
               </p>
             </div>
           </div>
           <section className="grid min-w-0 md:grid-cols-2">
-            <div className="min-w-0">
-              <h2>Alterar senha</h2>
+            <div className="min-w-0 space-y-6">
+              <h2 className="text-body-combo mb-6">Alterar senha</h2>
               <FormTextField
                 control={form.control}
                 name="currentPassword"
@@ -400,7 +401,6 @@ function ProfileForm({
                 type="password"
                 labelHidden={false}
                 autoComplete="new-password"
-                description="Mínimo de 8 caracteres, com letra e número; diferente da atual."
               />
               <FormTextField
                 control={form.control}
@@ -416,6 +416,7 @@ function ProfileForm({
             type="submit"
             disabled={readingFile || !!fileError}
             aria-busy={form.formState.isSubmitting}
+            className="mt-8"
           >
             Salvar
           </Button>

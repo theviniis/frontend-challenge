@@ -23,8 +23,16 @@ export function CatalogResults({ catalog }: { catalog: CatalogController }) {
       )}
       {!query.isPending && !query.isError && query.data.items.length === 0 && (
         <EmptyState
-          title="Nenhum NFT encontrado"
-          description="Experimente outra busca ou remova os filtros."
+          title={
+            filters.favoritesOnly
+              ? 'Nenhum favorito encontrado'
+              : 'Nenhum NFT encontrado'
+          }
+          description={
+            filters.favoritesOnly
+              ? 'Favorite NFTs ou remova os filtros para ver mais resultados.'
+              : 'Experimente outra busca ou remova os filtros.'
+          }
           actionLabel="Limpar filtros"
           onAction={catalog.onClear}
         />

@@ -8,6 +8,9 @@ import { CartItemsTable } from './CartItemsTable';
 import { CartSummary } from './CartSummary';
 import { CartSkeleton } from './CartSkeleton';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
+import { CartItemsList } from './CartItemsList';
 
 export function CartPage() {
   const { session } = useSession();
@@ -15,6 +18,7 @@ export function CartPage() {
 }
 
 function CartContents() {
+  const desktop = useMediaQuery('(min-width: 768px)');
   const { session } = useSession();
   const recommendations = useQuery(
     catalogOptions({ sort: 'relevance', page: 1 }, session?.user.id)
@@ -23,11 +27,40 @@ function CartContents() {
   const { cart } = controller;
   if (cart.isPending) return <CartSkeleton />;
   return (
-    <main className="flex min-w-0 flex-col">
+    <main
+      className="flex min-w-0 flex-col"
+      onFocusCapture={(event) => {
+        if (desktop) return;
+        const panel = event.currentTarget.querySelector(
+          '[data-cart-summary-panel]'
+        );
+        if (!panel || panel.contains(event.target)) return;
+        const overlap =
+          event.target.getBoundingClientRect().bottom -
+          panel.getBoundingClientRect().top;
+        if (overlap > 0) window.scrollBy({ top: overlap, behavior: 'instant' });
+      }}
+    >
       <h1 className="text-body hidden font-bold md:block">
         Início / Mercado / Carrinho
       </h1>
-      <h1 className="text-body block font-bold md:hidden">Carrinho de NFTs</h1>
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center md:hidden">
+        <Button asChild variant="ghost" size="icon">
+          <Link
+            to="/"
+            search={{ sort: 'relevance', page: 1 }}
+            aria-label="Voltar ao catálogo"
+          >
+            <ArrowLeft aria-hidden="true" />
+          </Link>
+        </Button>
+        <h1 className="text-body justify-self-center font-bold">
+          Carrinho de NFTs
+        </h1>
+        <span aria-hidden="true" className="invisible size-10">
+          <ArrowLeft />
+        </span>
+      </div>
       {cart.isError ? (
         <div role="alert" className="flex flex-col items-start">
           <p>Não foi possível carregar o carrinho.</p>
@@ -45,11 +78,19 @@ function CartContents() {
       ) : (
         <div className="grid min-w-0 grid-cols-1 items-start gap-x-21.5 lg:grid-cols-3">
           <div className="flex min-w-0 flex-col lg:col-span-2">
-            <CartItemsTable
-              items={cart.data.items}
-              pending={controller.pending}
-              onChange={controller.change}
-            />
+            {desktop ? (
+              <CartItemsTable
+                items={cart.data.items}
+                pending={controller.pending}
+                onChange={controller.change}
+              />
+            ) : (
+              <CartItemsList
+                items={cart.data.items}
+                pending={controller.pending}
+                onChange={controller.change}
+              />
+            )}
             <p role="status">{controller.feedback}</p>
           </div>
           <CartSummary controller={controller} />

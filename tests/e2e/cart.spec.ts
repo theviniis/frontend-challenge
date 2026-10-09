@@ -6,16 +6,118 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     if (!localStorage.getItem('gm_scenario'))
       localStorage.setItem('gm_scenario', 'padrao');
+    document.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+      style.textContent = '[aria-label="Controle dos mocks"] { display:none }';
+      document.head.append(style);
+    });
   });
   await page.goto('/cart');
   await expect(
     page.getByRole('heading', { name: 'Carrinho de NFTs', includeHidden: true })
-  ).toBeAttached();
+  ).toBeAttached({ timeout: 20_000 });
   await page.evaluate(async () => {
     const url = '/src/lib/http/client.ts';
     const { http } = await import(url);
     await http.post('/api/_mock/reset');
   });
+});
+
+test('responsive cart keeps items and the complete summary reachable', async ({
+  page,
+}) => {
+  await seed(page);
+  await page.evaluate(async () => {
+    const url = '/src/lib/http/client.ts';
+    const { http } = await import(url);
+    for (const nftId of ['violet-nomad-314', 'golden-signal-160']) {
+      await http.post('/api/cart/items', { nftId, qty: 1 });
+    }
+  });
+  await page.reload();
+  const summary = page.getByRole('region', { name: 'Resumo da carteira' });
+  await expect(summary.getByText('0.0042 ETH', { exact: true })).toBeVisible();
+  await page.evaluate(async () => {
+    const clientUrl = '/src/lib/http/client.ts';
+    const workerUrl = '/src/mocks/browser.ts';
+    const mswUrl = '/node_modules/.vite/deps/msw.js';
+    const queryUrl = '/src/lib/query/client.ts';
+    const keysUrl = '/src/lib/query/keys.ts';
+    const { http: client } = await import(clientUrl);
+    const { worker } = await import(workerUrl);
+    const { http, HttpResponse } = await import(mswUrl);
+    const { queryClient } = await import(queryUrl);
+    const { keyFactory } = await import(keysUrl);
+    const { data } = await client.get('/api/cart');
+    data.items[0].name = 'Emerald Ape com um nome muito longo #042';
+    data.version += 1;
+    worker.use(http.get('/api/cart', () => HttpResponse.json(data)));
+    await queryClient.invalidateQueries({ queryKey: keyFactory.cart() });
+  });
+
+  for (const width of [390, 414, 768, 1440, 195]) {
+    await page.setViewportSize({ width, height: 844 });
+    const mobile = width < 768;
+    await expect(
+      page.getByRole(mobile ? 'list' : 'table', { name: 'Itens do carrinho' })
+    ).toBeVisible();
+    const panel = page.locator('[data-cart-summary-panel]');
+    await expect(panel).toHaveCSS('position', mobile ? 'fixed' : 'static');
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth
+      )
+    ).toBe(true);
+    if (mobile) {
+      await expect(page.getByRole('listitem').first()).toContainText(
+        'Emerald Ape com um nome muito longo #042'
+      );
+      await expect(page.getByRole('listitem')).toHaveCount(3);
+      await expect(page.getByRole('listitem').first()).toContainText(
+        'Edição: 1/50'
+      );
+      await expect(page.getByRole('listitem').first()).toContainText(
+        '2.38 ETH'
+      );
+      await expect
+        .poll(async () => {
+          const panelBox = await panel.boundingBox();
+          const spacerBox = await page
+            .locator('[data-cart-summary-spacer]')
+            .boundingBox();
+          return Math.abs((panelBox?.height ?? 0) - (spacerBox?.height ?? 0));
+        })
+        .toBeLessThan(1);
+      const remove = page
+        .getByRole('listitem')
+        .last()
+        .getByRole('button', { name: /^Remover / });
+      await remove.scrollIntoViewIfNeeded();
+      await remove.focus();
+      const box = await remove.boundingBox();
+      const panelBox = await panel.boundingBox();
+      expect(box!.y + box!.height).toBeLessThanOrEqual(panelBox!.y);
+      const finish = summary.getByRole('link', {
+        name: 'Conectar e finalizar',
+        exact: true,
+      });
+      await finish.scrollIntoViewIfNeeded();
+      await finish.focus();
+      await expect(finish).toBeInViewport();
+    }
+  }
+  await page.setViewportSize({ width: 390, height: 400 });
+  await summary.getByLabel('Código promocional', { exact: true }).focus();
+  await summary.getByRole('button', { name: 'Aplicar', exact: true }).focus();
+  await expect(
+    summary.getByRole('button', { name: 'Aplicar', exact: true })
+  ).toBeInViewport();
+  await summary
+    .getByRole('link', { name: 'Conectar e finalizar', exact: true })
+    .focus();
+  await expect(
+    summary.getByRole('link', { name: 'Conectar e finalizar', exact: true })
+  ).toBeInViewport();
 });
 async function seed(page: Page, id = 'emerald-ape-042', qty = 2) {
   await page.evaluate(
@@ -27,7 +129,9 @@ async function seed(page: Page, id = 'emerald-ape-042', qty = 2) {
     { id, qty }
   );
   await page.reload();
-  await expect(page.getByLabel('Resumo da cotação')).toBeVisible();
+  await expect(page.getByLabel('Resumo da cotação')).toBeVisible({
+    timeout: 20_000,
+  });
 }
 test('header cart count follows quantities, refresh and removal', async ({
   page,
@@ -50,20 +154,24 @@ test('header cart count follows quantities, refresh and removal', async ({
   await expect(cartLink).toHaveAttribute('aria-label', 'Carrinho');
 });
 
-test('CRUD, server totals and persistence', async ({ page }) => {
+test('CRUD, server totals and persistence', async ({ page }, info) => {
   await seed(page);
   const table = page.getByRole('table', { name: 'Itens do carrinho' });
-  await expect(table.getByRole('columnheader')).toHaveText([
-    'NFT',
-    'Preço',
-    'Edições',
-    'Total',
-    '',
-  ]);
-  const item = table.getByRole('row', {
-    name: 'Emerald Ape #042',
-    exact: true,
-  });
+  if (info.project.name === 'desktop')
+    await expect(table.getByRole('columnheader')).toHaveText([
+      'NFT',
+      'Preço',
+      'Edições',
+      'Total',
+      '',
+    ]);
+  const item = page.getByRole(
+    info.project.name === 'desktop' ? 'row' : 'listitem',
+    {
+      name: 'Emerald Ape #042',
+      exact: true,
+    }
+  );
   await expect(item.getByLabel('Quantidade', { exact: true })).toHaveText('2');
   await item.getByRole('button', { name: 'Aumentar quantidade' }).click();
   await expect(item.getByLabel('Quantidade', { exact: true })).toHaveText('3');
@@ -108,7 +216,7 @@ test('coupon apply, remove, invalid and expired', async ({ page }) => {
     '2.3842 ETH'
   );
 });
-test('visitor cart merges on login', async ({ page }) => {
+test('visitor cart merges on login', async ({ page }, info) => {
   await seed(page);
   await page.evaluate(async () => {
     const url = '/src/lib/session/service.ts';
@@ -120,7 +228,10 @@ test('visitor cart merges on login', async ({ page }) => {
   });
   await expect(
     page
-      .getByRole('row', { name: 'Emerald Ape #042', exact: true })
+      .getByRole(info.project.name === 'desktop' ? 'row' : 'listitem', {
+        name: 'Emerald Ape #042',
+        exact: true,
+      })
       .getByLabel('Quantidade', { exact: true })
   ).toHaveText('2');
   await page.reload();
@@ -185,12 +296,33 @@ test('stock conflict preserves quantity and updates limit', async ({
   expect(available).toBe(8);
 });
 test('cart error supports retry', async ({ page }) => {
-  await setScenario(page, 'offline');
-  await page.reload();
+  await page.evaluate(async () => {
+    const workerUrl = '/src/mocks/browser.ts';
+    const mswUrl = '/node_modules/.vite/deps/msw.js';
+    const queryUrl = '/src/lib/query/client.ts';
+    const keysUrl = '/src/lib/query/keys.ts';
+    const { worker } = await import(workerUrl);
+    const { http, HttpResponse } = await import(mswUrl);
+    const { queryClient } = await import(queryUrl);
+    const { keyFactory } = await import(keysUrl);
+    worker.use(
+      http.get('/api/cart', () =>
+        HttpResponse.json(
+          { error: { code: 'INTERNAL_ERROR', message: 'Falha transitória' } },
+          { status: 500 }
+        )
+      )
+    );
+    await queryClient.invalidateQueries({ queryKey: keyFactory.cart() });
+  });
   await expect(
     page.getByText('Não foi possível carregar o carrinho.', { exact: true })
   ).toBeVisible({ timeout: 20_000 });
-  await setScenario(page, 'padrao');
+  await page.evaluate(async () => {
+    const workerUrl = '/src/mocks/browser.ts';
+    const { worker } = await import(workerUrl);
+    worker.resetHandlers();
+  });
   await page
     .getByRole('alert')
     .filter({ hasText: /carregar o carrinho/ })

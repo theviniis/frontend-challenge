@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getStoredSession, subscribeSession } from '@/lib/session/storage';
@@ -8,6 +8,7 @@ import { useFavorites } from '@/features/favorites/queries';
 import type { CatalogFilterState } from '../search-params';
 import { openAuth } from '@/features/auth/navigation';
 import { useRouter } from '@tanstack/react-router';
+import { useSession } from '@/lib/session/state';
 
 // Access route state without importing its module into the lazy page chunk.
 const catalogRoute = getRouteApi('/');
@@ -16,12 +17,28 @@ export function useCatalog() {
   const router = useRouter();
   const filters = catalogRoute.useSearch();
   const navigate = catalogRoute.useNavigate();
+  const { isHydrating } = useSession();
   const userId = useSyncExternalStore(
     subscribeSession,
     () => getStoredSession()?.user.id,
     () => undefined
   );
-  const query = useQuery(catalogOptions(filters, userId));
+  const query = useQuery({
+    ...catalogOptions(filters, userId),
+    enabled: !filters.favoritesOnly || !!userId,
+  });
+  useEffect(() => {
+    if (!isHydrating && !userId && filters.favoritesOnly) {
+      void navigate({
+        search: (previous) => ({
+          ...previous,
+          favoritesOnly: undefined,
+          page: 1,
+        }),
+        replace: true,
+      });
+    }
+  }, [isHydrating, userId, filters.favoritesOnly, navigate]);
   const { favorites, mutation } = useFavorites(userId);
 
   function onFiltersChange(next: Partial<CatalogFilterState>) {

@@ -15,7 +15,9 @@ export function QuoteSummary({ quote }: { quote: Quote }) {
       </dd>
       <dt>{quote.coupon?.description ?? 'Desconto'}</dt>
       <dd className="justify-self-end">{money(quote.discount)}</dd>
-      <dt></dt>
+      <dt>Taxa de rede</dt>
+      <dd className="justify-self-end">{money(quote.networkFee)}</dd>
+      <dt aria-hidden="true"></dt>
       <dd className="text-tiny text-accent justify-self-end">Taxa estimada</dd>
       <dt className="text-body-lg-bold">Total</dt>
       <dd className="text-body-18-bold text-accent mt-6 justify-self-end">

@@ -2,7 +2,7 @@ import * as s from '@/lib/http/schemas';
 import { cmpEth } from '@/lib/money';
 import { NFT_CATEGORIES } from '../fixtures/nfts';
 import { getDb } from '../db/store';
-import { route, parse, reply, fail } from './runtime';
+import { route, parse, reply, fail, user } from './runtime';
 export const nftHandlers = [
   route('get', '/nfts', 'list', (request) => {
     const params = new URL(request.url).searchParams;
@@ -10,6 +10,9 @@ export const nftHandlers = [
     if (params.has('categories')) raw.categories = params.getAll('categories');
     if (params.has('networks')) raw.networks = params.getAll('networks');
     const q = parse(s.nftListQuerySchema, raw);
+    const favoriteIds = q.favoritesOnly
+      ? (getDb().favorites[`user:${user(request).id}`] ?? [])
+      : undefined;
     if (q.minPrice && q.maxPrice && cmpEth(q.minPrice, q.maxPrice) > 0)
       fail(422, 'VALIDATION_ERROR', 'Intervalo inválido', {
         minPrice: ['Maior que maxPrice'],
@@ -27,6 +30,7 @@ export const nftHandlers = [
     };
     let items = all.filter(
       (n) =>
+        (!favoriteIds || favoriteIds.includes(n.id)) &&
         (!q.q ||
           `${n.name} ${n.collection} ${n.creator.name}`
             .toLowerCase()

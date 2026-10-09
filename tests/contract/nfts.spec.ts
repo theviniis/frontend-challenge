@@ -1,9 +1,71 @@
 import { test, expect } from 'vitest';
 import * as s from '@/lib/http/schemas';
-import { call, error, scenario } from './helpers';
+import { call, error, scenario, login } from './helpers';
 import { cmpEth } from '@/lib/money';
 import { clearDb, getDb } from '@/mocks/db/store';
 import { DB_STORAGE_KEY, safeStorage } from '@/mocks/db/persist';
+test('favorites filter is authenticated, paginated and isolated by user', async () => {
+  await error('get', '/nfts?favoritesOnly=true', 'UNAUTHORIZED', 401);
+  await error('get', '/nfts?favoritesOnly=invalid', 'VALIDATION_ERROR', 422);
+  const ana = await login();
+  const ids = getDb()
+    .nfts.slice(0, 11)
+    .map((nft) => nft.id);
+  for (const id of ids)
+    await call(
+      'put',
+      `/favorites/${id}`,
+      s.favoritesResponseSchema,
+      undefined,
+      ana
+    );
+  const first = await call(
+    'get',
+    '/nfts?favoritesOnly=true&pageSize=9',
+    s.nftListResponseSchema,
+    undefined,
+    ana
+  );
+  const second = await call(
+    'get',
+    '/nfts?favoritesOnly=true&pageSize=9&page=2',
+    s.nftListResponseSchema,
+    undefined,
+    ana
+  );
+  expect(first.total).toBe(11);
+  expect([...first.items, ...second.items].map((nft) => nft.id)).toEqual(ids);
+  const combined = await call(
+    'get',
+    '/nfts?favoritesOnly=true&q=Golden&sort=price_asc',
+    s.nftListResponseSchema,
+    undefined,
+    ana
+  );
+  expect(
+    combined.items.every(
+      (nft) =>
+        ids.includes(nft.id) &&
+        `${nft.name} ${nft.collection} ${nft.creator.name}`.includes('Golden')
+    )
+  ).toBe(true);
+  const bruno = await login('bruno');
+  expect(
+    (
+      await call(
+        'get',
+        '/nfts?favoritesOnly=true',
+        s.nftListResponseSchema,
+        undefined,
+        bruno
+      )
+    ).total
+  ).toBe(0);
+  expect(
+    (await call('get', '/nfts?favoritesOnly=false', s.nftListResponseSchema))
+      .total
+  ).toBe(65);
+});
 test('catalog pagination and combined filters reflect request', async () => {
   const list = await call('get', '/nfts', s.nftListResponseSchema);
   expect(list.total).toBe(65);

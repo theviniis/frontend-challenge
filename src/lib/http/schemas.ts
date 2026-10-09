@@ -205,7 +205,13 @@ export const catalogFacetsSchema = z.object({
 });
 export type CatalogFacets = z.infer<typeof catalogFacetsSchema>;
 
+export const optionalBooleanQuerySchema = z
+  .union([z.boolean(), z.enum(['true', 'false'])])
+  .transform((value) => value === true || value === 'true')
+  .optional();
+
 export const nftListQuerySchema = z.object({
+  favoritesOnly: optionalBooleanQuerySchema,
   networks: z
     .union([catalogNetworkSchema, z.array(catalogNetworkSchema)])
     .transform((v) => (Array.isArray(v) ? v : [v]))

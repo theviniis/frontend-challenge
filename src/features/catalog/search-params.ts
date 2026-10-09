@@ -3,10 +3,12 @@ import {
   ethSchema,
   nftSortSchema,
   catalogNetworkSchema,
+  optionalBooleanQuerySchema,
 } from '@/lib/http/schemas';
 export const emptyToUndefined = (value: unknown) =>
   typeof value === 'string' && !value.trim() ? undefined : value;
 export const catalogFilterSchema = z.object({
+  favoritesOnly: optionalBooleanQuerySchema,
   q: z.preprocess(emptyToUndefined, z.string().optional()),
   categories: z.preprocess((value) => {
     if (value === undefined) return undefined;

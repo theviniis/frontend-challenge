@@ -72,9 +72,16 @@ export function useFavorites(userId?: string) {
     },
     onSettled: (_data, _error, variables, context) => {
       if (isCurrentUser(variables.token))
-        return client.invalidateQueries({
-          queryKey: context?.queryKey ?? queryKey,
-        });
+        return Promise.all([
+          client.invalidateQueries({ queryKey: context?.queryKey ?? queryKey }),
+          client.invalidateQueries({
+            queryKey: keyFactory.nfts.lists,
+            predicate: (query) =>
+              keyFactory.belongsToUser(query.queryKey, userId!) &&
+              !!(query.queryKey[2] as { favoritesOnly?: boolean })
+                .favoritesOnly,
+          }),
+        ]);
     },
   });
   return {

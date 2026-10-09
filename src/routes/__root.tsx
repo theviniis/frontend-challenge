@@ -100,7 +100,7 @@ function RootComponent() {
       </div>
 
       <main
-        className={`mx-auto max-w-[1640px] md:px-30 md:py-6 ${isNftDetail ? 'p-0' : 'px-6 py-10'}`}
+        className={`mx-auto max-w-[1640px] md:px-30 md:py-6 ${isNftDetail ? 'p-0' : 'px-6 py-10'} ${isCatalog ? 'catalog-layout' : ''}`}
       >
         {!isOrder && (
           <div className={isNftDetail ? 'hidden md:block' : undefined}>
